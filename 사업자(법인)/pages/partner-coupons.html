@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>쿠폰 관리 — 파트너센터</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left"><div class="header-title">쿠폰 관리</div></div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <button class="btn-icon">🔔<span class="notification-dot"></span></button>
+        <div class="avatar">P</div>
+      </div>
+    </header>
+    <div class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">쿠폰 관리</div>
+          <div class="page-subtitle">진행 중인 쿠폰 내역을 확인하고 새로운 혜택을 등록하세요.</div>
+        </div>
+        <a href="partner-coupons-new.html"><button class="btn btn-primary">+ 신규 쿠폰 생성</button></a>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid-3">
+        <div class="stat-card"><div class="stat-label">🎫 활성 쿠폰</div><div class="stat-value primary">12</div><div class="stat-sub">개</div></div>
+        <div class="stat-card"><div class="stat-label">📥 오늘 발급</div><div class="stat-value">145</div><div class="stat-sub">건</div></div>
+        <div class="stat-card"><div class="stat-label">✅ 오늘 사용</div><div class="stat-value success">89</div><div class="stat-sub">건</div></div>
+      </div>
+
+      <!-- Tabs & Table -->
+      <div class="card" style="padding:0">
+        <div style="padding:16px 20px 0;border-bottom:1px solid var(--gray-200)">
+          <div class="tabs" style="margin-bottom:0;border-bottom:none">
+            <div class="tab active">전체 쿠폰</div>
+            <div class="tab">발급 중</div>
+            <div class="tab">발급 종료</div>
+          </div>
+        </div>
+        <div style="padding:16px 20px;display:flex;gap:10px;align-items:center;border-bottom:1px solid var(--gray-200)">
+          <select style="padding:7px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius);font-size:13px;outline:none">
+            <option>전체 기간</option><option>최근 1개월</option><option>최근 3개월</option>
+          </select>
+          <div class="search-box ml-auto"><input type="text" placeholder="쿠폰명 검색..."></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>쿠폰 정보</th>
+                <th>할인 혜택</th>
+                <th>적용 대상</th>
+                <th>발급 기간</th>
+                <th>잔여 수량</th>
+                <th>상태</th>
+                <th>관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <div style="font-weight:600">여름 성수기 특별 할인</div>
+                  <div style="font-size:11px;color:var(--gray-400)">ID: CP-2023-0801</div>
+                </td>
+                <td><span style="background:var(--primary-light);color:var(--primary);font-weight:700;padding:4px 10px;border-radius:5px;font-size:13px">₩10,000</span></td>
+                <td style="font-size:12px">전체 객실</td>
+                <td style="font-size:12px">23.08.01 ~ 23.08.31</td>
+                <td style="font-size:12px">850 / 1000</td>
+                <td><span class="badge badge-active">발급 중</span></td>
+                <td style="display:flex;gap:6px">
+                  <button class="btn btn-outline btn-sm" data-modal="modalCouponDetail">👁</button>
+                  <button class="btn btn-ghost btn-sm">🗑</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight:600">평일 연박 특가</div>
+                  <div style="font-size:11px;color:var(--gray-400)">ID: CP-2023-0805</div>
+                </td>
+                <td><span style="background:#FEF3C7;color:#B45309;font-weight:700;padding:4px 10px;border-radius:5px;font-size:13px">15%</span></td>
+                <td style="font-size:12px">디럭스 킹</td>
+                <td style="font-size:12px">23.08.05 ~ 23.09.05</td>
+                <td style="font-size:12px">124 / 200</td>
+                <td><span class="badge badge-active">발급 중</span></td>
+                <td style="display:flex;gap:6px">
+                  <button class="btn btn-outline btn-sm" data-modal="modalCouponDetail">👁</button>
+                  <button class="btn btn-ghost btn-sm">🗑</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight:600">주말 얼리버드 쿠폰</div>
+                  <div style="font-size:11px;color:var(--gray-400)">ID: CP-2023-0715</div>
+                </td>
+                <td><span style="background:var(--info-light);color:#1D4ED8;font-weight:700;padding:4px 10px;border-radius:5px;font-size:13px">₩5,000</span></td>
+                <td style="font-size:12px">전체 객실</td>
+                <td style="font-size:12px">23.07.15 ~ 23.07.30</td>
+                <td style="font-size:12px">500 / 500</td>
+                <td><span class="badge badge-ended">발급 종료</span></td>
+                <td style="display:flex;gap:6px">
+                  <button class="btn btn-outline btn-sm" data-modal="modalCouponDetail">👁</button>
+                  <button class="btn btn-ghost btn-sm">🗑</button>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-weight:600">선착순 봄맞이 1만원 할인</div>
+                  <div style="font-size:11px;color:var(--gray-400)">ID: CP-2024-0301</div>
+                </td>
+                <td><span style="background:var(--primary-light);color:var(--primary);font-weight:700;padding:4px 10px;border-radius:5px;font-size:13px">₩10,000</span></td>
+                <td style="font-size:12px">전체 객실</td>
+                <td style="font-size:12px">24.03.01 ~ 24.03.31</td>
+                <td style="font-size:12px">1,111건 발급</td>
+                <td><span class="badge badge-active">발급 중</span></td>
+                <td style="display:flex;gap:6px">
+                  <button class="btn btn-outline btn-sm" data-modal="modalCouponDetail">👁</button>
+                  <button class="btn btn-ghost btn-sm">🗑</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid var(--gray-200)">
+          <div class="pagination">
+            <div class="pg-btn">‹</div>
+            <div class="pg-btn active">1</div>
+            <div class="pg-btn">2</div>
+            <div class="pg-btn">3</div>
+            <div class="pg-btn">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Coupon Detail Modal -->
+<div class="modal-overlay hidden" id="modalCouponDetail">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">쿠폰 상세 정보</div>
+      <button class="modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="flex items-center gap-3 mb-4">
+        <span class="badge badge-active">● 운영중</span>
+        <span style="font-size:18px">🎫</span>
+      </div>
+      <div style="font-size:20px;font-weight:800;margin-bottom:4px">선착순 봄맞이 1만원 할인쿠폰</div>
+      <div style="font-size:13px;color:var(--gray-500);margin-bottom:16px">총 1,111건 발급</div>
+      <div class="form-row mb-4">
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:4px">쿠폰 다운로드 기간</div>
+          <div style="font-weight:600;font-size:13px">2024.03.01 - 2024.03.31</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:4px">객실 사용 가능 기간</div>
+          <div style="font-weight:600;font-size:13px">쿠폰 발행 후 7일 내</div>
+        </div>
+      </div>
+      <div style="font-weight:600;font-size:13px;margin-bottom:12px">주요 지표 요약</div>
+      <div class="form-row mb-4">
+        <div style="background:var(--primary-light);border-radius:var(--radius);padding:16px;text-align:center">
+          <div style="font-size:11px;color:var(--primary);margin-bottom:4px">다운로드 된 쿠폰 수</div>
+          <div style="font-size:24px;font-weight:800;color:var(--primary)">1,245건</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:16px;text-align:center">
+          <div style="font-size:11px;color:var(--gray-500);margin-bottom:4px">사용된 쿠폰 수</div>
+          <div style="font-size:24px;font-weight:800;color:var(--gray-700)">432건</div>
+        </div>
+      </div>
+      <div style="background:var(--warning-light);border-radius:var(--radius);padding:12px;font-size:12px;color:#92400E">
+        ⚠️ 종료 후에는 해당 쿠폰을 다시 활성화할 수 없습니다. 신중하게 결정해 주세요.
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>닫기</button>
+      <button class="btn btn-danger" data-modal="modalCouponEnd">쿠폰 전체 종료</button>
+    </div>
+  </div>
+</div>
+
+<!-- Coupon End Confirm Modal -->
+<div class="modal-overlay hidden" id="modalCouponEnd">
+  <div class="modal modal-sm">
+    <div class="modal-body" style="text-align:center;padding:32px 24px">
+      <div style="width:56px;height:56px;background:var(--danger-light);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;margin:0 auto 16px">⚠️</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:8px">쿠폰을 종료하시나요?</div>
+      <div style="font-size:13px;color:var(--gray-500);margin-bottom:16px">설정한 기간 내 모든 쿠폰이 종료돼요.</div>
+      <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px;font-size:12px;text-align:left;margin-bottom:20px">
+        <div>📅 발급 기간: 2024.03.01 ~ 2024.03.31</div>
+        <div style="margin-top:6px;color:var(--danger)">❌ 종료 후에는 해당 쿠폰을 다시 활성화할 수 없습니다.</div>
+      </div>
+      <div class="flex gap-2">
+        <button class="btn btn-ghost btn-full" data-modal-close>취소</button>
+        <button class="btn btn-danger btn-full" onclick="document.querySelectorAll('.modal-overlay').forEach(m=>m.classList.add('hidden'));showAlert('쿠폰이 종료되었습니다.', {icon:'✅'})">종료</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>initPage('partner', 'coupons', '쿠폰 관리');</script>
+</body>
+</html>

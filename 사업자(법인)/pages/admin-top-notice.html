@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>상단 공지 설정 — Super Admin</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* Custom Toggle (Orange) */
+    .toggle-orange {
+      width: 44px;
+      height: 24px;
+      background: var(--gray-300);
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-orange::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 20px; height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+    .toggle-orange.on {
+      background: #ea580c; /* Orange active */
+    }
+    .toggle-orange.on::after {
+      transform: translateX(20px);
+    }
+
+    /* Info Box */
+    .info-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      gap: 12px;
+      color: #1e3a8a;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .info-icon {
+      color: #3b82f6;
+      font-size: 16px;
+      margin-top: 1px;
+    }
+
+    /* Form Actions */
+    .form-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 40px;
+    }
+    .btn-save {
+      background: #ea580c;
+      border: none;
+      color: #fff;
+      padding: 0 24px;
+      height: 40px;
+      border-radius: var(--radius);
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s;
+    }
+    .btn-save:hover { background: #c2410c; }
+    
+    /* Notice Modal Item Hover */
+    .mock-notice-item { transition: background 0.15s; }
+    .mock-notice-item:hover { background: var(--gray-50); }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="main">
+      <header class="header">
+        <div class="header-left"><div class="header-title">상단 공지 설정</div></div>
+        <div class="header-right">
+          <div class="header-date"></div>
+          <div class="avatar" style="background:#6366F1">A</div>
+        </div>
+      </header>
+      
+      <div class="page" style="max-width: 720px; margin: 0 auto; width: 100%;">
+        <!-- Breadcrumb & Header -->
+        <div class="page-header">
+          <div class="page-header-left">
+            <div style="font-size:13px; color:var(--gray-500); margin-bottom:12px; display:flex; gap:6px; align-items:center;">
+              설정 <span style="font-size:10px; color:var(--gray-300);">▶</span> <span style="color:var(--gray-800); font-weight:600;">상단 공지 설정</span>
+            </div>
+            <div class="page-title" style="margin-bottom:8px;">상단 공지 설정</div>
+            <div class="page-subtitle">사용자 앱 및 웹 메인 상단에 노출될 배너 공지를 관리합니다.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          
+          <div style="display:flex; align-items:center; justify-content:space-between; padding-bottom:24px; border-bottom:1px solid var(--gray-100); margin-bottom:24px;">
+            <div style="display:flex; align-items:center; gap:8px; font-size:15px; font-weight:700; color:var(--gray-800);">
+              <span id="statusDot" style="width:8px; height:8px; border-radius:50%; background-color:#ea580c; display:inline-block;"></span> 
+              공지 상태: <span id="statusLabel">활성화됨</span>
+            </div>
+            <div class="toggle-orange on" id="toggleStatus" onclick="toggleActive(this)"></div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="color:var(--gray-400); font-weight:500;">공지 사항 선택</label>
+            <div style="display:flex; gap:8px;">
+              <div style="position:relative; flex:1;">
+                <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--gray-400); font-size:14px;">🔍</span>
+                <input type="text" class="form-control" id="selectedNotice" value="[안내] 신규 파트너를 위한 예약 관리 가이드가 업데이트 되었습니다." style="padding-left:36px; color:var(--gray-700); font-weight:500;" readonly>
+              </div>
+              <button class="btn" style="background:var(--gray-100); color:var(--gray-700); border:1px solid var(--gray-200); white-space:nowrap; padding: 0 16px; height:40px; font-size:13px;" onclick="openNoticeModal()">목록 불러오기</button>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" style="color:var(--gray-400); font-weight:500;">노출 기간 설정</label>
+            
+            <div style="display:flex; gap:16px; margin-bottom:12px; align-items:flex-end;">
+              <div style="flex:1;">
+                <div style="font-size:12px; color:var(--gray-500); margin-bottom:6px;">시작 일시</div>
+                <input type="datetime-local" class="form-control" id="inpStart" value="2023-11-20T09:00">
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:12px; color:var(--gray-500); margin-bottom:6px;">종료 일시</div>
+                <input type="datetime-local" class="form-control" id="inpEnd" value="2023-11-30T17:59">
+              </div>
+            </div>
+            
+            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; width:max-content; margin-bottom:24px;">
+              <input type="checkbox" id="chkAlways" onchange="toggleEndDate(this)">
+              <span style="font-size:12px; color:var(--gray-500);">종료일시 설정하지 않음(상시노출)</span>
+            </label>
+          </div>
+
+          <div class="form-group" style="margin-bottom:0;">
+            <div class="info-box">
+              <div class="info-icon">ℹ️</div>
+              <div>
+                <div style="font-weight:600; margin-bottom:6px; font-size:12px;">안내사항</div>
+                상단 공지는 한 번에 하나의 내용만 활성화할 수 있습니다.<br>
+                새 공지 저장 시 기존 공지는 자동 비활성화됩니다.
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <div class="form-actions">
+          <button class="btn btn-ghost" style="padding:0 24px; height:40px; font-size:14px; border:1px solid var(--gray-200); background:#fff;" onclick="location.href='admin-notices.html'">취소</button>
+          <button class="btn-save" onclick="saveNoticeSettings()">설정 저장하기</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 공지사항 선택 모달 -->
+  <div id="noticeModal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center;">
+    <div style="background:#fff; border-radius:var(--radius-lg); width:90%; max-width:600px; max-height:80vh; display:flex; flex-direction:column; box-shadow:0 10px 25px rgba(0,0,0,0.1);">
+      
+      <!-- Modal Header -->
+      <div style="padding:20px 24px; border-bottom:1px solid var(--gray-200); display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="margin:0; font-size:18px; font-weight:700; color:var(--gray-800);">공지사항 불러오기</h3>
+        <button onclick="closeNoticeModal()" style="background:none; border:none; font-size:24px; color:var(--gray-400); cursor:pointer;">&times;</button>
+      </div>
+      
+      <!-- Search & Filters (Mockup) -->
+      <div style="padding:16px 24px; border-bottom:1px solid var(--gray-100); display:flex; gap:8px;">
+        <input type="text" class="form-control" placeholder="공지 제목 검색..." style="flex:1;">
+        <button class="btn btn-secondary">검색</button>
+      </div>
+
+      <!-- Notice List -->
+      <div style="flex:1; overflow-y:auto; padding:0;">
+        <ul style="list-style:none; margin:0; padding:0;" id="mockNoticeList">
+          <!-- JS로 리스트 렌더링 -->
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+<script src="shared.js"></script>
+<script>
+  initPage('admin', 'topnotice', '상단 공지 설정');
+
+  const mockNotices = [
+    { title: "[안내] 신규 파트너를 위한 예약 관리 가이드가 업데이트 되었습니다.", date: "2026.03.14" },
+    { title: "[긴급] 결제 시스템 점검 안내 (3/15 02:00~04:00)", date: "2026.03.13" },
+    { title: "[공지] 수수료 정책 변경 안내 (4월 1일 시행)", date: "2026.03.10" },
+    { title: "[공지] 봄 시즌 프로모션 안내 (참여 파트너 모집 중)", date: "2026.03.05" },
+    { title: "[안내] 개인정보처리방침 일부 개정 안내", date: "2026.02.28" }
+  ];
+
+  function renderNoticeModalList() {
+    const ul = document.getElementById('mockNoticeList');
+    ul.innerHTML = mockNotices.map((n, idx) => `
+      <li style="border-bottom:1px solid var(--gray-100);">
+        <button class="mock-notice-item" onclick="selectNotice(${idx})" style="width:100%; text-align:left; padding:16px 24px; background:none; border:none; cursor:pointer; display:flex; justify-content:space-between; align-items:center;">
+          <span style="font-size:14px; color:var(--gray-800); font-weight:500;">${n.title}</span>
+          <span style="font-size:12px; color:var(--gray-400);">${n.date}</span>
+        </button>
+      </li>
+    `).join('');
+  }
+
+  function openNoticeModal() {
+    renderNoticeModalList();
+    document.getElementById('noticeModal').style.display = 'flex';
+  }
+
+  function closeNoticeModal() {
+    document.getElementById('noticeModal').style.display = 'none';
+  }
+
+  function selectNotice(idx) {
+    const selectedTitle = mockNotices[idx].title;
+    document.getElementById('selectedNotice').value = selectedTitle;
+    closeNoticeModal();
+  }
+
+  // 토글 액션
+  function toggleActive(el) {
+    el.classList.toggle('on');
+    const isOn = el.classList.contains('on');
+    const dot = document.getElementById('statusDot');
+    const label = document.getElementById('statusLabel');
+    
+    if(isOn) {
+      dot.style.backgroundColor = '#ea580c';
+      label.textContent = '활성화됨';
+      label.style.color = 'var(--gray-800)';
+    } else {
+      dot.style.backgroundColor = 'var(--gray-300)';
+      label.textContent = '비활성화됨';
+      label.style.color = 'var(--gray-400)';
+    }
+  }
+
+  // 상시 노출 체크
+  function toggleEndDate(chk) {
+    const endInput = document.getElementById('inpEnd');
+    if(chk.checked) {
+      endInput.disabled = true;
+      endInput.style.backgroundColor = 'var(--gray-50)';
+      endInput.style.color = 'var(--gray-400)';
+    } else {
+      endInput.disabled = false;
+      endInput.style.backgroundColor = '#fff';
+      endInput.style.color = 'inherit';
+    }
+  }
+
+  // 저장 알림
+  function saveNoticeSettings() {
+    showAlert('상단 공지 설정이 저장되었습니다.', { icon: '✅' });
+  }
+</script>
+</body>
+</html>

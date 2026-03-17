@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>회원가입 — 파트너센터</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.auth-card { max-width: 540px; }
+.step-panels > div { display: none; }
+.step-panels > div.active { display: block; }
+.verify-box { display: flex; gap: 8px; }
+.verify-box input { flex: 1; }
+.agree-list { display: flex; flex-direction: column; gap: 10px; }
+.agree-row { display: flex; align-items: center; gap: 8px; font-size: 13px; padding: 10px 14px; border: 1px solid var(--gray-200); border-radius: var(--radius); }
+.agree-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--primary); flex-shrink: 0; }
+.agree-link { color: var(--primary); margin-left: auto; font-size: 12px; }
+.success-icon { font-size: 56px; text-align: center; margin-bottom: 16px; }
+</style>
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-logo">
+      <div class="logo">✦ 파트너센터</div>
+      <div class="sub">사업자(법인) 회원가입</div>
+    </div>
+
+    <!-- Steps -->
+    <div class="steps" id="steps">
+      <div class="step-item active" id="s1"><div class="step-circle">1</div><div class="step-label">사업자 정보</div></div>
+      <div class="step-line"></div>
+      <div class="step-item" id="s2"><div class="step-circle">2</div><div class="step-label">회원 정보</div></div>
+      <div class="step-line"></div>
+      <div class="step-item" id="s3"><div class="step-circle">3</div><div class="step-label">약관 동의</div></div>
+      <div class="step-line"></div>
+      <div class="step-item" id="s4"><div class="step-circle">4</div><div class="step-label">완료</div></div>
+    </div>
+
+    <!-- Panel 1 -->
+    <div class="step-panels">
+      <div class="active" id="panel1">
+        <div class="auth-title">사업자 정보 입력</div>
+        <div class="auth-subtitle">법인 사업자 정보를 정확하게 입력해주세요.</div>
+        <div class="form-group">
+          <label class="form-label">사업자등록번호 <span style="color:var(--danger)">*</span></label>
+          <div class="verify-box">
+            <input type="text" class="form-control" placeholder="000-00-00000" value="123-45-67890">
+            <button class="btn btn-outline btn-sm" style="white-space:nowrap">인증 확인</button>
+          </div>
+          <div class="form-hint" style="color:var(--success)">✓ 유효한 사업자등록번호입니다.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">법인명 <span style="color:var(--danger)">*</span></label>
+          <input type="text" class="form-control" value="(주)시그니엘호텔">
+        </div>
+        <div class="form-group">
+          <label class="form-label">대표자명</label>
+          <input type="text" class="form-control" value="김대표">
+        </div>
+        <div class="form-group">
+          <label class="form-label">업태 / 업종</label>
+          <div class="form-row">
+            <input type="text" class="form-control" value="숙박업">
+            <input type="text" class="form-control" value="호텔업">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">연락처 <span style="color:var(--danger)">*</span></label>
+          <div class="verify-box">
+            <input type="tel" class="form-control" placeholder="010-0000-0000">
+            <button class="btn btn-outline btn-sm" style="white-space:nowrap">인증</button>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full mt-4" onclick="goStep(2)">다음 단계</button>
+      </div>
+
+      <!-- Panel 2 -->
+      <div id="panel2">
+        <div class="auth-title">회원 정보 입력</div>
+        <div class="auth-subtitle">로그인에 사용할 계정 정보를 입력해주세요.</div>
+        <div class="form-group">
+          <label class="form-label">이메일 (로그인 ID) <span style="color:var(--danger)">*</span></label>
+          <input type="email" class="form-control" placeholder="email@hotel.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">비밀번호 <span style="color:var(--danger)">*</span></label>
+          <input type="password" class="form-control" placeholder="8자 이상, 영문+숫자+특수문자">
+          <div class="form-hint">영문, 숫자, 특수문자 포함 8자 이상</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">비밀번호 확인</label>
+          <input type="password" class="form-control" placeholder="비밀번호 재입력">
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button class="btn btn-ghost btn-full" onclick="goStep(1)">이전</button>
+          <button class="btn btn-primary btn-full" onclick="goStep(3)">다음 단계</button>
+        </div>
+      </div>
+
+      <!-- Panel 3 -->
+      <div id="panel3">
+        <div class="auth-title">약관 동의</div>
+        <div class="auth-subtitle">서비스 이용을 위한 약관에 동의해주세요.</div>
+        <div class="agree-list">
+          <div class="agree-row" style="background:var(--gray-50)">
+            <input type="checkbox" id="all"> <label for="all" style="font-weight:700;cursor:pointer">전체 동의</label>
+          </div>
+          <div class="agree-row">
+            <input type="checkbox" checked> <span>서비스 이용약관 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
+          </div>
+          <div class="agree-row">
+            <input type="checkbox" checked> <span>개인정보 처리방침 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
+          </div>
+          <div class="agree-row">
+            <input type="checkbox" checked> <span>파트너 운영 정책 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
+          </div>
+          <div class="agree-row">
+            <input type="checkbox"> <span>마케팅 정보 수신 동의 (선택)</span>
+          </div>
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button class="btn btn-ghost btn-full" onclick="goStep(2)">이전</button>
+          <button class="btn btn-primary btn-full" onclick="goStep(4)">가입 신청</button>
+        </div>
+      </div>
+
+      <!-- Panel 4 -->
+      <div id="panel4">
+        <div class="success-icon">🎉</div>
+        <div style="text-align:center;margin-bottom:20px">
+          <div class="auth-title">가입 신청이 완료되었습니다!</div>
+          <div class="auth-subtitle">영업일 기준 1~2일 내에 서류 검토가 진행됩니다.<br>완료 시 이메일로 안내해 드립니다.</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:16px;margin-bottom:20px;font-size:13px">
+          <div style="font-weight:700;margin-bottom:8px">📋 신청 정보 요약</div>
+          <div style="color:var(--gray-600);line-height:2">
+            법인명: (주)시그니엘호텔<br>
+            사업자등록번호: 123-45-67890<br>
+            처리 예정: 영업일 1~2일 내
+          </div>
+        </div>
+        <a href="partner-review-in-progress.html"><button class="btn btn-primary btn-full">확인</button></a>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+function goStep(n) {
+  document.querySelectorAll('.step-panels > div').forEach((p, i) => {
+    p.classList.toggle('active', i === n - 1);
+  });
+  document.querySelectorAll('.step-item').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i < n - 1) s.classList.add('done');
+    if (i === n - 1) s.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

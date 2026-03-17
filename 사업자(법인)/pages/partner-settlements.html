@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정산 내역 — 파트너센터</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.settle-wrap { background: #fff; border-radius: var(--radius-lg); padding: 20px; margin-bottom: 20px; }
+.settle-bars-wrap { height: 140px; display: flex; align-items: flex-end; gap: 5px; padding-top: 20px; position: relative; border-bottom: 2px solid var(--gray-200); margin-bottom: 16px; }
+.sb { flex: 1; border-radius: 5px 5px 0 0; cursor: pointer; position: relative; min-height: 8px; transition: opacity 0.15s; }
+.sb:hover { opacity: 0.8; }
+.sb.active { box-shadow: 0 -3px 0 var(--primary-dark); }
+.sb-label { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--gray-400); white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left"><div class="header-title">정산 내역</div></div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <button class="btn-icon">🔔</button>
+        <div class="avatar">P</div>
+      </div>
+    </header>
+    <div class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">정산 내역 관리</div>
+          <div class="page-subtitle">매출액, 수수료, 정산 금액을 이력을 관리하세요.</div>
+        </div>
+        <div class="flex gap-2">
+          <button class="btn btn-ghost btn-sm">📥 CSV 내보내기</button>
+          <button class="btn btn-ghost btn-sm">📄 보고서 인쇄</button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid-3">
+        <div class="stat-card">
+          <div class="stat-label">💹 이번 달 총 매출</div>
+          <div class="stat-value">₩12,450,000</div>
+          <div class="stat-sub" style="color:var(--success)">▲ +5.2% 전월 대비</div>
+        </div>
+        <div class="stat-card" style="border:2px solid var(--warning-light)">
+          <div class="stat-label">⏳ 정산 예정 금액</div>
+          <div class="stat-value warning">₩3,200,000</div>
+          <div class="stat-sub">정산 예정일: 2026-04-05</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">✅ 정산 완료 금액</div>
+          <div class="stat-value success">₩9,250,000</div>
+          <div class="stat-sub">이번 달 기준</div>
+        </div>
+      </div>
+
+      <!-- Chart -->
+      <div class="settle-wrap">
+        <div class="flex justify-between items-center mb-4">
+          <div class="card-title">정산 추이</div>
+          <div class="flex gap-2">
+            <button class="btn btn-primary btn-sm">주간</button>
+            <button class="btn btn-ghost btn-sm">월간</button>
+          </div>
+        </div>
+        <div class="settle-bars-wrap" id="settleBars"></div>
+      </div>
+
+      <!-- Table -->
+      <div class="card" style="padding:0">
+        <div style="padding:16px 20px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--gray-200)">
+          <div class="search-box"><input type="text" placeholder="정산 기간 또는 객실명 검색..."></div>
+          <input type="date" style="padding:8px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius);font-size:13px;outline:none" value="2026-03-01">
+          <input type="date" style="padding:8px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius);font-size:13px;outline:none" value="2026-03-31">
+          <select style="padding:8px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius);font-size:13px;outline:none"><option>전체 상태</option><option>정산 완료</option><option>정산 예정</option></select>
+          <button class="btn btn-primary btn-sm">필터 적용</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>정산 일자</th>
+                <th>기간</th>
+                <th>객실명</th>
+                <th>총 매출액</th>
+                <th>수수료</th>
+                <th>정산 금액</th>
+                <th>상태</th>
+                <th>상세</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="font-size:12px">2026-03-30<br>2026-03-31</td>
+                <td style="font-size:12px">2026.11.15 ~ 11.30</td>
+                <td>디럭스 더블</td>
+                <td style="font-weight:600">₩3,500,000</td>
+                <td style="color:var(--danger)">-₩300,000</td>
+                <td style="font-weight:700;color:var(--primary)">₩3,200,000</td>
+                <td><span class="badge badge-pending">정산 예정</span></td>
+                <td><button class="btn btn-ghost btn-sm">›</button></td>
+              </tr>
+              <tr>
+                <td style="font-size:12px">2026-03-15<br>2026-03-15</td>
+                <td style="font-size:12px">2026.11.01 ~ 11.15</td>
+                <td>스탠다드 트윈</td>
+                <td style="font-weight:600">₩4,200,000</td>
+                <td style="color:var(--danger)">-₩350,000</td>
+                <td style="font-weight:700;color:var(--success)">₩3,850,000</td>
+                <td><span class="badge badge-completed">정산 완료</span></td>
+                <td><button class="btn btn-ghost btn-sm">›</button></td>
+              </tr>
+              <tr>
+                <td style="font-size:12px">2026-03-01<br>2026-03-01</td>
+                <td style="font-size:12px">2026.10.16 ~ 10.31</td>
+                <td>프리미엄 스위트</td>
+                <td style="font-weight:600">₩2,800,000</td>
+                <td style="color:var(--danger)">-₩240,000</td>
+                <td style="font-weight:700;color:var(--success)">₩2,560,000</td>
+                <td><span class="badge badge-completed">정산 완료</span></td>
+                <td><button class="btn btn-ghost btn-sm">›</button></td>
+              </tr>
+              <tr>
+                <td style="font-size:12px">2026-02-15<br>2026-02-15</td>
+                <td style="font-size:12px">2026.10.01 ~ 10.15</td>
+                <td>스탠다드 더블</td>
+                <td style="font-weight:600">₩3,100,000</td>
+                <td style="color:var(--danger)">-₩260,000</td>
+                <td style="font-weight:700;color:var(--success)">₩2,840,000</td>
+                <td><span class="badge badge-completed">정산 완료</span></td>
+                <td><button class="btn btn-ghost btn-sm">›</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:10px 20px;border-top:1px solid var(--gray-200);font-size:12px;color:var(--gray-400)">전체 12건 · 1-4 표시</div>
+        <div style="padding:8px 20px 12px">
+          <div class="pagination">
+            <div class="pg-btn">‹</div>
+            <div class="pg-btn active">1</div>
+            <div class="pg-btn">2</div>
+            <div class="pg-btn">3</div>
+            <div class="pg-btn">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+initPage('partner', 'settlements', '정산 내역');
+
+// Settlement bar chart
+const barData = [
+  {label:'2/14', v:280, active:false},
+  {label:'2/21', v:450, active:false},
+  {label:'2/28', v:380, active:false},
+  {label:'3/7', v:520, active:false},
+  {label:'3/14', v:920, active:true},
+  {label:'3/21', v:0, active:false},
+  {label:'3/28', v:0, active:false},
+];
+const maxV = Math.max(...barData.map(d=>d.v));
+document.getElementById('settleBars').innerHTML = barData.map(d => {
+  const h = maxV>0 ? Math.max(4, (d.v/maxV)*100) : 4;
+  return `<div class="sb ${d.active?'active':''}" style="height:${h}%;background:${d.active?'var(--primary)':'var(--primary-100)'}">
+    <span class="sb-label">${d.label}</span>
+  </div>`;
+}).join('');
+</script>
+</body>
+</html>

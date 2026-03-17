@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>플랫폼 쿠폰 생성 — Super Admin</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.form-wrap { display: grid; grid-template-columns: 1fr 280px; gap: 20px; align-items: start; }
+.preview-sticky { position: sticky; top: 80px; }
+.section-block { background: #fff; border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); margin-bottom: 16px; }
+.sec-title { font-size: 13px; font-weight: 700; color: var(--gray-700); margin-bottom: 14px; display: flex; align-items: center; gap: 6px; }
+.partner-scope { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.scope-opt { border: 2px solid var(--gray-200); border-radius: var(--radius); padding: 12px 14px; cursor: pointer; font-size: 13px; transition: all 0.15s; }
+.scope-opt.selected { border-color: #6366F1; background: #EDE9FE; color: #4338CA; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left">
+        <a href="admin-coupons.html" style="font-size:18px;color:var(--gray-400);margin-right:4px">‹</a>
+        <div class="header-title">플랫폼 쿠폰 생성</div>
+      </div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <div class="avatar" style="background:#6366F1">A</div>
+      </div>
+    </header>
+    <div class="page">
+      <div class="form-wrap">
+        <div>
+          <div class="section-block">
+            <div class="sec-title">🎫 쿠폰 기본 정보</div>
+            <div class="form-group"><label class="form-label">쿠폰명 *</label><input class="form-control" value="봄맞이 전국 여행 할인" oninput="document.getElementById('pvName').textContent=this.value"></div>
+            <div class="form-group"><label class="form-label">쿠폰 설명</label><textarea class="form-control" rows="2" placeholder="플랫폼 전체 고객에게 노출될 쿠폰 설명..."></textarea></div>
+          </div>
+
+          <div class="section-block">
+            <div class="sec-title">🎁 혜택 설정</div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">할인 금액 *</label><div style="display:flex;gap:8px;align-items:center"><span style="color:var(--gray-500)">₩</span><input class="form-control" type="number" value="5000" oninput="document.getElementById('pvAmt').textContent=Number(this.value).toLocaleString()+'원'"></div></div>
+              <div class="form-group"><label class="form-label">최소 결제 금액</label><div style="display:flex;gap:8px;align-items:center"><span style="color:var(--gray-500)">₩</span><input class="form-control" type="number" value="30000"></div></div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">총 예산 한도</label>
+              <div style="display:flex;gap:8px;align-items:center"><span style="color:var(--gray-500)">₩</span><input class="form-control" type="number" value="50000000" placeholder="0 = 무제한"></div>
+              <div class="form-hint">예산 소진 시 자동 종료됩니다.</div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <div class="sec-title">🏨 적용 파트너 범위</div>
+            <div class="partner-scope">
+              <div class="scope-opt selected" onclick="selectScope(this)">
+                <div style="font-weight:700;margin-bottom:3px">전체 파트너</div>
+                <div style="font-size:11px;color:var(--gray-500)">승인된 모든 파트너에 적용</div>
+              </div>
+              <div class="scope-opt" onclick="selectScope(this)">
+                <div style="font-weight:700;margin-bottom:3px">특정 파트너 선택</div>
+                <div style="font-size:11px;color:var(--gray-500)">선택한 파트너에만 적용</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-block">
+            <div class="sec-title">📅 발급 기간</div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">발급 시작일</label><input class="form-control" type="date" value="2026-03-01"></div>
+              <div class="form-group"><label class="form-label">발급 종료일</label><input class="form-control" type="date" value="2026-03-31"></div>
+            </div>
+            <div class="form-group"><label class="form-label">최대 발급 수량</label><input class="form-control" type="number" value="20000" placeholder="0 = 무제한"></div>
+            <div class="form-group"><label class="form-label">쿠폰 사용 유효기간 (발급 후)</label>
+              <div style="display:flex;gap:8px;align-items:center"><input class="form-control" type="number" value="7" style="width:80px"><span style="font-size:13px;color:var(--gray-500)">일 이내</span></div>
+            </div>
+          </div>
+
+          <div class="flex justify-between mt-3">
+            <a href="admin-coupons.html"><button class="btn btn-ghost">취소</button></a>
+            <button class="btn btn-lg" style="background:#6366F1;color:#fff;border:none;cursor:pointer" onclick="showAlert('플랫폼 쿠폰이 생성되어 즉시 배포됩니다!', {icon:'✅', title:'배포 완료'})">✓ 쿠폰 생성 · 배포</button>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-sticky">
+          <div style="font-size:12px;font-weight:700;color:var(--gray-500);margin-bottom:8px">쿠폰 미리보기</div>
+          <div class="coupon-preview" style="background:linear-gradient(135deg,#6366F1,#818CF8);margin-bottom:12px">
+            <div class="cp-amount" id="pvAmt">5,000원</div>
+            <div class="cp-name" id="pvName">봄맞이 전국 여행 할인</div>
+            <div class="cp-cond">₩30,000 이상 결제 시 · 발급 후 7일 내</div>
+          </div>
+          <div style="background:#fff;border-radius:var(--radius);padding:14px;font-size:12px;color:var(--gray-600);border:1px solid var(--gray-200)">
+            <div style="font-weight:700;margin-bottom:8px;color:#4338CA">📊 예상 효과</div>
+            <div style="line-height:2">
+              최대 발급: 20,000건<br>
+              예산 한도: ₩50,000,000<br>
+              예상 사용율: ~65%<br>
+              예상 비용: ~₩32,500,000
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+initPage('admin', 'coupons', '플랫폼 쿠폰 생성');
+function selectScope(el) {
+  el.closest('.partner-scope').querySelectorAll('.scope-opt').forEach(s => s.classList.remove('selected'));
+  el.classList.add('selected');
+}
+</script>
+</body>
+</html>

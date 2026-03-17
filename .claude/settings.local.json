@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la \"/c/Users/kjm17/Documents/middle-project/사업자\\(법인\\)/\")",
+      "Bash(find /c/Users/kjm17/Documents/middle-project -type f \\\\\\(-name *.md -o -name *.txt -o -name *.json -o -name *.yaml -o -name *.yml -o -name *.docx -o -name *.doc -o -name *.pdf -o -name README* -o -name PLAN* -o -name TODO* \\\\\\))",
+      "Bash(ls -lh \"/c/Users/kjm17/Documents/middle-project/사업자\\(법인\\)/benchmark_images/\")"
+    ]
+  }
+}

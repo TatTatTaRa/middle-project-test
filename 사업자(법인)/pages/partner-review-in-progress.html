@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>심사 진행 중 — 파트너센터</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+body { background: linear-gradient(135deg, #F0F9FF 0%, #FFF 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+.status-card { max-width: 480px; width: 100%; background: #fff; border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.08); padding: 40px 36px; text-align: center; }
+.status-logo { text-align: center; margin-bottom: 28px; }
+.status-logo .logo { font-size: 22px; font-weight: 800; color: var(--primary); }
+.status-icon { font-size: 56px; text-align: center; margin-bottom: 16px; }
+.status-title { font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 8px; }
+.status-desc { font-size: 13px; color: var(--gray-500); text-align: center; line-height: 1.7; margin-bottom: 24px; }
+</style>
+</head>
+<body>
+<div class="status-card">
+  <div class="status-logo">
+    <div class="logo">✦ 파트너센터</div>
+  </div>
+
+  <div class="status-icon">⏳</div>
+  <div class="status-title" style="color:var(--gray-800)">심사 요청중입니다.</div>
+  <div class="status-desc">제출하신 서류를 검토하고 있습니다.<br>영업일 기준 1~3일 내에 처리 후 안내드리겠습니다.</div>
+
+  <button class="btn btn-ghost btn-full mt-4" onclick="location.href='partner-login.html'">로그아웃</button>
+</div>
+
+<script src="shared.js"></script>
+</body>
+</html>

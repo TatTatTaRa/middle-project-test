@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>호텔 운영 중개 플랫폼 — 전체 페이지 목록</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    body {
+      background: linear-gradient(135deg, #1A1A2E 0%, #16213E 60%, #0F3460 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+
+    .index-wrap {
+      max-width: 900px;
+      width: 100%;
+    }
+
+    .index-title {
+      text-align: center;
+      color: #fff;
+      margin-bottom: 40px;
+    }
+
+    .index-title h1 {
+      font-size: 32px;
+      font-weight: 800;
+      margin: 0 0 8px;
+    }
+
+    .index-title p {
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+    }
+
+    .index-logo {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+
+    .sections {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .section {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(10px);
+    }
+
+    .section-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-sub {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.35);
+      margin-bottom: 16px;
+    }
+
+    .page-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 10px;
+      color: rgba(255, 255, 255, 0.7);
+      font-size: 13px;
+      transition: all 0.15s;
+      border: 1px solid transparent;
+      margin-bottom: 4px;
+    }
+
+    .page-link:hover {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .page-link .icon {
+      font-size: 16px;
+      width: 24px;
+      text-align: center;
+    }
+
+    .page-link .name {
+      flex: 1;
+    }
+
+    .page-link .badge-new {
+      background: var(--primary);
+      color: #fff;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 99px;
+    }
+
+    .section.partner {
+      border-color: rgba(255, 75, 139, 0.3);
+    }
+
+    .section.admin {
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .section-title.partner-title {
+      color: var(--primary);
+    }
+
+    .section-title.admin-title {
+      color: #818CF8;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="index-wrap">
+    <div class="index-title">
+      <div class="index-logo">🏨</div>
+      <h1>호텔 운영 중개 플랫폼</h1>
+      <p>사업자(법인) 파트너 포털 + 슈퍼 어드민 — 전체 페이지 목록</p>
+    </div>
+    <div class="sections">
+      <!-- Partner Portal -->
+      <div class="section partner">
+        <div class="section-title partner-title">✦ 파트너 포털 <span
+            style="font-size:11px;font-weight:400;color:rgba(255,255,255,0.4)">(사업자/호텔 운영자)</span></div>
+        <div class="section-sub">호텔 운영자가 객실·예약·정산을 관리하는 B2B 포털</div>
+        <a href="partner-login.html" class="page-link"><span class="icon">🔐</span><span class="name">로그인</span></a>
+        <a href="partner-register.html" class="page-link"><span class="icon">📝</span><span class="name">회원가입 / 사업자
+            인증</span></a>
+        <a href="partner-docs-upload.html" class="page-link"><span class="icon">📎</span><span class="name">서류
+            제출</span><span class="badge-new">NEW</span></a>
+        <a href="partner-review-status.html?status=reviewing" class="page-link"><span class="icon">⏳</span><span
+            class="name">심사 요청 중 (가입 완료)</span><span class="badge-new">NEW</span></a>
+        <a href="partner-review-status.html?status=rejected" class="page-link"><span class="icon">❌</span><span
+            class="name">서류 심사 현황 (반려)</span><span class="badge-new">NEW</span></a>
+        <a href="partner-review-status.html" class="page-link"><span class="icon">🔍</span><span class="name">서류 심사 현황
+            (심사중/반려)</span><span class="badge-new">NEW</span></a>
+        <a href="partner-dashboard.html" class="page-link"><span class="icon">📊</span><span
+            class="name">대시보드</span></a>
+        <a href="partner-reservations.html" class="page-link"><span class="icon">📋</span><span class="name">예약
+            관리</span></a>
+        <a href="partner-reservations-calendar.html" class="page-link"><span class="icon">📅</span><span class="name">예약
+            캘린더</span></a>
+        <a href="partner-checkin.html" class="page-link"><span class="icon">🛎️</span><span class="name">체크인
+            관리</span></a>
+        <a href="partner-reservation-logs.html" class="page-link"><span class="icon">📝</span><span class="name">예약 변경
+            로그</span></a>
+        <a href="partner-reservation-manage.html" class="page-link"><span class="icon">📋</span><span class="name">예약 목록
+            관리</span></a>
+        <a href="partner-rooms.html" class="page-link"><span class="icon">🛏️</span><span class="name">객실 관리</span></a>
+        <a href="partner-rooms-new.html" class="page-link"><span class="icon">➕</span><span class="name">객실
+            추가</span></a>
+        <a href="partner-rooms-edit.html" class="page-link"><span class="icon">✏️</span><span class="name">객실
+            수정</span></a>
+        <a href="partner-reviews.html" class="page-link"><span class="icon">⭐</span><span class="name">리뷰 관리</span></a>
+        <a href="partner-settlements.html" class="page-link"><span class="icon">💰</span><span class="name">정산
+            내역</span></a>
+        <a href="partner-refunds.html" class="page-link"><span class="icon">↩️</span><span class="name">환불 정산</span></a>
+        <a href="partner-notices.html" class="page-link"><span class="icon">📢</span><span class="name">공지사항</span></a>
+      </div>
+      <!-- Admin Portal -->
+      <div class="section admin">
+        <div class="section-title admin-title">🏢 슈퍼 어드민 <span
+            style="font-size:11px;font-weight:400;color:rgba(255,255,255,0.4)">(플랫폼 운영자)</span></div>
+        <div class="section-sub">플랫폼 운영자가 파트너·쿠폰·공지를 관리하는 콘솔</div>
+        <a href="admin-login.html" class="page-link"><span class="icon">🔐</span><span class="name">관리자 로그인</span></a>
+        <a href="admin-dashboard.html" class="page-link"><span class="icon">📊</span><span class="name">어드민
+            대시보드</span></a>
+        <a href="admin-partners.html" class="page-link"><span class="icon">🏨</span><span class="name">파트너 전체
+            관리</span></a>
+        <a href="admin-partners-pending.html" class="page-link"><span class="icon">⏳</span><span class="name">가입 승인
+            대기</span></a>
+        <a href="admin-fee-policy.html" class="page-link"><span class="icon">💰</span><span class="name">수수료 정책
+            관리</span><span class="badge-new">NEW</span></a>
+        <a href="admin-banner.html" class="page-link"><span class="icon">🖼️</span><span class="name">배너 설정
+            마스터</span><span class="badge-new">NEW</span></a>
+        <a href="admin-top-notice.html" class="page-link"><span class="icon">📌</span><span class="name">상단 공지
+            설정</span><span class="badge-new">NEW</span></a>
+        <a href="admin-notices.html" class="page-link"><span class="icon">📢</span><span class="name">공지사항 관리</span></a>
+        <a href="admin-system-settings.html" class="page-link"><span class="icon">⚙️</span><span class="name">시스템
+            설정</span><span class="badge-new">NEW</span></a>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

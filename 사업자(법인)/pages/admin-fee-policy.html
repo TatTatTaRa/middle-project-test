@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>수수료 정책 — Super Admin</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .settings-layout {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .settings-nav {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      position: sticky;
+      top: 80px;
+    }
+
+    .settings-nav-item {
+      padding: 13px 18px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--gray-600);
+      border-left: 3px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .settings-nav-item:hover {
+      background: var(--gray-50);
+      color: var(--gray-900);
+    }
+
+    .settings-nav-item.active {
+      background: #EDE9FE;
+      color: #4338CA;
+      border-left-color: #6366F1;
+      font-weight: 700;
+    }
+
+    .settings-nav-section {
+      padding: 10px 18px 4px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gray-400);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .section-block {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 22px 24px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 16px;
+    }
+
+    .section-block-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .section-block-sub {
+      font-size: 12px;
+      color: var(--gray-400);
+      margin-bottom: 20px;
+    }
+
+    .rate-display {
+      background: linear-gradient(135deg, #6366F1, #818CF8);
+      border-radius: var(--radius-lg);
+      padding: 20px 24px;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .rate-display .rate-num {
+      font-size: 40px;
+      font-weight: 800;
+      letter-spacing: -1px;
+    }
+
+    .rate-display .rate-label {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-bottom: 4px;
+    }
+
+    .rate-display .rate-meta {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-top: 6px;
+    }
+
+    .apply-month-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+
+    .apply-month-hint {
+      font-size: 12px;
+      color: var(--gray-400);
+      margin-top: 6px;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .history-table th {
+      text-align: left;
+      padding: 8px 12px;
+      background: var(--gray-50);
+      color: var(--gray-500);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .history-table td {
+      padding: 10px 12px;
+      border-bottom: 1px solid var(--gray-100);
+      color: var(--gray-700);
+    }
+
+    .history-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .rate-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: 700;
+    }
+
+    .rate-badge .arrow {
+      color: var(--gray-400);
+    }
+
+    .notice-preview {
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 16px;
+      font-size: 13px;
+      color: var(--gray-700);
+      line-height: 1.9;
+    }
+
+    .notice-preview .np-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #EDE9FE;
+      color: #4338CA;
+      margin-bottom: 10px;
+    }
+
+    .notice-preview .np-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--gray-900);
+    }
+
+    .channel-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--gray-100);
+      font-size: 13px;
+    }
+
+    .channel-row:last-child {
+      border-bottom: none;
+    }
+
+    .channel-icon {
+      font-size: 18px;
+      width: 28px;
+      text-align: center;
+    }
+
+    .channel-info {
+      flex: 1;
+    }
+
+    .channel-title {
+      font-weight: 600;
+    }
+
+    .channel-desc {
+      font-size: 11px;
+      color: var(--gray-400);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <div class="main">
+      <header class="header">
+        <div class="header-left">
+          <div class="header-title">수수료 정책</div>
+        </div>
+        <div class="header-right">
+          <div class="header-date"></div>
+          <div class="avatar" style="background:#6366F1">A</div>
+        </div>
+      </header>
+      <div class="page" style="max-width: 1000px; margin: 0 auto; width: 100%;">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">수수료 정책</div>
+            <div class="page-subtitle">플랫폼 전체에 적용되는 수수료율 및 자동 공지를 관리합니다.</div>
+          </div>
+        </div>
+
+        <div class="settings-layout">
+          <!-- Left Nav -->
+          <div class="settings-nav">
+            <div class="settings-nav-section">정책 관리</div>
+            <div class="settings-nav-item active" onclick="showTab('fee')">💰 수수료율 변경</div>
+            <div class="settings-nav-item" onclick="showTab('notice')">🔔 자동 공지 템플릿</div>
+          </div>
+
+          <!-- Content -->
+          <div>
+
+            <!-- ── Tab: 수수료 정책 ── -->
+            <div id="tab-fee">
+              <div class="section-block">
+                <div class="section-block-title">💰 현재 적용 수수료율</div>
+                <div class="section-block-sub">플랫폼 전체 파트너에게 동일하게 적용됩니다.</div>
+
+                <div class="rate-display">
+                  <div>
+                    <div class="rate-label">현재 적용 수수료율</div>
+                    <div class="rate-num" id="currentRateDisplay">8.5%</div>
+                    <div class="rate-meta">적용 파트너: 1,256개 &nbsp;·&nbsp; 최종 변경: 2026-01-10 &nbsp;·&nbsp; 변경자: 운영팀</div>
+                  </div>
+                  <div style="font-size:48px;opacity:0.3">💰</div>
+                </div>
+              </div>
+
+              <div class="section-block">
+                <div class="section-block-title">✏️ 수수료율 변경</div>
+                <div class="section-block-sub">변경된 수수료율은 전체 파트너에게 일괄 적용됩니다.</div>
+
+                <div class="form-group">
+                  <label class="form-label">새 수수료율 <span style="color:var(--danger)">*</span></label>
+                  <div style="display:flex;align-items:center;gap:10px">
+                    <input type="number" id="newRate" class="form-control" value="8.5" step="0.1" min="0" max="30"
+                      style="width:100px" oninput="updatePreview()">
+                    <span style="font-size:16px;font-weight:700">%</span>
+                    <span style="font-size:12px;color:var(--gray-400)">(0.1% 단위, 0~30%)</span>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">적용 시작 월 <span style="color:var(--danger)">*</span></label>
+                  <div class="apply-month-row">
+                    <input type="month" id="applyMonth" class="form-control" style="width:180px"
+                      oninput="updatePreview()">
+                    <span style="font-size:13px;color:var(--gray-600)">1일 00:00부터 적용</span>
+                  </div>
+                  <div class="apply-month-hint">⚠️ 파트너가 충분히 준비할 수 있도록 최소 1개월 이후로 설정하세요.</div>
+                </div>
+
+                <div class="form-group">
+                  <label class="form-label">변경 사유 <span style="font-size:11px;color:var(--gray-400)">(자동 공지 본문에
+                      포함됩니다)</span></label>
+                  <textarea class="form-control" id="changeReason" rows="3"
+                    placeholder="예: 플랫폼 운영 비용 조정에 따라 수수료율을 변경합니다." oninput="updatePreview()"></textarea>
+                </div>
+
+                <button class="btn"
+                  style="background:#6366F1;color:#fff;border:none;cursor:pointer;padding:10px 24px;font-size:14px"
+                  onclick="applyRate()">변경 사항 적용</button>
+              </div>
+
+              <div class="section-block">
+                <div class="section-block-title">📋 변경 이력</div>
+                <div class="section-block-sub">최근 5건의 수수료율 변경 기록입니다.</div>
+                <table class="history-table" id="historyTable">
+                  <thead>
+                    <tr>
+                      <th>변경일</th>
+                      <th>변경 내용</th>
+                      <th>적용 시점</th>
+                      <th>변경자</th>
+                      <th>사유</th>
+                    </tr>
+                  </thead>
+                  <tbody id="historyBody">
+                    <tr>
+                      <td>2026-01-10</td>
+                      <td><span class="rate-badge">9.0% <span class="arrow">→</span> 8.5%</span></td>
+                      <td>즉시 적용</td>
+                      <td>운영팀</td>
+                      <td style="color:var(--gray-400)">연간 정책 재조정</td>
+                    </tr>
+                    <tr>
+                      <td>2025-07-01</td>
+                      <td><span class="rate-badge">9.5% <span class="arrow">→</span> 9.0%</span></td>
+                      <td>다음 달 1일</td>
+                      <td>운영팀</td>
+                      <td style="color:var(--gray-400)">하반기 파트너 유치 프로모션</td>
+                    </tr>
+                    <tr>
+                      <td>2025-01-01</td>
+                      <td><span class="rate-badge">10.0% <span class="arrow">→</span> 9.5%</span></td>
+                      <td>다음 달 1일</td>
+                      <td>운영팀</td>
+                      <td style="color:var(--gray-400)">신규 파트너 확대 정책</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- ── Tab: 자동 공지 설정 ── -->
+            <div id="tab-notice" class="hidden">
+              <div class="section-block">
+                <div class="section-block-title">🔔 수수료 변경 자동 공지 템플릿</div>
+
+                <div
+                  style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:var(--radius);padding:14px 16px;font-size:13px;color:#92400E;margin-bottom:20px;line-height:1.6">
+                  ℹ️ <strong>수수료율이 변경되면 전체 파트너에게 자동으로 공지가 발송됩니다.</strong><br>
+                  별도의 발송 작업 없이 아래 템플릿 형식으로 공지사항 게시판, 파트너 앱 푸시, 담당자 이메일로 전송됩니다.
+                </div>
+
+                <div class="notice-preview">
+                  <div class="np-badge">공지</div>
+                  <div class="np-title" id="previewTitle">[수수료 정책 변경 안내] 8.5% → 8.5%</div>
+                  <div id="previewBody">안녕하세요, 호텔 미들 플랫폼 운영팀입니다.<br><br>
+                    플랫폼 수수료율이 아래와 같이 변경됩니다.<br><br>
+                    <strong>■ 변경 내용</strong><br>
+                    · 현재 수수료율: 8.5%<br>
+                    · 변경 수수료율: <span id="pvNewRate">8.5%</span><br>
+                    · 적용 시점: <span id="pvTiming">변경 즉시</span><br><br>
+                    <strong>■ 변경 사유</strong><br>
+                    <span id="pvReason" style="color:var(--gray-500)">(변경 사유를 입력하면 이곳에 표시됩니다)</span><br><br>
+                    문의사항은 파트너 고객센터(1588-0000)로 연락 부탁드립니다.<br>
+                    감사합니다.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    initPage('admin', 'feepolicy', '수수료 정책');
+
+    let currentRate = 8.5;
+
+    // 기본값: 다음 달로 설정
+    (function initApplyMonth() {
+      const d = new Date();
+      d.setMonth(d.getMonth() + 1);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const el = document.getElementById('applyMonth');
+      if (el) {
+        el.value = `${yyyy}-${mm}`;
+        const minD = new Date();
+        minD.setMonth(minD.getMonth() + 1);
+        el.min = `${minD.getFullYear()}-${String(minD.getMonth() + 1).padStart(2, '0')}`;
+      }
+    })();
+
+    function showTab(id) {
+      ['fee', 'notice'].forEach(t => {
+        document.getElementById('tab-' + t).classList.toggle('hidden', t !== id);
+      });
+      document.querySelectorAll('.settings-nav-item').forEach((el, i) => {
+        el.classList.toggle('active', ['fee', 'notice'][i] === id);
+      });
+    }
+
+    function formatApplyMonth(val) {
+      if (!val) return '(월 미선택)';
+      const [yyyy, mm] = val.split('-');
+      return `${yyyy}년 ${parseInt(mm)}월 1일부터`;
+    }
+
+    function updatePreview() {
+      const newRate = parseFloat(document.getElementById('newRate').value) || currentRate;
+      const reason = document.getElementById('changeReason').value.trim();
+      const applyVal = document.getElementById('applyMonth').value;
+      const timingText = formatApplyMonth(applyVal);
+
+      document.getElementById('pvNewRate').textContent = newRate + '%';
+      document.getElementById('pvTiming').textContent = timingText;
+      document.getElementById('pvReason').textContent = reason || '(변경 사유를 입력하면 이곳에 표시됩니다)';
+      document.getElementById('pvReason').style.color = reason ? 'var(--gray-700)' : 'var(--gray-400)';
+      document.getElementById('previewTitle').textContent = `[수수료 정책 변경 안내] ${currentRate}% → ${newRate}%`;
+    }
+
+    function applyRate() {
+      const newRate = parseFloat(document.getElementById('newRate').value);
+      const applyVal = document.getElementById('applyMonth').value;
+
+      if (isNaN(newRate) || newRate <= 0 || newRate > 30) {
+        showAlert('수수료율은 0%~30% 사이로 입력해 주세요.', { icon: '⚠️' });
+        return;
+      }
+      if (newRate === currentRate) {
+        showAlert('현재와 동일한 수수료율입니다.\n변경할 수수료율을 입력해 주세요.', { icon: 'ℹ️' });
+        return;
+      }
+      if (!applyVal) {
+        showAlert('적용 시작 월을 선택해 주세요.', { icon: '⚠️' });
+        return;
+      }
+
+      const timingText = formatApplyMonth(applyVal);
+
+      showConfirm(
+        `수수료율을 ${currentRate}% → ${newRate}%로 변경하시겠습니까?\n적용 시점: ${timingText}\n\n전체 파트너에게 자동으로 공지가 발송됩니다.`,
+        () => {
+          const reason = document.getElementById('changeReason').value.trim() || '-';
+          const today = new Date().toISOString().slice(0, 10);
+          const [yyyy, mm] = applyVal.split('-');
+          const applyDateLabel = `${yyyy}.${mm}.01`;
+
+          const tbody = document.getElementById('historyBody');
+          tbody.insertAdjacentHTML('afterbegin', `<tr>
+        <td>${today}</td>
+        <td><span class="rate-badge">${currentRate}% <span class="arrow">→</span> ${newRate}%</span></td>
+        <td>${applyDateLabel}부터</td>
+        <td>운영팀</td>
+        <td style="color:var(--gray-400)">${reason}</td>
+      </tr>`);
+
+          currentRate = newRate;
+          document.getElementById('currentRateDisplay').textContent = newRate + '%';
+          document.getElementById('newRate').value = newRate;
+          updatePreview();
+
+          showAlert(
+            `수수료율 변경이 등록되었습니다.\n적용: ${timingText}\n\n공지사항이 자동 생성되어 전체 파트너에게 발송되었습니다.`,
+            { icon: '✅', title: '변경 등록 완료' }
+          );
+        },
+        { confirmText: '변경 등록', confirmClass: 'btn-primary', icon: '💰' }
+      );
+    }
+
+    // 초기 미리보기 렌더링
+    updatePreview();
+  </script>
+</body>
+
+</html>

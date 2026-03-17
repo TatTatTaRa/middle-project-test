@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>서류 심사 현황 — 파트너센터</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+body { background: linear-gradient(135deg, #FFF5F9 0%, #FFF 100%); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+.status-card { max-width: 520px; width: 100%; background: #fff; border-radius: 20px; box-shadow: 0 8px 40px rgba(0,0,0,0.1); padding: 40px 36px; }
+.status-logo { text-align: center; margin-bottom: 28px; }
+.status-logo .logo { font-size: 22px; font-weight: 800; color: var(--primary); }
+.status-logo .sub { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
+.status-icon { font-size: 56px; text-align: center; margin-bottom: 16px; }
+.status-title { font-size: 20px; font-weight: 800; text-align: center; margin-bottom: 8px; }
+.status-desc { font-size: 13px; color: var(--gray-500); text-align: center; line-height: 1.7; margin-bottom: 24px; }
+.info-card { background: var(--gray-50); border-radius: var(--radius); padding: 16px; margin-bottom: 16px; font-size: 13px; }
+.info-card .ic-label { font-size: 11px; color: var(--gray-400); margin-bottom: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; }
+.doc-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--gray-100); }
+.doc-row:last-child { border-bottom: none; }
+.doc-row .doc-icon { font-size: 18px; }
+.doc-row .doc-name { flex: 1; font-weight: 600; font-size: 13px; }
+.doc-row .doc-size { font-size: 11px; color: var(--gray-400); }
+.doc-row .doc-status { font-size: 11px; font-weight: 700; color: var(--success); }
+.rejection-box { background: #FEF2F2; border: 1px solid #FECACA; border-radius: var(--radius); padding: 14px 16px; margin-bottom: 16px; font-size: 13px; line-height: 1.7; }
+.rejection-box .rj-label { font-weight: 700; color: var(--danger); margin-bottom: 6px; }
+.rejection-box .rj-reason { color: #7F1D1D; }
+.resubmit-section { border: 1px solid var(--gray-200); border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
+.resubmit-header { padding: 12px 16px; background: var(--gray-50); font-size: 13px; font-weight: 700; color: var(--gray-700); display: flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+.resubmit-header:hover { background: var(--gray-100); }
+.resubmit-body { padding: 16px; display: none; }
+.resubmit-body.open { display: block; }
+.file-upload-box {
+  border: 2px dashed var(--gray-200); border-radius: var(--radius);
+  padding: 16px; text-align: center; cursor: pointer; transition: border-color 0.15s;
+  font-size: 13px; color: var(--gray-500);
+}
+.file-upload-box:hover { border-color: var(--primary); }
+.file-selected-preview {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--gray-50);
+  border-radius: var(--radius); font-size: 13px; margin-top: 8px;
+  border: 1px solid var(--gray-200);
+}
+.file-selected-preview .file-info { flex: 1; }
+.file-selected-preview .file-name { font-weight: 600; font-size: 13px; }
+.file-selected-preview .file-size { font-size: 11px; color: var(--gray-400); }
+.inquiry-textarea { width: 100%; box-sizing: border-box; min-height: 90px; resize: vertical; }
+.demo-bar { margin-top: 28px; padding-top: 20px; border-top: 1px dashed var(--gray-200); text-align: center; }
+.demo-bar .demo-label { font-size: 11px; color: var(--gray-400); margin-bottom: 8px; }
+.demo-bar .demo-btns { display: flex; gap: 8px; justify-content: center; }
+</style>
+</head>
+<body>
+<div class="status-card">
+  <div class="status-logo">
+    <div class="logo">✦ 파트너센터</div>
+    <div class="sub">(주)시그니엘호텔</div>
+  </div>
+
+  <!-- ────── 심사중 뷰 ────── -->
+  <div id="viewReviewing" style="display:none">
+    <div class="status-icon">🔍</div>
+    <div class="status-title" style="color:var(--gray-800)">서류 심사가 진행 중입니다</div>
+    <div class="status-desc">제출하신 서류를 검토하고 있습니다.<br>승인 완료 시 등록하신 이메일로 안내드립니다.</div>
+
+    <div class="info-card">
+      <div class="ic-label">제출 정보</div>
+      <div style="font-size:13px;color:var(--gray-600);line-height:2">
+        제출일: <strong>2026-03-14</strong><br>
+        예상 처리 기간: <strong>영업일 기준 1~3일</strong><br>
+        담당자 이메일: <strong>partner@signiell.com</strong>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <div class="ic-label">제출 서류</div>
+      <div class="doc-row">
+        <span class="doc-icon">📄</span>
+        <span class="doc-name">사업자등록증.pdf</span>
+        <span class="doc-size">2.3 MB</span>
+        <span class="doc-status">✅ 접수 완료</span>
+      </div>
+      <div class="doc-row">
+        <span class="doc-icon">🖼️</span>
+        <span class="doc-name">통장사본.jpg</span>
+        <span class="doc-size">1.1 MB</span>
+        <span class="doc-status">✅ 접수 완료</span>
+      </div>
+    </div>
+
+    <!-- 문의 접수 -->
+    <div class="resubmit-section">
+      <div class="resubmit-header" onclick="toggleSection('inquirySection')">
+        💬 문의 접수하기 <span style="margin-left:auto;color:var(--gray-400)" id="inquiryArrow">▾</span>
+      </div>
+      <div class="resubmit-body" id="inquirySection">
+        <textarea class="form-control inquiry-textarea" placeholder="문의 내용을 입력해 주세요."></textarea>
+        <button class="btn btn-primary btn-full mt-2" onclick="showAlert('문의가 접수되었습니다.\n담당자가 확인 후 이메일로 답변드립니다.', {icon:'✅'})">문의 접수</button>
+      </div>
+    </div>
+
+    <button class="btn btn-ghost btn-full mt-2" onclick="location.href='partner-login.html'">로그아웃</button>
+  </div>
+
+  <!-- ────── 반려 뷰 ────── -->
+  <div id="viewRejected">
+    <div class="status-icon">❌</div>
+    <div class="status-title" style="color:var(--danger)">서류 심사가 반려되었습니다</div>
+    <div class="status-desc">아래 반려 사유를 확인하고 서류를 수정하여 재심사를 요청해 주세요.</div>
+
+    <div class="rejection-box">
+      <div class="rj-label">반려 사유</div>
+      <div class="rj-reason">제출하신 사업자등록증 이미지가 불선명하여 내용 확인이 어렵습니다. 원본을 스캔하거나 선명하게 촬영한 파일로 재제출 부탁드립니다.</div>
+      <div style="font-size:11px;color:var(--danger);margin-top:8px;opacity:0.7">반려일: 2026-03-15 &nbsp;·&nbsp; 처리 담당자: 플랫폼 운영팀</div>
+    </div>
+
+    <!-- 1. 사업자 정보 수정 -->
+    <div class="resubmit-section">
+      <div class="resubmit-header" onclick="toggleSection('editInfoSection')">
+        1. 사업자 정보 수정 <span style="margin-left:auto;color:var(--gray-400)" id="editInfoArrow">▾</span>
+      </div>
+      <div class="resubmit-body" id="editInfoSection">
+        <div class="form-group">
+          <label class="form-label">사업자등록번호</label>
+          <input class="form-control" type="text" value="123-45-67890">
+        </div>
+        <div class="form-group">
+          <label class="form-label">법인명</label>
+          <input class="form-control" type="text" value="(주)시그니엘호텔">
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">대표자명</label>
+          <input class="form-control" type="text" value="김대표">
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. 서류 재첨부 -->
+    <div class="resubmit-section">
+      <div class="resubmit-header" onclick="toggleSection('reuploadSection')">
+        2. 서류 재첨부 <span style="margin-left:auto;color:var(--gray-400)" id="reuploadArrow">▾</span>
+      </div>
+      <div class="resubmit-body" id="reuploadSection">
+        <div class="form-group">
+          <label class="form-label">사업자등록증 <span style="color:var(--danger)">*</span></label>
+          <div class="file-upload-box" onclick="document.getElementById('reFile1').click()">
+            📄 파일 선택 (PDF · JPG · PNG / 최대 10MB)
+          </div>
+          <input type="file" id="reFile1" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleReFile(this, 'rePreview1')">
+          <div id="rePreview1"></div>
+        </div>
+        <div class="form-group" style="margin-bottom:0">
+          <label class="form-label">통장 사본 <span style="font-size:11px;color:var(--gray-400)">(선택)</span></label>
+          <div class="file-upload-box" onclick="document.getElementById('reFile2').click()">
+            💳 파일 선택 (PDF · JPG · PNG / 최대 10MB)
+          </div>
+          <input type="file" id="reFile2" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleReFile(this, 'rePreview2')">
+          <div id="rePreview2"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. 문의 -->
+    <div class="resubmit-section">
+      <div class="resubmit-header" onclick="toggleSection('reInquirySection')">
+        3. 추가 문의 <span style="margin-left:auto;color:var(--gray-400)" id="reInquiryArrow">▾</span>
+      </div>
+      <div class="resubmit-body" id="reInquirySection">
+        <textarea class="form-control inquiry-textarea" placeholder="추가 문의 사항을 입력해 주세요."></textarea>
+        <button class="btn btn-ghost btn-full mt-2" onclick="showAlert('문의가 접수되었습니다.', {icon:'✅'})">문의 접수</button>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full mt-3" onclick="requestReview()">재심사 요청하기</button>
+    <button class="btn btn-ghost btn-full mt-2" onclick="location.href='partner-login.html'">로그아웃</button>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+let currentStatus = new URLSearchParams(window.location.search).get('status') === 'rejected' ? 'rejected' : 'reviewing';
+
+function setStatus(s) {
+  currentStatus = s;
+  document.getElementById('viewReviewing').style.display = s === 'reviewing' ? '' : 'none';
+  document.getElementById('viewRejected').style.display = s === 'rejected' ? '' : 'none';
+}
+setStatus(currentStatus);
+
+function toggleSection(id) {
+  const body = document.getElementById(id);
+  body.classList.toggle('open');
+  const arrowId = id.replace('Section', 'Arrow');
+  const arrow = document.getElementById(arrowId);
+  if (arrow) arrow.textContent = body.classList.contains('open') ? '▴' : '▾';
+}
+
+function handleReFile(input, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+  const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+  const ext = file.name.split('.').pop().toUpperCase();
+  document.getElementById(previewId).innerHTML = `
+    <div class="file-selected-preview" style="margin-top:8px">
+      <span style="font-size:18px">${ext === 'PDF' ? '📄' : '🖼️'}</span>
+      <div class="file-info">
+        <div class="file-name">${file.name}</div>
+        <div class="file-size">${sizeMB} MB · ${ext}</div>
+      </div>
+    </div>
+  `;
+}
+
+function requestReview() {
+  showAlert('재심사 요청이 접수되었습니다.\n검토 후 결과를 이메일로 안내드립니다.', {icon:'✅', onClose: () => setStatus('reviewing')});
+}
+</script>
+</body>
+</html>

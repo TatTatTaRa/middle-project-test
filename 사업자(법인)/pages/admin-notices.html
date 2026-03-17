@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>공지사항 관리 — Super Admin</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .notice-type-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .nb-notice {
+      background: #EDE9FE;
+      color: #4338CA;
+    }
+
+    .nb-update {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .nb-event {
+      background: #FEF3C7;
+      color: #B45309;
+    }
+
+    .nb-urgent {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .notice-row {
+      cursor: pointer;
+      transition: background 0.12s;
+    }
+
+    .notice-row:hover {
+      background: var(--gray-50);
+    }
+
+    .pinned-icon {
+      color: #6366F1;
+      font-size: 12px;
+    }
+
+    /* New Write Layout Settings */
+    .write-layout {
+      display: flex;
+      gap: 24px;
+      max-width: 1200px;
+      margin: 0 auto;
+      align-items: flex-start;
+    }
+
+    .write-main {
+      flex: 1;
+      min-width: 0;
+      background: #fff;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200);
+      padding: 32px;
+    }
+
+    .write-sidebar {
+      width: 320px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .write-title-input {
+      border: none;
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--gray-800);
+      width: 100%;
+      outline: none;
+      padding: 0;
+      margin-bottom: 24px;
+    }
+
+    .write-title-input::placeholder {
+      color: var(--gray-300);
+    }
+
+    .editor-wrap {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .editor-toolbar {
+      display: flex;
+      gap: 6px;
+      padding: 12px;
+      border-bottom: 1px solid var(--gray-200);
+      align-items: center;
+    }
+
+    .editor-toolbar button {
+      background: none;
+      border: none;
+      font-size: 16px;
+      color: var(--gray-600);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+    }
+
+    .editor-toolbar button:hover {
+      background: var(--gray-100);
+    }
+
+    .editor-content {
+      padding: 20px;
+      min-height: 400px;
+      font-size: 14px;
+      color: var(--gray-500);
+      outline: none;
+      resize: vertical;
+      border: none;
+      width: 100%;
+      box-sizing: border-box;
+    }
+
+    .sidebar-card {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--gray-200);
+      padding: 24px;
+    }
+
+    .sidebar-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Segment Button */
+    .segment-group {
+      display: flex;
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      padding: 4px;
+    }
+
+    .segment-btn {
+      flex: 1;
+      padding: 8px;
+      text-align: center;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.2s;
+      border: none;
+      background: transparent;
+    }
+
+    .segment-btn.active {
+      background: #fff;
+      color: #4f46e5;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Info Box */
+    .info-box-sm {
+      background: var(--gray-50);
+      border: 1px dashed var(--gray-300);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      gap: 10px;
+      color: var(--gray-500);
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 16px;
+    }
+
+    .btn-primary-lg {
+      background: #4f46e5;
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: var(--radius-lg);
+      font-size: 15px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-primary-lg:hover {
+      background: #4338ca;
+    }
+
+    .btn-white-lg {
+      background: #fff;
+      color: var(--gray-600);
+      border: 1px solid var(--gray-200);
+      padding: 14px;
+      border-radius: var(--radius-lg);
+      font-size: 15px;
+      font-weight: 700;
+      width: 100%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: background 0.2s;
+    }
+
+    .btn-white-lg:hover {
+      background: var(--gray-50);
+    }
+
+    /* Input Override */
+    .sidebar-select {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      font-size: 14px;
+      color: var(--gray-700);
+      background: #fff;
+    }
+    .type-select-card {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 16px;
+      cursor: pointer;
+      display: flex;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+    .type-select-card:hover { border-color: #4f46e5; background: #f8fafc; }
+    .type-select-card input[type="radio"] { margin-top: 4px; }
+    .type-select-info { flex: 1; }
+    .type-select-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+    .type-select-desc { font-size: 12px; color: var(--gray-500); line-height: 1.4; }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <div class="main">
+      <header class="header">
+        <div class="header-left">
+          <div class="header-title">공지사항 관리</div>
+        </div>
+        <div class="header-right">
+          <div class="header-date"></div>
+          <div class="avatar" style="background:#6366F1">A</div>
+        </div>
+      </header>
+      <div class="page">
+
+        <!-- List View -->
+        <div id="viewList" style="max-width: 1000px; margin: 0 auto; width: 100%;">
+          <div class="page-header">
+            <div class="page-header-left">
+              <div class="page-title">공지사항 관리</div>
+              <div class="page-subtitle">파트너에게 전달되는 플랫폼 공지사항을 관리합니다.</div>
+            </div>
+            <button class="btn" style="background:#6366F1;color:#fff;border:none;cursor:pointer" onclick="openTypeSelectModal()">+ 공지사항 작성</button>
+          </div>
+
+          <!-- Filter & Table -->
+          <div class="card" style="padding:0">
+            <div
+              style="padding:14px 20px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;gap:12px">
+              <div class="tabs" style="margin-bottom:0;border-bottom:none">
+                <div class="tab active">전체</div>
+                <div class="tab">공지</div>
+                <div class="tab">업데이트</div>
+                <div class="tab">이벤트</div>
+                <div class="tab">긴급</div>
+              </div>
+              <div class="ml-auto" style="display:flex; align-items:center; gap:8px;">
+                <select id="filterTarget" class="input" style="width: 130px; padding: 6px 10px; font-size: 13px;" onchange="renderTable()">
+                  <option value="all">대상자: 전체</option>
+                  <option value="전체 (공통)">전체 (공통)</option>
+                  <option value="파트너 (법인)">파트너 (법인)</option>
+                  <option value="고객 (개인)">고객 (개인)</option>
+                </select>
+                <div class="search-box"><input type="text" placeholder="제목 검색..."></div>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th style="width:60px">번호</th>
+                    <th style="width:80px">유형</th>
+                    <th style="width:100px">대상자</th>
+                    <th>제목</th>
+                    <th style="width:160px">노출 기간</th>
+                    <th style="width:80px">작성자</th>
+                    <th style="width:100px">작성일</th>
+                  </tr>
+                </thead>
+                <tbody id="noticeTableBody"></tbody>
+              </table>
+            </div>
+            <div style="padding:12px 20px;border-top:1px solid var(--gray-200)">
+              <div class="pagination">
+                <div class="pg-btn">‹</div>
+                <div class="pg-btn active">1</div>
+                <div class="pg-btn">2</div>
+                <div class="pg-btn">3</div>
+                <div class="pg-btn">›</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detail View -->
+        <div id="viewDetail" class="hidden" style="max-width: 1000px; margin: 0 auto; width: 100%;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:20px">
+            <button class="btn btn-ghost btn-sm" onclick="showList()">← 목록으로</button>
+            <button class="btn btn-sm" style="background:#6366F1;color:#fff;border:none;cursor:pointer;margin-left:auto"
+              onclick="showEdit()">✏️ 수정</button>
+            <button class="btn btn-sm" id="btnDetailDelete"
+              style="background:var(--danger-light);color:var(--danger);border:none;cursor:pointer">삭제</button>
+          </div>
+          <div class="card">
+            <div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--gray-100)">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <span class="notice-type-badge nb-notice" id="detailType">공지</span>
+              </div>
+              <div style="font-size:20px;font-weight:700;margin-bottom:10px" id="detailTitle">수수료 정책 변경 안내</div>
+              <div style="font-size:12px;color:var(--gray-400)">
+                작성자: 플랫폼 운영팀 &nbsp;·&nbsp; <span id="detailDate">2026.03.10</span>
+              </div>
+            </div>
+            <div style="font-size:14px;line-height:2;color:var(--gray-700)" id="detailContent">
+              안녕하세요, 호텔 미들 플랫폼 운영팀입니다.<br><br>
+              2026년 4월 1일부터 파트너 수수료 정책이 아래와 같이 변경됩니다.<br><br>
+              <strong>변경 내용</strong><br>
+              • 기존: 예약 금액의 8.5% 일괄 적용<br>
+              • 변경: 월 매출 구간별 차등 적용<br>
+              &nbsp;&nbsp;- 월 매출 1,000만원 미만: 8.5%<br>
+              &nbsp;&nbsp;- 월 매출 1,000만원 ~ 5,000만원: 7.5%<br>
+              &nbsp;&nbsp;- 월 매출 5,000만원 이상: 6.5%<br><br>
+              변경된 수수료는 2026년 4월 예약 건부터 자동 적용됩니다.<br>
+              문의사항은 파트너 고객센터(1588-0000)로 연락 부탁드립니다.<br><br>
+              감사합니다.
+            </div>
+            <div
+              style="margin-top:24px;padding-top:16px;border-top:1px solid var(--gray-100);display:flex;justify-content:space-between">
+              <button class="btn btn-ghost btn-sm" id="btnPrev">← 이전 글</button>
+              <button class="btn btn-ghost btn-sm" id="btnNext">다음 글 →</button>
+            </div>
+          </div>
+      </div>
+        </div>
+
+        <!-- Write / Edit View -->
+        <div id="viewWrite" class="hidden" style="max-width: 1200px; margin: 0 auto; width: 100%;">
+          
+          <div style="margin-bottom: 32px;">
+            <div style="font-size: 13px; color: var(--gray-500); margin-bottom: 12px;">
+              운영 도구 <span style="font-size: 10px; color: var(--gray-300);">▶</span> 공지사항 관리
+            </div>
+            <div style="font-size: 28px; font-weight: 700; color: var(--gray-800); margin-bottom: 8px; display: flex; align-items: center; gap: 12px;">
+              공지사항 작성
+              <span id="writeTypeBadge" class="notice-type-badge nb-notice" style="font-size: 13px; padding: 4px 10px; border-radius: 6px; vertical-align: middle;">공지</span>
+            </div>
+            <div style="font-size: 14px; color: var(--gray-500);">
+              서비스 공지 및 팝업 안내를 생성하고 관리합니다.
+            </div>
+          </div>
+
+          <div class="write-layout mt-4">
+
+            <!-- LEFT: Main Editor -->
+            <div class="write-main">
+              <div
+                style="font-size: 11px; font-weight: 700; color: var(--gray-400); letter-spacing: 1px; margin-bottom: 12px;">
+                NOTICE TITLE</div>
+              <input type="text" class="write-title-input" placeholder="공지사항 제목을 입력하세요">
+
+              <div
+                style="font-size: 11px; font-weight: 700; color: var(--gray-400); letter-spacing: 1px; margin-bottom: 12px;">
+                CONTENT BODY</div>
+              <div class="editor-wrap">
+                <div class="editor-toolbar">
+                  <button style="font-weight: bold; font-family: serif;">B</button>
+                  <button style="font-style: italic; font-family: serif;">I</button>
+                  <button style="text-decoration: underline; font-family: serif;">U</button>
+                  <div style="width: 1px; height: 16px; background: var(--gray-200); margin: 0 4px;"></div>
+                  <button style="font-weight: bold; font-family: sans-serif; font-size: 15px;">T</button>
+                  <button style="font-size: 14px;">≣</button>
+                  <div style="width: 1px; height: 16px; background: var(--gray-200); margin: 0 4px;"></div>
+                  <button style="font-size: 14px;">🖼️</button>
+                  <button style="font-size: 14px;">🔗</button>
+                </div>
+                <textarea class="editor-content" placeholder="리치 에디터 라이브러리 연동 시 이곳에 에디터가 표시됩니다..."></textarea>
+              </div>
+            </div>
+
+            <!-- RIGHT: Sidebar Options -->
+            <div class="write-sidebar">
+
+              <div class="sidebar-card">
+                <div class="sidebar-title">
+                  <span style="color: #4f46e5;">💻</span> 기본 설정
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                  <label style="display:block; font-size:11px; color:var(--gray-400); margin-bottom:8px;">게시 대상자</label>
+                  <select class="sidebar-select" id="frmNoticeTarget">
+                    <option>전체 (공통)</option>
+                    <option>파트너 (법인)</option>
+                    <option>고객 (개인)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label style="display:block; font-size:11px; color:var(--gray-400); margin-bottom:8px;">공지 유형 (작성 중 변경시 즉시 반영)</label>
+                  <select class="sidebar-select" id="frmNoticeType" onchange="syncNoticeTypeBadge()">
+                    <option value="notice">공지 (일반 공지사항)</option>
+                    <option value="update">업데이트 (기능 업데이트)</option>
+                    <option value="event">이벤트 (프로모션 / 이벤트)</option>
+                    <option value="urgent">긴급 (긴급 안내)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="sidebar-card">
+                <div class="sidebar-title" style="display:flex; justify-content:space-between; align-items:center;">
+                  <div><span style="color: #4f46e5;">📅</span> 노출 기간</div>
+                  <label style="font-size:12px; font-weight:400; color:var(--gray-600); display:flex; align-items:center; gap:4px; cursor:pointer;">
+                    <input type="checkbox" id="chkAlwaysShow" checked onchange="toggleDateFields()"> 상시 게시
+                  </label>
+                </div>
+
+                <div style="margin-bottom:12px;">
+                  <label style="display:block; font-size:11px; color:var(--gray-400); margin-bottom:6px;">게시 시작일</label>
+                  <input type="datetime-local" class="sidebar-select" id="dateStart" style="color:var(--gray-700); background:#fff;">
+                </div>
+                <div>
+                  <label style="display:block; font-size:11px; color:var(--gray-400); margin-bottom:6px;">게시 종료일</label>
+                  <input type="datetime-local" class="sidebar-select" id="dateEnd" disabled style="color:var(--gray-400); background:var(--gray-50);">
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div style="display:flex; flex-direction:column; gap:12px;">
+                <button class="btn-primary-lg" id="btnSubmitNotice" onclick="openConfirmModal()">
+                  <span>🚀</span> 공지사항 등록하기
+                </button>
+                <button class="btn-white-lg" onclick="openPreviewModal()">
+                  <span>👁️</span> 미리보기
+                </button>
+                <button class="btn-ghost"
+                  style="text-align:center; padding:12px; font-size:13px; color:var(--gray-500); background:none; border:none; cursor:pointer; text-decoration:underline;"
+                  onclick="showList()">작성 취소 돌아가기</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- 공지 유형 선택 모달 -->
+  <div id="typeSelectModal" class="modal-overlay hidden">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <div class="modal-title">공지사항 유형 선택</div>
+        <button class="modal-close" onclick="closeTypeSelectModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size: 14px; color: var(--gray-500); margin-bottom: 20px; text-align: center;">작성하실 공지사항의 유형을 선택해 주세요.<br>작성 폼 진입 후 우측 설정 패널에서 언제든 변경할 수 있습니다.</div>
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+          <label class="type-select-card">
+            <input type="radio" name="modal_ntype" value="notice" checked>
+            <div class="type-select-info">
+              <div class="type-select-title"><span class="notice-type-badge nb-notice">공지</span> 일반 공지사항</div>
+              <div class="type-select-desc">플랫폼의 주요 정책 변경, 서비스 안내 등 파트너가 알아야 할 일반적인 내용을 전달합니다.</div>
+            </div>
+          </label>
+          <label class="type-select-card">
+            <input type="radio" name="modal_ntype" value="update">
+            <div class="type-select-info">
+              <div class="type-select-title"><span class="notice-type-badge nb-update">업데이트</span> 기능 업데이트</div>
+              <div class="type-select-desc">파트너센터의 새로운 기능 추가, 버그 수정 및 개선 사항을 안내합니다.</div>
+            </div>
+          </label>
+          <label class="type-select-card">
+            <input type="radio" name="modal_ntype" value="event">
+            <div class="type-select-info">
+              <div class="type-select-title"><span class="notice-type-badge nb-event">이벤트</span> 프로모션 / 이벤트</div>
+              <div class="type-select-desc">파트너 대상 마케팅 프로모션, 신규 지원 정책 및 혜택 정보를 전달합니다.</div>
+            </div>
+          </label>
+          <label class="type-select-card">
+            <input type="radio" name="modal_ntype" value="urgent">
+            <div class="type-select-info">
+              <div class="type-select-title"><span class="notice-type-badge nb-urgent">긴급</span> 긴급 안내</div>
+              <div class="type-select-desc">시스템 긴급 점검, 장애 안내 등 파트너 확인이 시급한 중요한 이슈를 전달합니다.</div>
+            </div>
+          </label>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" onclick="closeTypeSelectModal()">취소</button>
+        <button class="btn btn-primary" onclick="proceedToWrite()">선택한 유형으로 작성 →</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 공지사항 등록 확인 모달 -->
+  <div id="confirmSubmitModal" class="modal-overlay hidden">
+    <div class="modal modal-md">
+      <div class="modal-header">
+        <div class="modal-title">등록 정보 확인</div>
+        <button class="modal-close" onclick="closeConfirmModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size: 14px; color: var(--gray-700); margin-bottom: 24px; text-align: center;">
+          아래 설정된 내용으로 공지사항을 발행하시겠습니까?
+        </div>
+        
+        <div style="background: var(--gray-50); border-radius: var(--radius); padding: 16px; margin-bottom: 20px;">
+          <div style="display: flex; margin-bottom: 12px; border-bottom: 1px dashed var(--gray-200); padding-bottom: 12px;">
+            <div style="width: 80px; font-size: 13px; color: var(--gray-500); font-weight: 600;">게시 대상자</div>
+            <div style="flex: 1; font-size: 14px; font-weight: 700; color: var(--gray-800);" id="confTarget">-</div>
+          </div>
+          <div style="display: flex; margin-bottom: 12px; border-bottom: 1px dashed var(--gray-200); padding-bottom: 12px;">
+            <div style="width: 80px; font-size: 13px; color: var(--gray-500); font-weight: 600;">공지 유형</div>
+            <div style="flex: 1; font-size: 14px; font-weight: 700; color: #4f46e5;" id="confType">일반 공지사항</div>
+          </div>
+          <div style="display: flex;">
+            <div style="width: 80px; font-size: 13px; color: var(--gray-500); font-weight: 600;">노출 기간</div>
+            <div style="flex: 1; font-size: 13px; color: var(--gray-800); line-height: 1.5;" id="confPeriod">-</div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center;">
+        <button class="btn btn-ghost" onclick="closeConfirmModal()">취소</button>
+        <button class="btn btn-primary" onclick="finalSubmitNotice()">등록 완료</button>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <!-- 공지사항 미리보기 모달 -->
+  <div id="previewModal" class="modal-overlay hidden">
+    <div class="modal" style="width:700px; max-height:85vh; display:flex; flex-direction:column;">
+      <div class="modal-header">
+        <div class="modal-title">공지사항 미리보기</div>
+        <button class="modal-close" onclick="closePreviewModal()">×</button>
+      </div>
+      <div class="modal-body" style="flex:1; overflow-y:auto; background:#f9fafb; padding:24px;">
+        <!-- 실제 공지 디테일 뷰를 본뜬 미리보기 레이아웃 -->
+        <div class="card" style="margin:0; box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+          <div style="margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--gray-100)">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+              <span class="notice-type-badge nb-notice" id="previewType">공지</span>
+            </div>
+            <div style="font-size:20px;font-weight:700;margin-bottom:10px; word-break:break-all;" id="previewTitle">제목 미리보기</div>
+            <div style="font-size:12px;color:var(--gray-400)">
+              작성자: 플랫폼 운영팀 &nbsp;·&nbsp; <span id="previewDate">2026.XX.XX</span>
+            </div>
+          </div>
+          <div style="font-size:14px;line-height:2;color:var(--gray-700); white-space:pre-wrap; word-break:break-all;" id="previewContent">
+            내용이 이곳에 표시됩니다.
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content: center; background:#fff;">
+        <button class="btn btn-primary" onclick="closePreviewModal()" style="padding: 10px 32px;">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    initPage('admin', 'notices', '공지사항 관리');
+
+    const notices = [
+      { id: 1, type: 'urgent', typeCls: 'nb-urgent', typeLabel: '긴급', target: '전체 (공통)', period: '26.03.14 ~ 26.03.20', title: '[긴급] 결제 시스템 점검 안내 (3/15 02:00~04:00)', author: '운영팀', date: '2026-03-14' },
+      { id: 2, type: 'notice', typeCls: 'nb-notice', typeLabel: '공지', target: '파트너 (법인)', period: '상시 노출', title: '[공지] 수수료 정책 변경 안내 (4월 1일 시행)', author: '운영팀', date: '2026-03-10' },
+      { id: 3, type: 'update', typeCls: 'nb-update', typeLabel: '업데이트', target: '전체 (공통)', period: '26.03.08 ~ 26.03.31', title: '[업데이트] 파트너센터 v2.4.0 배포 안내', author: '개발팀', date: '2026-03-08' },
+      { id: 4, type: 'event', typeCls: 'nb-event', typeLabel: '이벤트', target: '고객 (개인)', period: '26.03.05 ~ 26.04.05', title: '[이벤트] 봄 시즌 프로모션 참여 안내', author: '마케팅팀', date: '2026-03-05' },
+      { id: 5, type: 'notice', typeCls: 'nb-notice', typeLabel: '공지', target: '고객 (개인)', period: '상시 노출', title: '[공지] 개인정보처리방침 개정 안내', author: '운영팀', date: '2026-02-28' },
+      { id: 6, type: 'update', typeCls: 'nb-update', typeLabel: '업데이트', target: '파트너 (법인)', period: '상시 노출', title: '[업데이트] 체크인 관리 기능 개선', author: '개발팀', date: '2026-02-20' },
+      { id: 7, type: 'notice', typeCls: 'nb-notice', typeLabel: '공지', target: '전체 (공통)', period: '26.01.25 ~ 26.02.10', title: '[공지] 2026년 설 연휴 고객센터 운영 안내', author: '운영팀', date: '2026-01-25' },
+      { id: 8, type: 'event', typeCls: 'nb-event', typeLabel: '이벤트', target: '파트너 (법인)', period: '26.01.15 ~ 26.02.28', title: '[이벤트] 신규 파트너 입점 지원 프로그램', author: '마케팅팀', date: '2026-01-15' },
+    ];
+
+    let currentNoticeId = null;
+
+    function renderTable() {
+      const tbody = document.getElementById('noticeTableBody');
+      const filterValue = document.getElementById('filterTarget') ? document.getElementById('filterTarget').value : 'all';
+      
+      let filteredNotices = notices;
+      if (filterValue !== 'all') {
+        filteredNotices = notices.filter(n => n.target === filterValue);
+      }
+
+      tbody.innerHTML = filteredNotices.map((n, idx) => `
+    <tr class="notice-row" onclick="showDetail(${n.id})">
+      <td style="color:var(--gray-400);font-size:12px">${filteredNotices.length - idx}</td>
+      <td><span class="notice-type-badge ${n.typeCls}">${n.typeLabel}</span></td>
+      <td style="font-size:12px;color:var(--gray-500)">${n.target}</td>
+      <td>
+        <span style="font-size:13px">${n.title}</span>
+      </td>
+      <td style="font-size:12px;color:var(--gray-400);letter-spacing:-0.5px">${n.period}</td>
+      <td style="font-size:12px;color:var(--gray-500)">${n.author}</td>
+      <td style="font-size:12px;color:var(--gray-400)">${n.date}</td>
+    </tr>
+  `).join('');
+    }
+
+    function showList() {
+      document.getElementById('viewList').classList.remove('hidden');
+      document.getElementById('viewDetail').classList.add('hidden');
+      document.getElementById('viewWrite').classList.add('hidden');
+    }
+
+    function showDetail(id) {
+      const n = notices.find(x => x.id === id);
+      if (!n) return;
+      currentNoticeId = id;
+      document.getElementById('detailType').className = `notice-type-badge ${n.typeCls}`;
+      document.getElementById('detailType').textContent = n.typeLabel;
+      document.getElementById('detailTitle').textContent = n.title;
+      document.getElementById('detailDate').textContent = n.date;
+
+      const idx = notices.findIndex(x => x.id === id);
+      document.getElementById('btnPrev').disabled = idx === 0;
+      document.getElementById('btnNext').disabled = idx === notices.length - 1;
+      document.getElementById('btnPrev').onclick = () => { if (idx > 0) showDetail(notices[idx - 1].id); };
+      document.getElementById('btnNext').onclick = () => { if (idx < notices.length - 1) showDetail(notices[idx + 1].id); };
+
+      // Set Delete button action with notice title
+      document.getElementById('btnDetailDelete').onclick = () => {
+        showConfirm(`[${n.title}]\n\n해당 공지사항을 정말 삭제하시겠습니까?`, () => {
+          showList();
+          showAlert('삭제되었습니다.', { icon: '✅' });
+        }, { confirmText: '삭제' });
+      };
+
+      document.getElementById('viewList').classList.add('hidden');
+      document.getElementById('viewDetail').classList.remove('hidden');
+      document.getElementById('viewWrite').classList.add('hidden');
+    }
+
+    function toggleDateFields() {
+      const isAlways = document.getElementById('chkAlwaysShow').checked;
+      const endObj = document.getElementById('dateEnd');
+      
+      endObj.disabled = isAlways;
+
+      if(isAlways) {
+        endObj.style.color = 'var(--gray-400)'; endObj.style.background = 'var(--gray-50)';
+      } else {
+        endObj.style.color = 'var(--gray-700)'; endObj.style.background = '#fff';
+      }
+    }
+
+    function openTypeSelectModal() {
+      document.getElementById('typeSelectModal').classList.remove('hidden');
+    }
+
+    function closeTypeSelectModal() {
+      document.getElementById('typeSelectModal').classList.add('hidden');
+    }
+
+    function proceedToWrite() {
+      closeTypeSelectModal();
+      const selectedTypeModal = document.querySelector('input[name="modal_ntype"]:checked').value;
+      
+      // 모달에서 선택한 값을 폼의 select에 전달
+      const frmSelect = document.getElementById('frmNoticeType');
+      frmSelect.value = selectedTypeModal;
+      
+      // 날짜 세팅 및 화면 전환, 뱃지 동기화 등은 showWrite()에서 통합 처리
+      showWrite();
+    }
+
+    // select 값이 변경될 때 뱃지도 동기화
+    function syncNoticeTypeBadge() {
+      const typeValue = document.getElementById('frmNoticeType').value;
+      let modeText = '공지'; let modeCls = 'nb-notice';
+      if(typeValue === 'update') { modeText = '업데이트'; modeCls = 'nb-update'; }
+      if(typeValue === 'event') { modeText = '이벤트'; modeCls = 'nb-event'; }
+      if(typeValue === 'urgent') { modeText = '긴급'; modeCls = 'nb-urgent'; }
+
+      const badge = document.getElementById('writeTypeBadge');
+      badge.className = `notice-type-badge ${modeCls}`;
+      badge.innerText = modeText;
+    }
+
+    function openConfirmModal() {
+      // 폼 값 가져오기
+      const title = document.querySelector('.write-title-input').value.trim();
+      
+      const targetSel = document.getElementById('frmNoticeTarget');
+      const targetText = targetSel.options[targetSel.selectedIndex].text;
+      
+      const typeText = document.getElementById('writeTypeBadge').innerText;
+      const isAlways = document.getElementById('chkAlwaysShow').checked;
+      const dateStart = document.getElementById('dateStart').value;
+      const dateEnd = document.getElementById('dateEnd').value;
+
+      if(!title) {
+        showAlert('공지사항 제목을 입력해주세요.', {icon:'⚠️'});
+        return;
+      }
+
+      // 텍스트 매핑
+      document.getElementById('confTarget').textContent = targetText;
+      document.getElementById('confType').textContent = typeText;
+      
+      let periodText = '';
+      const startFmt = dateStart.replace('T', ' ');
+      if (isAlways) {
+        periodText = `${startFmt} ~ (상시 노출)`;
+      } else {
+        const endFmt = dateEnd.replace('T', ' ');
+        periodText = `${startFmt} ~ \n${endFmt}`;
+      }
+      document.getElementById('confPeriod').innerText = periodText;
+
+      document.getElementById('confirmSubmitModal').classList.remove('hidden');
+    }
+
+    function closeConfirmModal() {
+      document.getElementById('confirmSubmitModal').classList.add('hidden');
+    }
+
+    function finalSubmitNotice() {
+      closeConfirmModal();
+      showAlert('공지가 성공적으로 발행되었습니다.', {icon:'🎉'});
+      showList();
+    }
+
+
+    function showWrite() {
+      // 폼 초기화 시 등록 버튼 텍스트를 기본 세팅으로 환원
+      document.getElementById('btnSubmitNotice').innerHTML = '<span>🚀</span> 공지사항 등록하기';
+      
+      // 현재 시간 계산 (YYYY-MM-DDTHH:mm 형식, 최소값 제한용)
+      const now = new Date();
+      now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+      const nowIso = now.toISOString().slice(0, 16);
+      
+      // 게시 시작일 기본값: 다음 시 정각 (예: 15시 20분 -> 16시 00분)
+      const nextHour = new Date();
+      nextHour.setHours(nextHour.getHours() + 1);
+      nextHour.setMinutes(0, 0, 0);
+      nextHour.setMinutes(nextHour.getMinutes() - nextHour.getTimezoneOffset());
+      const nextHourIso = nextHour.toISOString().slice(0, 16);
+
+      // 시작일 세팅
+      const elStart = document.getElementById('dateStart');
+      elStart.value = nextHourIso;
+      elStart.min = nowIso; 
+
+      // 종료일 당일 자정(23:59) 기본값 및 최소 설정
+      const endOfDay = new Date();
+      endOfDay.setHours(23, 59, 0, 0);
+      endOfDay.setMinutes(endOfDay.getMinutes() - endOfDay.getTimezoneOffset());
+      const endIso = endOfDay.toISOString().slice(0, 16);
+      
+      const elEnd = document.getElementById('dateEnd');
+      elEnd.value = endIso;
+      elEnd.min = nowIso;
+
+      // 기존 버튼(수정 등) 대비 비상용 폴백
+      syncNoticeTypeBadge();
+      document.getElementById('viewList').classList.add('hidden');
+      document.getElementById('viewDetail').classList.add('hidden');
+      document.getElementById('viewWrite').classList.remove('hidden');
+    }
+
+    function showEdit() {
+      document.getElementById('frmNoticeType').value = 'update'; // 예시: 업데이트 유형 수정이라고 가정
+      showWrite();
+      // 수정 모드일 땐 등록 커스텀 버튼 텍스트를 변경
+      document.getElementById('btnSubmitNotice').innerHTML = '<span>✏️</span> 공지사항 수정하기';
+    }
+    function openPreviewModal() {
+      // 1. 폼 데이터 파싱
+      const titleEl = document.querySelector('.write-title-input');
+      const title = titleEl ? titleEl.value.trim() : '';
+      const contentEl = document.querySelector('textarea.editor-content');
+      const content = contentEl ? contentEl.value.trim() : '';
+      
+      const typeValue = document.getElementById('frmNoticeType').value;
+      let typeText = '공지'; let typeCls = 'nb-notice';
+      if(typeValue === 'update') { typeText = '업데이트'; typeCls = 'nb-update'; }
+      if(typeValue === 'event') { typeText = '이벤트'; typeCls = 'nb-event'; }
+      if(typeValue === 'urgent') { typeText = '긴급'; typeCls = 'nb-urgent'; }
+      
+      // 작성일 표기용 포맷
+      const today = new Date();
+      const dateStr = today.getFullYear() + '.' + String(today.getMonth()+1).padStart(2,'0') + '.' + String(today.getDate()).padStart(2,'0');
+
+      // 2. 모달 내 엘리먼트에 주입
+      document.getElementById('previewTitle').textContent = title || '제목 없음';
+      document.getElementById('previewContent').innerHTML = content ? content.replace(/\n/g, '<br>') : '작성된 내용이 없습니다.';
+      
+      const badgeObj = document.getElementById('previewType');
+      badgeObj.textContent = typeText;
+      badgeObj.className = `notice-type-badge ${typeCls}`;
+      
+      document.getElementById('previewDate').textContent = dateStr;
+
+      // 3. 모달 열기
+      document.getElementById('previewModal').classList.remove('hidden');
+    }
+
+    function closePreviewModal() {
+      document.getElementById('previewModal').classList.add('hidden');
+    }
+
+    renderTable();
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>대시보드 — 파트너센터</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+.dashboard-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+.legend { display: flex; gap: 12px; flex-wrap: wrap; }
+.legend-item { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--gray-500); }
+.legend-dot { width: 10px; height: 10px; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left">
+        <div class="header-title">대시보드</div>
+      </div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <button class="btn-icon">🔔<span class="notification-dot"></span></button>
+        <div class="avatar">P</div>
+      </div>
+    </header>
+    <div class="page">
+
+      <!-- Summary Cards -->
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label"><span class="stat-dot" style="background:#6366F1"></span>미배정 예약 (3일 내)</div>
+          <div class="stat-value info">3</div>
+          <div class="stat-sub">전체 6객실 중</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><span class="stat-dot" style="background:#F59E0B"></span>오늘 입실</div>
+          <div class="stat-value warning">2</div>
+          <div class="stat-sub">계곡뷰 A · 숲속 B</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><span class="stat-dot" style="background:#6B7280"></span>오늘 퇴실</div>
+          <div class="stat-value">1</div>
+          <div class="stat-sub">파노라마 C</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label"><span class="stat-dot" style="background:#10B981"></span>이번 주말 공실</div>
+          <div class="stat-value success">3</div>
+          <div class="stat-sub">3/15 ~ 3/16</div>
+        </div>
+      </div>
+
+      <!-- Alert -->
+      <div class="alert alert-warning" style="margin-bottom:20px">
+        ⚠️ 이번 주말 (3/15~16) 3개 객실이 아직 비어 있습니다. 특별 할인 프로모션을 진행해 보세요.
+        <a href="partner-coupons-new.html" style="color:#B45309;font-weight:700;margin-left:auto;white-space:nowrap">쿠폰 만들기 →</a>
+      </div>
+
+      <!-- Vacancy Calendar + Bar Chart -->
+      <div class="dashboard-grid" style="margin-bottom:20px">
+        <!-- Vacancy Calendar -->
+        <div class="card" style="overflow:hidden">
+          <div class="card-header">
+            <div>
+              <div class="card-title">객실 공실 현황 — 오늘 공실 <span style="color:var(--primary)">4</span>실</div>
+              <div class="card-subtitle">3월 14일 ~ 22일</div>
+            </div>
+            <div style="font-size:11px;color:var(--gray-400)">총 공실 2 &nbsp;·&nbsp; 예약중 3 &nbsp;·&nbsp; 노출중 4</div>
+          </div>
+          <div style="overflow-x:auto">
+            <table class="vacancy-table" id="vacancyTable"></table>
+          </div>
+          <div class="legend" style="margin-top:12px">
+            <div class="legend-item"><div class="legend-dot" style="background:#DCFCE7"></div>공실</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#FEE2E2"></div>예약</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#DBEAFE"></div>입실</div>
+            <div class="legend-item"><div class="legend-dot" style="background:#FEF9C3"></div>퇴실</div>
+          </div>
+        </div>
+
+        <!-- Bar Chart -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">객실별 예약률</div>
+            <div class="card-subtitle">3월 15일 ~ 31일 (17일)</div>
+          </div>
+          <div class="bar-chart" id="roomBars"></div>
+        </div>
+      </div>
+
+      <!-- Check-in / Check-out lists -->
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">다가오는 입실</div>
+            <span class="badge badge-primary">5건</span>
+          </div>
+          <div class="checkin-list">
+            <div class="checkin-item">
+              <div class="ci-date"><div class="ci-month">3월</div><div class="ci-day">14</div></div>
+              <div class="ci-info"><div class="ci-guest">박○○ 님 · 2인</div><div class="ci-detail">계곡뷰 A · 2박 · ₩280,000</div></div>
+              <div class="ci-badge cib-today">오늘 입실</div>
+            </div>
+            <div class="checkin-item">
+              <div class="ci-date"><div class="ci-month">3월</div><div class="ci-day">14</div></div>
+              <div class="ci-info"><div class="ci-guest">이○○ 님 · 4인</div><div class="ci-detail">숲속 B · 1박 · ₩320,000</div></div>
+              <div class="ci-badge cib-today">오늘 입실</div>
+            </div>
+            <div class="checkin-item">
+              <div class="ci-date"><div class="ci-month">3월</div><div class="ci-day">15</div></div>
+              <div class="ci-info"><div class="ci-guest">최○○ 님 · 2인</div><div class="ci-detail">파노라마 C · 2박 · ₩360,000</div></div>
+              <div class="ci-badge cib-tomorrow">내일</div>
+            </div>
+            <div class="checkin-item">
+              <div class="ci-date"><div class="ci-month">3월</div><div class="ci-day">16</div></div>
+              <div class="ci-info"><div class="ci-guest">김○○ 님 · 3인</div><div class="ci-detail">별빛 D · 3박 · ₩480,000</div></div>
+              <div class="ci-badge cib-soon">모레</div>
+            </div>
+            <div class="checkin-item">
+              <div class="ci-date"><div class="ci-month">3월</div><div class="ci-day">18</div></div>
+              <div class="ci-info"><div class="ci-guest">정○○ 님 · 2인</div><div class="ci-detail">계곡뷰 A · 2박 · ₩280,000</div></div>
+              <div class="ci-badge cib-soon">4일 후</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">다가오는 퇴실</div>
+            <span class="badge badge-primary">4건</span>
+          </div>
+          <div class="checkin-list">
+            <div class="checkin-item">
+              <div class="ci-date"><div class="ci-month">3월</div><div class="ci-day">14</div></div>
+              <div class="ci-info"><div class="ci-guest">강○○ 님 · 2인</div><div class="ci-detail">파노라마 C · 2박 이용 · ₩360,000</div></div>
+              <div class="ci-badge cib-today">오늘 퇴실</div>
+            </div>
+            <div class="checkin-item">
+              <div class="ci-date"><div class="ci-month">3월</div><div class="ci-day">15</div></div>
+              <div class="ci-info"><div class="ci-guest">박○○ 님 · 2인</div><div class="ci-detail">계곡뷰 A → 연박 여부 확인</div></div>
+              <div class="ci-badge cib-tomorrow">내일</div>
+            </div>
+            <div class="checkin-item">
+              <div class="ci-date"><div class="ci-month">3월</div><div class="ci-day">16</div></div>
+              <div class="ci-info"><div class="ci-guest">이○○ 님 · 4인</div><div class="ci-detail">숲속 B · 2박 이용 · ₩640,000</div></div>
+              <div class="ci-badge cib-soon">모레</div>
+            </div>
+            <div class="checkin-item">
+              <div class="ci-date"><div class="ci-month">3월</div><div class="ci-day">17</div></div>
+              <div class="ci-info"><div class="ci-guest">최○○ 님 · 2인</div><div class="ci-detail">파노라마 C · 2박 이용 · ₩360,000</div></div>
+              <div class="ci-badge cib-soon">3일 후</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<!-- Modals -->
+<script src="shared.js"></script>
+<script>
+initPage('partner', 'dashboard', '대시보드');
+
+// Vacancy Calendar
+const rooms = ['계곡뷰 A','숲속 B','파노라마 C','별빛 D','힐링 E','하늘 F'];
+const dates = [];
+const today = new Date(2026, 2, 14);
+for (let i = 0; i < 9; i++) {
+  const d = new Date(today);
+  d.setDate(today.getDate() + i);
+  dates.push({ d: d.getDate(), w: ['일','월','화','수','목','금','토'][d.getDay()], weekend: d.getDay()===0||d.getDay()===6 });
+}
+const vacData = [
+  ['checkin','booked','booked','available','available','booked','available','available','available'],
+  ['booked','checkout','checkin','booked','available','available','booked','available','available'],
+  ['available','available','checkin','booked','booked','available','available','booked','available'],
+  ['available','available','available','available','checkin','booked','booked','available','available'],
+  ['booked','booked','available','checkin','booked','available','available','available','booked'],
+  ['available','checkin','booked','booked','available','available','booked','booked','available'],
+];
+const vcLabel = { available:'공실', booked:'예약', checkin:'입실', checkout:'퇴실', empty:'' };
+const vcClass = { available:'vc-available', booked:'vc-booked', checkin:'vc-checkin', checkout:'vc-checkout' };
+
+let html = '<thead><tr><th style="background:#fff;border:1px solid var(--gray-200)">객실</th>';
+dates.forEach(d => { html += `<th style="${d.weekend?'color:var(--primary)':''}">${d.d}<br><span style="font-weight:400">${d.w}</span></th>`; });
+html += '</tr></thead><tbody>';
+rooms.forEach((r, ri) => {
+  html += `<tr><td class="vacancy-room-name">${r}</td>`;
+  vacData[ri].forEach(s => {
+    html += `<td><span class="vacancy-cell ${vcClass[s]||''}">${vcLabel[s]||''}</span></td>`;
+  });
+  html += '</tr>';
+});
+html += '</tbody>';
+document.getElementById('vacancyTable').innerHTML = html;
+
+// Room bar chart
+drawHorizBars('roomBars', [
+  { label: '계곡뷰 A', pct: 58, color: '#F59E0B' },
+  { label: '숲속 B',   pct: 60, color: '#F59E0B' },
+  { label: '파노라마C', pct: 33, color: '#10B981' },
+  { label: '별빛 D',   pct: 42, color: '#F59E0B' },
+  { label: '힐링 E',   pct: 66, color: '#6366F1' },
+  { label: '하늘 F',   pct: 44, color: '#F59E0B' },
+]);
+</script>
+</body>
+</html>

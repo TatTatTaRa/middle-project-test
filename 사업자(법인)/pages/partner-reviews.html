@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>리뷰 관리 — 파트너센터</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left"><div class="header-title">리뷰 관리</div></div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <button class="btn-icon">🔔<span class="notification-dot"></span></button>
+        <div class="avatar">P</div>
+      </div>
+    </header>
+    <div class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">리뷰 관리</div>
+          <div class="page-subtitle">고객이 남긴 소중한 리뷰를 확인하고 답변을 등록하세요.</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid-3">
+        <div class="stat-card">
+          <div class="stat-label">💬 전체 리뷰</div>
+          <div class="stat-value">1,284</div>
+          <div class="stat-sub">건</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">⭐ 평균 평점</div>
+          <div class="stat-value warning">4.8</div>
+          <div class="stat-sub">★★★★★</div>
+        </div>
+        <div class="stat-card" style="border:2px solid var(--danger-light)">
+          <div class="stat-label" style="color:var(--danger)">⚠️ 미답변 리뷰</div>
+          <div class="stat-value danger">12</div>
+          <div class="stat-sub">건 답변 필요</div>
+        </div>
+      </div>
+
+      <!-- Filter -->
+      <div class="card" style="padding:14px 20px;margin-bottom:16px">
+        <div class="filter-bar">
+          <select><option>전체</option><option>미답변</option><option>답변 완료</option></select>
+          <select><option>전체 별점</option><option>⭐⭐⭐⭐⭐ 5점</option><option>⭐⭐⭐⭐ 4점</option><option>⭐⭐⭐ 3점 이하</option></select>
+          <select><option>전체 객실</option><option>계곡뷰 A</option><option>숲속 B</option><option>파노라마 C</option></select>
+          <input type="date" placeholder="시작일">
+          <input type="date" placeholder="종료일">
+          <div class="search-box ml-auto"><input type="text" placeholder="고객명 입력..."></div>
+          <button class="btn btn-primary btn-sm">필터 적용</button>
+        </div>
+      </div>
+
+      <!-- Review List -->
+      <div class="card">
+        <div id="reviewList"></div>
+      </div>
+
+      <div class="pagination" style="margin-top:16px">
+        <div class="pg-btn">‹</div>
+        <div class="pg-btn active">1</div>
+        <div class="pg-btn">2</div>
+        <div class="pg-btn">3</div>
+        <div class="pg-btn">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+initPage('partner', 'reviews', '리뷰 관리');
+
+const reviews = [
+  { name:'김철수', date:'2023.11.24', rating:5, room:'숲속 B', content:'숙소가 너무 깨끗하고 사장님이 정말 친절하셨어요. 부산에서 가기 위해 이동하기도 좋았고 뷰도 환상적이에요. 다음에 부산 방문 땐 꼭 또 방문할게요. 강추합니다!', reply:null, unreplied:true },
+  { name:'이영희', date:'2023.11.20', rating:4, room:'계곡뷰 A', content:'전반적으로 만족스러웠지만 체크인 안내가 조금 늦었어요. 그래도 숙소는 좋았고 침대도 편안했습니다. 시설은 충분히 좋은 곳 같아요.', reply:'감사합니다! 체크인 안내 지연에 불편을 드려 죄송합니다. 다음 방문시 더욱 개선된 서비스로 모시겠습니다.', unreplied:false },
+  { name:'박민준', date:'2023.11.18', rating:5, room:'파노라마 C', content:'뷰가 너무 좋았어요! 일몰을 보면서 저녁을 먹을 수 있었는데 정말 최고였습니다. 시설도 깔끔하고 침구류도 고급스러워서 매우 만족합니다.', reply:null, unreplied:true },
+  { name:'최지현', date:'2023.11.15', rating:3, room:'힐링 E', content:'위치는 좋았는데 시설이 사진과 조금 달랐어요. 에어컨이 잘 안 되어서 밤에 더웠습니다. 기본적인 시설 관리가 필요할 것 같아요.', reply:'소중한 의견 감사합니다. 에어컨 점검을 즉시 진행하겠습니다.', unreplied:false },
+  { name:'한민수', date:'2023.11.10', rating:5, room:'별빛 D', content:'조용하고 아늑한 분위기가 너무 좋았어요. 주변 자연 환경도 훌륭하고 호텔 스탭분들도 너무 친절하셨어요. 특히 조식이 맛있었습니다!', reply:null, unreplied:true },
+];
+
+const starHtml = n => '★'.repeat(n) + '☆'.repeat(5-n);
+
+document.getElementById('reviewList').innerHTML = reviews.map((r, i) => `
+  <div class="review-item">
+    <div class="review-header">
+      <div class="review-avatar">${r.name[0]}</div>
+      <div class="review-meta">
+        <div class="review-name">${r.name} <span class="stars">${'★'.repeat(r.rating)}<span style="color:var(--gray-200)">${'★'.repeat(5-r.rating)}</span></span></div>
+        <div class="review-date">${r.date}</div>
+      </div>
+      ${r.unreplied ? '<span class="badge badge-pending" style="margin-left:auto">미답변</span>' : '<span class="badge badge-completed" style="margin-left:auto">답변 완료</span>'}
+    </div>
+    <div class="review-room-tag">🛏️ ${r.room}</div>
+    <div class="review-content">${r.content}</div>
+    ${r.reply ? `<div class="review-reply"><div class="reply-label">🏨 사업주 답변</div>${r.reply}</div>` : `
+      <div>
+        <textarea class="form-control" rows="2" placeholder="고객님의 리뷰에 정성스러운 답변을 남겨주세요." style="margin-bottom:8px"></textarea>
+        <button class="btn btn-primary btn-sm" onclick="this.closest('.review-item').querySelector('textarea').closest('div').innerHTML='<div class=\\'review-reply\\'><div class=\\'reply-label\\'>🏨 사업주 답변</div>답변이 등록되었습니다.</div>'">답변 등록</button>
+      </div>
+    `}
+  </div>
+`).join('');
+</script>
+</body>
+</html>

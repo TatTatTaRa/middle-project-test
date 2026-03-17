@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>객실 추가 — 파트너센터</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.form-wrap { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: start; }
+.preview-sticky { position: sticky; top: 80px; }
+.preview-card { background: #fff; border-radius: var(--radius-lg); padding: 20px; box-shadow: var(--shadow-sm); border: 2px solid var(--primary-100); }
+.preview-title { font-size: 13px; font-weight: 700; color: var(--primary); margin-bottom: 14px; }
+.preview-room-name { font-size: 18px; font-weight: 800; color: var(--gray-900); }
+.preview-price { font-size: 14px; font-weight: 700; color: var(--primary); margin-top: 4px; }
+.preview-amenities { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.preview-badge { background: var(--gray-100); border-radius: 4px; padding: 3px 8px; font-size: 11px; color: var(--gray-600); }
+.step-content { display: none; }
+.step-content.active { display: block; }
+.price-input-wrap { display: flex; align-items: center; gap: 8px; }
+.price-input-wrap .currency { font-size: 13px; color: var(--gray-500); flex-shrink: 0; }
+.policy-options { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.policy-opt { border: 2px solid var(--gray-200); border-radius: var(--radius); padding: 14px; cursor: pointer; text-align: center; transition: all 0.15s; }
+.policy-opt.selected { border-color: var(--primary); background: var(--primary-light); }
+.policy-opt .pol-title { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.policy-opt .pol-desc { font-size: 11px; color: var(--gray-500); }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left">
+        <a href="partner-rooms.html" style="font-size:18px;color:var(--gray-400);margin-right:4px">‹</a>
+        <div class="header-title">새 객실 등록</div>
+      </div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <button class="btn-icon">🔔</button>
+        <div class="avatar">P</div>
+      </div>
+    </header>
+    <div class="page">
+
+      <!-- Steps -->
+      <div class="card" style="margin-bottom:20px">
+        <div class="steps">
+          <div class="step-item active" id="s1"><div class="step-circle">1</div><div class="step-label">기본 정보</div></div>
+          <div class="step-line"></div>
+          <div class="step-item" id="s2"><div class="step-circle">2</div><div class="step-label">편의시설</div></div>
+          <div class="step-line"></div>
+          <div class="step-item" id="s3"><div class="step-circle">3</div><div class="step-label">가격 설정</div></div>
+          <div class="step-line"></div>
+          <div class="step-item" id="s4"><div class="step-circle">4</div><div class="step-label">운영 정책</div></div>
+          <div class="step-line"></div>
+          <div class="step-item" id="s5"><div class="step-circle">5</div><div class="step-label">이미지</div></div>
+        </div>
+      </div>
+
+      <div class="form-wrap">
+        <!-- Form -->
+        <div>
+          <!-- Step 1 -->
+          <div class="step-content active card" id="step1">
+            <div class="card-title mb-4">① 기본 정보</div>
+            <div class="form-group"><label class="form-label">객실명 *</label><input class="form-control" placeholder="예: 계곡뷰 A" oninput="document.getElementById('pvName').textContent=this.value||'객실명을 입력하세요'"></div>
+            <div class="form-group"><label class="form-label">객실 설명</label><textarea class="form-control" placeholder="고객에게 보여질 객실 소개 문구를 입력하세요." rows="3"></textarea></div>
+            <div class="form-row">
+              <div class="form-group"><label class="form-label">기준 인원 *</label><input class="form-control" type="number" value="2" min="1"></div>
+              <div class="form-group"><label class="form-label">최대 인원 *</label><input class="form-control" type="number" value="4" min="1"></div>
+            </div>
+            <div class="form-group"><label class="form-label">총 객실 수 (재고)</label><input class="form-control" type="number" value="1" min="1"></div>
+            <div class="flex justify-end gap-2 mt-4"><button class="btn btn-primary" onclick="goStep(2)">다음 →</button></div>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="step-content card" id="step2">
+            <div class="card-title mb-4">② 편의시설 선택</div>
+            <div class="check-group" id="amenities">
+              <div class="check-item checked">📺 TV</div>
+              <div class="check-item checked">📶 Wi-Fi</div>
+              <div class="check-item checked">❄️ 에어컨</div>
+              <div class="check-item checked">🧊 냉장고</div>
+              <div class="check-item">🛁 욕조</div>
+              <div class="check-item">💨 헤어드라이기</div>
+              <div class="check-item">☕ 전기포트</div>
+              <div class="check-item">🔒 금고</div>
+              <div class="check-item">🌊 풀빌라</div>
+              <div class="check-item">⭐ 스타일러</div>
+              <div class="check-item">🍳 조식포함</div>
+              <div class="check-item">🅿️ 주차 가능</div>
+            </div>
+            <div class="flex justify-between mt-5">
+              <button class="btn btn-ghost" onclick="goStep(1)">← 이전</button>
+              <button class="btn btn-primary" onclick="goStep(3)">다음 →</button>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="step-content card" id="step3">
+            <div class="card-title mb-4">③ 판매 가격 설정</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">평일 기본 요금 (일~목) *</label>
+                <div class="price-input-wrap"><span class="currency">₩</span><input class="form-control" type="number" value="150000" min="0" oninput="updatePrice()"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">주말 기본 요금 (금~토) *</label>
+                <div class="price-input-wrap"><span class="currency">₩</span><input class="form-control" type="number" value="180000" min="0" oninput="updatePrice()"></div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">추가 인원 요금 (1인당)</label>
+              <div class="price-input-wrap"><span class="currency">₩</span><input class="form-control" type="number" value="20000" min="0"></div>
+            </div>
+            <div class="alert alert-info mt-3">ℹ️ 날짜별 특별 요금은 설정 > 요금 캘린더에서 설정 가능합니다.</div>
+            <div class="flex justify-between mt-5">
+              <button class="btn btn-ghost" onclick="goStep(2)">← 이전</button>
+              <button class="btn btn-primary" onclick="goStep(4)">다음 →</button>
+            </div>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="step-content card" id="step4">
+            <div class="card-title mb-4">④ 운영 정책</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">체크인 시간</label>
+                <select class="form-control">
+                  <option>14:00</option><option selected>15:00</option><option>16:00</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">체크아웃 시간</label>
+                <select class="form-control">
+                  <option>10:00</option><option selected>11:00</option><option>12:00</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">취소 및 환불 정책 *</label>
+              <div class="policy-options">
+                <div class="policy-opt selected" onclick="selectPolicy(this)">
+                  <div class="pol-title">일반형</div>
+                  <div class="pol-desc">입실 3일 전 100% 환불</div>
+                </div>
+                <div class="policy-opt" onclick="selectPolicy(this)">
+                  <div class="pol-title">엄격형</div>
+                  <div class="pol-desc">입실 7일 전 100% 환불</div>
+                </div>
+                <div class="policy-opt" onclick="selectPolicy(this)">
+                  <div class="pol-title">유연형</div>
+                  <div class="pol-desc">입실 전날까지 100% 환불</div>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">추가 안내 사항</label>
+              <textarea class="form-control" placeholder="고객에게 전달할 추가 안내 사항을 입력하세요. (흡연 불가, 반려동물 불가 등)"></textarea>
+            </div>
+            <div class="flex justify-between mt-5">
+              <button class="btn btn-ghost" onclick="goStep(3)">← 이전</button>
+              <button class="btn btn-primary" onclick="goStep(5)">다음 →</button>
+            </div>
+          </div>
+
+          <!-- Step 5 -->
+          <div class="step-content card" id="step5">
+            <div class="card-title mb-4">⑤ 객실 이미지 업로드</div>
+            <div class="form-group">
+              <label class="form-label">대표 이미지 (1장) *</label>
+              <div style="width:100%;height:160px;border:2px dashed var(--gray-300);border-radius:var(--radius);display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:var(--gray-50);font-size:13px;color:var(--gray-400)">
+                <div style="font-size:32px;margin-bottom:8px">🖼️</div>
+                클릭하여 대표 이미지 업로드<br><span style="font-size:11px">JPG, PNG · 최대 10MB</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">추가 이미지 (최대 10장)</label>
+              <div class="img-grid">
+                <div class="img-cell">+</div>
+                <div class="img-cell">+</div>
+                <div class="img-cell">+</div>
+                <div class="img-cell">+</div>
+                <div class="img-cell">+</div>
+              </div>
+              <div class="form-hint">JPG, PNG 형식 · 각 최대 10MB</div>
+            </div>
+            <div class="flex justify-between mt-5">
+              <button class="btn btn-ghost" onclick="goStep(4)">← 이전</button>
+              <a href="partner-rooms.html"><button class="btn btn-primary btn-lg">✓ 최종 저장하기</button></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="preview-sticky">
+          <div class="preview-card">
+            <div class="preview-title">🔍 객실 미리보기</div>
+            <div style="width:100%;height:140px;background:linear-gradient(135deg,#e0e7ff,#fce7f3);border-radius:var(--radius);margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:40px">🛏️</div>
+            <div class="preview-room-name" id="pvName">객실명을 입력하세요</div>
+            <div class="preview-price" id="pvPrice">₩150,000 / 박</div>
+            <div style="font-size:11px;color:var(--gray-500);margin-top:4px">기준 2인 / 최대 4인</div>
+            <div class="preview-amenities" id="pvAmenities">
+              <span class="preview-badge">📺 TV</span>
+              <span class="preview-badge">📶 Wi-Fi</span>
+              <span class="preview-badge">❄️ 에어컨</span>
+              <span class="preview-badge">🧊 냉장고</span>
+            </div>
+            <div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--gray-200);font-size:11px;color:var(--gray-500)">
+              체크인 15:00 · 체크아웃 11:00<br>
+              취소정책: 일반형 (입실 3일 전 100% 환불)
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+initPage('partner', 'rooms', '객실 추가');
+
+function goStep(n) {
+  document.querySelectorAll('.step-content').forEach((c, i) => c.classList.toggle('active', i === n - 1));
+  document.querySelectorAll('.step-item').forEach((s, i) => {
+    s.classList.remove('active', 'done');
+    if (i < n - 1) s.classList.add('done');
+    if (i === n - 1) s.classList.add('active');
+  });
+}
+
+function selectPolicy(el) {
+  el.closest('.policy-options').querySelectorAll('.policy-opt').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+}
+
+function updatePrice() {
+  const inputs = document.querySelectorAll('#step3 input[type=number]');
+  if (inputs[0]) document.getElementById('pvPrice').textContent = '₩' + Number(inputs[0].value).toLocaleString() + ' / 박 (평일)';
+}
+</script>
+</body>
+</html>

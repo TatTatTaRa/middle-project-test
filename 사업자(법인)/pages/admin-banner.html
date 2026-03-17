@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>배너 설정 마스터 — Super Admin</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* Layout */
+    .banner-layout {
+      display: grid;
+      grid-template-columns: 360px 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Left Panel (Form) */
+    .settings-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .panel-block {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: var(--shadow-sm);
+      border: 1px solid var(--gray-200);
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-800);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panel-title i {
+      color: #6366F1;
+      font-style: normal;
+    }
+
+    /* Align Group */
+    .align-group {
+      display: inline-flex;
+      background: var(--gray-100);
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+    .align-btn {
+      width: 40px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--gray-500);
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+    .align-btn:hover { background: rgba(255,255,255,0.5); }
+    .align-btn.active {
+      background: #fff;
+      color: #6366F1;
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Range Slider */
+    .range-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .range-input {
+      flex: 1;
+      accent-color: #6366F1;
+    }
+
+    /* Toggle Card */
+    .toggle-card {
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 16px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+    .toggle-card.active {
+      border-color: #F87171; /* red-ish outline like design */
+      background: #FEF2F2;
+    }
+    .toggle-card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* Background Tabs */
+    .bg-tabs {
+      display: flex;
+      background: var(--gray-50);
+      border-radius: 8px;
+      padding: 4px;
+      margin-bottom: 16px;
+    }
+    .bg-tab {
+      flex: 1;
+      text-align: center;
+      padding: 8px;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 6px;
+      color: var(--gray-500);
+      transition: all 0.2s;
+    }
+    .bg-tab.active {
+      background: #fff;
+      color: #10B981; /* green-ish */
+      font-weight: 700;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .bg-content { display: none; }
+    .bg-content.active { display: block; }
+
+    /* Right Panel (Preview) */
+    .preview-panel {
+      background: var(--gray-50);
+      border-radius: 16px;
+      border: 1px solid var(--gray-200);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: #fff;
+      border-bottom: 1px solid var(--gray-200);
+    }
+    .window-controls {
+      display: flex;
+      gap: 6px;
+    }
+    .window-controls span {
+      width: 10px; height: 10px; border-radius: 50%;
+    }
+    .window-controls span:nth-child(1) { background: #F87171; }
+    .window-controls span:nth-child(2) { background: #FACC15; }
+    .window-controls span:nth-child(3) { background: #4ADE80; }
+    
+    .preview-title {
+      font-size: 12px;
+      color: var(--gray-500);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-badge {
+      font-size: 10px;
+      font-weight: 700;
+      color: #10B981;
+      background: #D1FAE5;
+      padding: 4px 10px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .status-badge::before {
+      content: ''; display: block; width: 6px; height: 6px; border-radius: 50%; background: #10B981;
+    }
+
+    .preview-body {
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+      background: #F8FAFC;
+    }
+
+    /* Desktop Banner Preview */
+    .banner-desktop {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+      aspect-ratio: 21 / 9;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+    }
+    .banner-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      z-index: 1;
+    }
+    .banner-content {
+      position: relative;
+      z-index: 2;
+      padding: 40px 60px;
+      width: 100%;
+      color: #fff;
+    }
+    .banner-content h2 { margin: 0 0 8px 0; font-size: 32px; font-weight: 800; letter-spacing: -1px; }
+    .banner-content p { margin: 0 0 24px 0; font-size: 16px; opacity: 0.9; }
+    .banner-actions { display: flex; gap: 12px; }
+    .banner-btn {
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary-inner { background: #fff; color: #111; }
+    .banner-link {
+      background: transparent;
+      padding: 10px 4px; /* less padding for link */
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      text-decoration: underline;
+      text-underline-offset: 4px;
+    }
+
+    /* Mobile Banner Preview */
+    .mobile-wrapper {
+      width: 100%;
+      border-top: 1px solid var(--gray-200);
+      padding-top: 30px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 20px;
+    }
+    .mobile-label { font-size: 12px; color: var(--gray-400); text-transform: uppercase; letter-spacing: 0.05em; }
+    
+    .mockup-phone {
+      width: 280px;
+      height: 560px;
+      background: #111827;
+      border-radius: 40px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      padding: 12px;
+      position: relative;
+    }
+    /* Home bar */
+    .mockup-phone::after {
+      content: ''; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+      width: 100px; height: 4px; background: #374151; border-radius: 4px;
+    }
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: #F8FAFC;
+      border-radius: 30px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    /* Mobile Banner specific */
+    .banner-mobile {
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    .banner-mobile .banner-content {
+      padding: 20px;
+    }
+    .banner-mobile h2 { font-size: 20px; margin-bottom: 6px; }
+    .banner-mobile p { font-size: 12px; margin-bottom: 16px; }
+    .banner-mobile .banner-btn { padding: 8px 16px; font-size: 12px; }
+
+    /* Banner Off UI */
+    .banner-off-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.8);
+      backdrop-filter: blur(4px);
+      z-index: 10;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-600);
+      font-weight: 600;
+      display: none;
+    }
+    body.is-banner-off .banner-desktop .banner-off-overlay,
+    body.is-banner-off .banner-mobile .banner-off-overlay {
+      display: flex;
+    }
+    
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <div class="main">
+      <header class="header" style="justify-content: space-between; padding-right: 32px;">
+        <div class="header-left">
+          <div class="header-title" style="display:flex; align-items:center; gap:8px;">
+            <span style="background:#6366F1; color:#fff; padding:6px; border-radius:6px; font-size:16px; display:inline-flex;">⚙️</span> 
+            배너 설정 마스터
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="btn" style="background:#6366F1; color:#fff; border:none;" onclick="saveSettings()"><span class="icon">💾</span> 설정 적용하기</button>
+        </div>
+      </header>
+      
+      <div class="page" style="max-width: 1000px; margin: 0 auto; width: 100%;">
+        <div class="banner-layout">
+          
+          <!-- LEFT : FORM PANEL -->
+          <div class="settings-panel">
+            
+            <!-- Turn on/off -->
+            <div class="panel-block" style="display:flex; align-items:center; justify-content:space-between; padding: 16px 20px;">
+              <div>
+                <div style="font-weight:700; font-size:14px;">메인 배너 활성화</div>
+                <div style="font-size:12px; color:var(--gray-400);">파트너센터 메인 화면 상단 배너 표시 여부</div>
+              </div>
+              <div class="toggle on" id="bannerActiveToggle" onclick="toggleBannerActive(this)"></div>
+            </div>
+
+            <!-- 1. Layout & Text -->
+            <div class="panel-block">
+              <div class="panel-title"><i>T</i> 레이아웃 및 텍스트</div>
+              
+              <div class="form-group">
+                <label class="form-label" style="font-size:12px;">콘텐츠 정렬</label>
+                <div class="align-group" id="alignGroup">
+                  <button class="align-btn" data-align="left" onclick="setAlign('left')" title="왼쪽 정렬">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="15" y1="12" x2="3" y2="12"></line><line x1="17" y1="18" x2="3" y2="18"></line></svg>
+                  </button>
+                  <button class="align-btn active" data-align="center" onclick="setAlign('center')" title="가운데 정렬">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="19" y1="12" x2="5" y2="12"></line><line x1="21" y1="18" x2="3" y2="18"></line></svg>
+                  </button>
+                  <button class="align-btn" data-align="right" onclick="setAlign('right')" title="오른쪽 정렬">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"></line><line x1="21" y1="12" x2="9" y2="12"></line><line x1="21" y1="18" x2="5" y2="18"></line></svg>
+                  </button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" style="font-size:12px;">메인 타이틀</label>
+                <input type="text" class="form-control" id="inpTitle" value="새로운 소식을 확인하세요!" oninput="updatePreview()">
+              </div>
+
+              <div class="form-group" style="margin-bottom:0;">
+                <label class="form-label" style="font-size:12px;">서브 타이틀</label>
+                <textarea class="form-control" id="inpSub" rows="2" oninput="updatePreview()">지금 가입하고 다양한 혜택을 누려보세요.</textarea>
+              </div>
+            </div>
+
+            <!-- 2. Background -->
+            <div class="panel-block">
+              <div class="panel-title"><i>🎨</i> 배경 스타일</div>
+              
+              <div class="bg-tabs">
+                <div class="bg-tab active" id="tabImgBtn" onclick="setBgMode('image')">이미지</div>
+                <div class="bg-tab" id="tabColBtn" onclick="setBgMode('color')">색상</div>
+              </div>
+
+              <div id="cfgImage" class="bg-content active">
+                <div class="form-group">
+                  <label class="form-label" style="font-size:12px;">이미지 URL</label>
+                  <input type="text" class="form-control" id="inpImgUrl" value="https://images.unsplash.com/photo-1497215728101-856f4ea42174?q=80&w=2000" oninput="updatePreview()">
+                </div>
+                <div class="form-group">
+                  <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                    <label class="form-label" style="font-size:12px; margin:0;">오버레이 어둡기</label>
+                    <span id="overlayValDisplay" style="font-size:11px; color:#10B981; font-weight:700;">40%</span>
+                  </div>
+                  <div class="range-wrap">
+                    <input type="range" class="range-input" id="inpOverlay" min="0" max="100" value="40" oninput="updatePreview()">
+                  </div>
+                </div>
+              </div>
+
+              <div id="cfgColor" class="bg-content">
+                <div class="form-group">
+                  <label class="form-label" style="font-size:12px;">배경 색상 (단색 또는 그라데이션 지원 X, 단색만)</label>
+                  <div style="display:flex; gap:10px;">
+                    <input type="color" id="inpBgColor" value="#4338CA" style="width:40px; height:40px; border:none; border-radius:8px; cursor:pointer;" oninput="updatePreview()">
+                    <input type="text" class="form-control" id="inpBgColorText" value="#4338CA" style="flex:1;" oninput="document.getElementById('inpBgColor').value=this.value; updatePreview();">
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-group" style="margin-bottom:0; margin-top:20px;">
+                <label class="form-label" style="font-size:12px;">글자 색상</label>
+                <div style="display:flex; gap:10px;">
+                  <input type="color" id="inpTextColor" value="#ffffff" style="width:40px; height:40px; border:none; border-radius:8px; cursor:pointer;" oninput="updatePreview()">
+                  <input type="text" class="form-control" id="inpTextColorText" value="#ffffff" style="flex:1;" oninput="document.getElementById('inpTextColor').value=this.value; updatePreview();">
+                </div>
+              </div>
+
+            </div>
+
+            <!-- 3. Button & Action -->
+            <div class="panel-block">
+              <div class="panel-title"><i>🖱️</i> 버튼 및 액션 (중복 가능)</div>
+              
+              <div class="toggle-card active" id="cardBtn1">
+                <div class="toggle-card-header" style="cursor:pointer;" onclick="toggleCardBtn(1)">
+                  <div class="toggle on" id="togBtn1"></div>
+                  <div style="font-size:13px; font-weight:700; color:var(--gray-800);">로그인 / 회원가입 버튼 표시</div>
+                </div>
+                <div style="font-size:11px; color:var(--gray-400); margin-top:4px; padding-left:46px;">
+                  비방문자에게 회원가입을 유도합니다.
+                </div>
+              </div>
+
+              <div class="toggle-card" id="cardBtn2">
+                <div class="toggle-card-header" style="cursor:pointer;" onclick="toggleCardBtn(2)">
+                  <div class="toggle" id="togBtn2"></div>
+                  <div style="font-size:13px; font-weight:700; color:var(--gray-800);">커스텀 링크 버튼 표시</div>
+                </div>
+                <div id="cardBtn2Content" style="margin-top:12px; display:none;">
+                  <input type="text" class="form-control" id="inpBtn2Text" placeholder="버튼 텍스트 (예: 자세히 보기)" style="margin-bottom:8px; font-size:12px;" value="자세히 보기" oninput="updatePreview()">
+                  <input type="text" class="form-control" id="inpBtn2Link" placeholder="이동 경로 URL" style="font-size:12px;" value="https://">
+                </div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- RIGHT : PREVIEW PANEL -->
+          <div class="preview-panel">
+            <div class="preview-header">
+              <div class="window-controls">
+                <span></span><span></span><span></span>
+              </div>
+              <div class="preview-title">👁️ 실시간 라이브 프리뷰</div>
+              <div class="status-badge" id="previewStatus">CONNECTED</div>
+            </div>
+            
+            <div class="preview-body">
+              
+              <!-- Desktop -->
+              <div style="width:100%;">
+                <div class="banner-desktop" id="prevDesk">
+                  <div class="banner-overlay" id="prevDeskOverlay"></div>
+                  <div class="banner-content" id="prevDeskContent">
+                    <h2 id="pdTitle">새로운 소식을 확인하세요!</h2>
+                    <p id="pdSub">지금 가입하고 다양한 혜택을 누려보세요.</p>
+                    <div class="banner-actions" id="pdActions">
+                      <button class="banner-btn btn-primary-inner" id="pdBtn1">로그인 / 회원가입</button>
+                      <button class="banner-link" id="pdBtn2" style="display:none;">자세히 보기</button>
+                    </div>
+                  </div>
+                  <div class="banner-off-overlay">🚫 배너 비활성화 상태</div>
+                </div>
+              </div>
+
+              <!-- Mobile -->
+              <div class="mobile-wrapper">
+                <div class="mobile-label">반응형 모바일 뷰</div>
+                <div class="mockup-phone">
+                  <div class="phone-screen">
+                    <div style="height:44px; background:#fff; border-bottom:1px solid #eee;"></div> <!-- Fake header -->
+                    <div class="banner-mobile" id="prevMob">
+                      <div class="banner-overlay" id="prevMobOverlay"></div>
+                      <div class="banner-content" id="prevMobContent">
+                        <h2 id="pmTitle">새로운 소식을 확인하세요!</h2>
+                        <p id="pmSub">지금 가입하고 다양한 혜택을 누려보세요.</p>
+                        <div class="banner-actions" style="justify-content:center;" id="pmActions">
+                          <button class="banner-btn btn-primary-inner" id="pmBtn1">로그인 / 회원가입</button>
+                          <button class="banner-link" id="pmBtn2" style="display:none;">자세히 보기</button>
+                        </div>
+                      </div>
+                      <div class="banner-off-overlay">🚫 비활성화</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+<script src="shared.js"></script>
+<script>
+  initPage('admin', 'banner', '배너 설정');
+
+  let currentAlign = 'center';
+  let bgMode = 'image';
+
+  // 정렬 설정
+  function setAlign(align) {
+    currentAlign = align;
+    document.querySelectorAll('.align-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.align === align);
+    });
+    updatePreview();
+  }
+
+  // 배경 모드 설정
+  function setBgMode(mode) {
+    bgMode = mode;
+    document.getElementById('tabImgBtn').classList.toggle('active', mode === 'image');
+    document.getElementById('tabColBtn').classList.toggle('active', mode === 'color');
+    document.getElementById('cfgImage').classList.toggle('active', mode === 'image');
+    document.getElementById('cfgColor').classList.toggle('active', mode === 'color');
+    updatePreview();
+  }
+
+  // 배너 활성화 토글
+  function toggleBannerActive(el) {
+    el.classList.toggle('on');
+    const isOn = el.classList.contains('on');
+    if(isOn) {
+      document.body.classList.remove('is-banner-off');
+      document.getElementById('previewStatus').textContent = 'CONNECTED';
+      document.getElementById('previewStatus').style.background = '#D1FAE5';
+      document.getElementById('previewStatus').style.color = '#10B981';
+    } else {
+      document.body.classList.add('is-banner-off');
+      document.getElementById('previewStatus').textContent = 'BANNER OFF';
+      document.getElementById('previewStatus').style.background = '#FEE2E2';
+      document.getElementById('previewStatus').style.color = '#EF4444';
+    }
+  }
+
+  // 버튼 토글
+  function toggleCardBtn(num) {
+    const tog = document.getElementById('togBtn' + num);
+    const card = document.getElementById('cardBtn' + num);
+    tog.classList.toggle('on');
+    const isOn = tog.classList.contains('on');
+    card.classList.toggle('active', isOn);
+
+    if (num === 2) {
+      document.getElementById('cardBtn2Content').style.display = isOn ? 'block' : 'none';
+    }
+    updatePreview();
+  }
+
+  // 실시간 렌더링 코어 함수
+  function updatePreview() {
+    // 1. Text & Align
+    const title = document.getElementById('inpTitle').value;
+    const sub = document.getElementById('inpSub').value;
+    
+    ['pdTitle', 'pmTitle'].forEach(id => document.getElementById(id).textContent = title);
+    ['pdSub', 'pmSub'].forEach(id => document.getElementById(id).textContent = sub);
+
+    ['prevDeskContent', 'prevMobContent'].forEach(id => {
+      const el = document.getElementById(id);
+      el.style.textAlign = currentAlign;
+      el.style.alignItems = currentAlign === 'center' ? 'center' : (currentAlign === 'right' ? 'flex-end' : 'flex-start');
+    });
+
+    ['pdActions', 'pmActions'].forEach(id => {
+      document.getElementById(id).style.justifyContent = currentAlign === 'center' ? 'center' : (currentAlign === 'right' ? 'flex-end' : 'flex-start');
+    });
+
+    // 2. Background
+    const desks = [document.getElementById('prevDesk'), document.getElementById('prevMob')];
+    const overlays = [document.getElementById('prevDeskOverlay'), document.getElementById('prevMobOverlay')];
+    
+    if (bgMode === 'image') {
+      const imgUrl = document.getElementById('inpImgUrl').value;
+      const opacity = document.getElementById('inpOverlay').value;
+      document.getElementById('overlayValDisplay').textContent = opacity + '%';
+      
+      desks.forEach(desk => desk.style.backgroundImage = `url('${imgUrl}')`);
+      overlays.forEach(ov => {
+        ov.style.background = `rgba(0,0,0,${opacity / 100})`;
+        ov.style.display = 'block';
+      });
+    } else {
+      const bgColor = document.getElementById('inpBgColor').value;
+      desks.forEach(desk => desk.style.backgroundImage = `none`);
+      desks.forEach(desk => desk.style.backgroundColor = bgColor);
+      document.getElementById('inpBgColorText').value = bgColor;
+      overlays.forEach(ov => ov.style.display = 'none');
+    }
+
+    // 3. Text Color
+    const txtColor = document.getElementById('inpTextColor').value;
+    document.getElementById('inpTextColorText').value = txtColor;
+    ['prevDeskContent', 'prevMobContent'].forEach(id => {
+      document.getElementById(id).style.color = txtColor;
+    });
+
+    // 4. Buttons
+    const btn1On = document.getElementById('togBtn1').classList.contains('on');
+    const btn2On = document.getElementById('togBtn2').classList.contains('on');
+    const btn2Text = document.getElementById('inpBtn2Text').value || '자세히 보기';
+
+    ['pdBtn1', 'pmBtn1'].forEach(id => document.getElementById(id).style.display = btn1On ? '' : 'none');
+    
+    ['pdBtn2', 'pmBtn2'].forEach(id => {
+      const b = document.getElementById(id);
+      b.style.display = btn2On ? '' : 'none';
+      b.textContent = btn2Text;
+      b.style.color = txtColor;
+    });
+  }
+
+  function saveSettings() {
+    showAlert('배너 설정이 성공적으로 적용되었습니다.', { icon: '✅' });
+  }
+
+  // 초기 렌더링
+  updatePreview();
+</script>
+</body>
+</html>

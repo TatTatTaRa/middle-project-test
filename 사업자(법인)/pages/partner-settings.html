@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>설정 — 파트너센터</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.settings-grid { display: grid; grid-template-columns: 200px 1fr; gap: 24px; }
+.settings-nav { background: #fff; border-radius: var(--radius-lg); padding: 12px; box-shadow: var(--shadow-sm); height: fit-content; position: sticky; top: 80px; }
+.sn-item { display: flex; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--radius); cursor: pointer; font-size: 13px; color: var(--gray-600); transition: all 0.15s; }
+.sn-item:hover { background: var(--gray-50); }
+.sn-item.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+.settings-content .section-block { background: #fff; border-radius: var(--radius-lg); padding: 24px; box-shadow: var(--shadow-sm); margin-bottom: 20px; }
+.sec-title { font-size: 15px; font-weight: 700; color: var(--gray-800); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; gap: 8px; }
+.toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--gray-100); }
+.toggle-row:last-child { border-bottom: none; }
+.toggle-info .t-title { font-size: 13px; font-weight: 600; }
+.toggle-info .t-desc { font-size: 11px; color: var(--gray-400); margin-top: 2px; }
+.toggle { width: 44px; height: 24px; background: var(--gray-200); border-radius: 99px; cursor: pointer; position: relative; transition: background 0.2s; flex-shrink: 0; }
+.toggle.on { background: var(--primary); }
+.toggle::after { content: ''; width: 18px; height: 18px; background: #fff; border-radius: 50%; position: absolute; top: 3px; left: 3px; transition: left 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+.toggle.on::after { left: 23px; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left"><div class="header-title">설정</div></div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <button class="btn-icon">🔔</button>
+        <div class="avatar">P</div>
+      </div>
+    </header>
+    <div class="page">
+      <div class="settings-grid">
+        <!-- Settings Nav -->
+        <div class="settings-nav">
+          <div class="sn-item active" onclick="showTab('property',this)">🏨 숙소 정보</div>
+          <div class="sn-item" onclick="showTab('pricing',this)">💰 요금 캘린더</div>
+          <div class="sn-item" onclick="showTab('account',this)">👤 계정 설정</div>
+          <div class="sn-item" onclick="showTab('notifications',this)">🔔 알림 설정</div>
+          <div class="sn-item" onclick="showTab('security',this)">🔒 보안</div>
+        </div>
+
+        <!-- Settings Content -->
+        <div class="settings-content">
+
+          <!-- Property -->
+          <div id="tab-property">
+            <div class="section-block">
+              <div class="sec-title">🏨 숙소 기본 정보</div>
+              <div class="form-group"><label class="form-label">숙소명</label><input class="form-control" value="시그니엘 서울"></div>
+              <div class="form-group"><label class="form-label">숙소 소개</label><textarea class="form-control" rows="3">서울 도심 속 최고의 휴식을 제공하는 럭셔리 호텔입니다. 탁월한 전망과 세심한 서비스로 잊지 못할 경험을 선사합니다.</textarea></div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">주소</label><input class="form-control" value="서울시 송파구 올림픽로 300"></div>
+                <div class="form-group"><label class="form-label">연락처</label><input class="form-control" value="02-3213-1000"></div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">편의시설 (숙소 전체)</label>
+                <div class="check-group">
+                  <div class="check-item checked">🅿️ 주차장</div>
+                  <div class="check-item checked">🏊 수영장</div>
+                  <div class="check-item checked">🍽️ 레스토랑</div>
+                  <div class="check-item checked">💆 스파</div>
+                  <div class="check-item">🏋️ 헬스장</div>
+                  <div class="check-item checked">📶 무료 Wi-Fi</div>
+                  <div class="check-item">🧺 세탁 서비스</div>
+                  <div class="check-item checked">🚌 셔틀버스</div>
+                </div>
+              </div>
+              <div class="flex justify-end mt-4">
+                <button class="btn btn-primary" onclick="showAlert('숙소 정보가 저장되었습니다.', {icon:'✅'})">변경사항 저장</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Pricing Calendar -->
+          <div id="tab-pricing" class="hidden">
+            <div class="section-block">
+              <div class="sec-title">💰 요금 캘린더</div>
+              <div class="alert alert-info mb-4">ℹ️ 날짜별 특별 요금을 설정하면 기본 요금보다 우선 적용됩니다.</div>
+              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px">
+                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--gray-500);padding:6px">일</div>
+                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--gray-500);padding:6px">월</div>
+                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--gray-500);padding:6px">화</div>
+                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--gray-500);padding:6px">수</div>
+                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--gray-500);padding:6px">목</div>
+                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--gray-600);padding:6px">금</div>
+                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--danger);padding:6px">토</div>
+                ${Array.from({length:31},(_, i)=>{const d=i+1;const isWeekend=(i+5)%7>=5;const special=d===15||d===16||d===22||d===23;return `<div style="border:1px solid var(--gray-200);border-radius:8px;padding:6px;text-align:center;cursor:pointer;background:${special?'var(--primary-light)':isWeekend?'var(--gray-50)':'#fff'}" onclick="this.style.background='var(--primary-light)'">
+                  <div style="font-size:12px;font-weight:600;color:${special?'var(--primary)':isWeekend?'var(--gray-600)':'var(--gray-700)'}">${d}</div>
+                  <div style="font-size:10px;color:${special?'var(--primary)':'var(--gray-400)'}">${special?'₩200K':isWeekend?'₩180K':'₩150K'}</div>
+                </div>`;}).join('')}
+              </div>
+              <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px"><div style="width:12px;height:12px;background:var(--primary-light);border-radius:3px;border:1px solid var(--primary)"></div>특별 요금</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px"><div style="width:12px;height:12px;background:var(--gray-50);border-radius:3px;border:1px solid var(--gray-200)"></div>주말 요금</div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px"><div style="width:12px;height:12px;background:#fff;border-radius:3px;border:1px solid var(--gray-200)"></div>평일 요금</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Account -->
+          <div id="tab-account" class="hidden">
+            <div class="section-block">
+              <div class="sec-title">👤 계정 정보</div>
+              <div class="flex items-center gap-4 mb-4" style="padding:16px;background:var(--gray-50);border-radius:var(--radius)">
+                <div style="width:56px;height:56px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:700">P</div>
+                <div><div style="font-weight:700">파트너 관리자</div><div style="font-size:12px;color:var(--gray-400)">partner@hotel.com</div></div>
+                <button class="btn btn-ghost btn-sm ml-auto">프로필 사진 변경</button>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label class="form-label">담당자명</label><input class="form-control" value="김담당"></div>
+                <div class="form-group"><label class="form-label">연락처</label><input class="form-control" value="010-1234-5678"></div>
+              </div>
+              <div class="form-group"><label class="form-label">이메일</label><input class="form-control" value="partner@hotel.com" type="email"></div>
+              <div class="flex justify-end mt-4"><button class="btn btn-primary" onclick="showAlert('저장되었습니다.', {icon:'✅'})">저장</button></div>
+            </div>
+          </div>
+
+          <!-- Notifications -->
+          <div id="tab-notifications" class="hidden">
+            <div class="section-block">
+              <div class="sec-title">🔔 알림 설정</div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="t-title">새 예약 알림</div><div class="t-desc">새 예약이 들어오면 알림을 받습니다.</div></div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="t-title">예약 취소 알림</div><div class="t-desc">예약이 취소되면 알림을 받습니다.</div></div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="t-title">리뷰 등록 알림</div><div class="t-desc">새 리뷰가 등록되면 알림을 받습니다.</div></div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="t-title">정산 완료 알림</div><div class="t-desc">정산이 완료되면 알림을 받습니다.</div></div>
+                <div class="toggle" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="t-title">플랫폼 공지 알림</div><div class="t-desc">운영팀의 공지사항을 알림으로 받습니다.</div></div>
+                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+              </div>
+              <div class="toggle-row">
+                <div class="toggle-info"><div class="t-title">마케팅 정보 알림</div><div class="t-desc">혜택 및 프로모션 정보를 받습니다.</div></div>
+                <div class="toggle" onclick="this.classList.toggle('on')"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Security -->
+          <div id="tab-security" class="hidden">
+            <div class="section-block">
+              <div class="sec-title">🔒 보안 설정</div>
+              <div class="form-group"><label class="form-label">현재 비밀번호</label><input class="form-control" type="password" placeholder="현재 비밀번호 입력"></div>
+              <div class="form-group"><label class="form-label">새 비밀번호</label><input class="form-control" type="password" placeholder="8자 이상, 영문+숫자+특수문자"></div>
+              <div class="form-group"><label class="form-label">새 비밀번호 확인</label><input class="form-control" type="password" placeholder="비밀번호 재입력"></div>
+              <div class="flex justify-end mt-4"><button class="btn btn-primary" onclick="showAlert('비밀번호가 변경되었습니다.', {icon:'✅'})">비밀번호 변경</button></div>
+            </div>
+            <div class="section-block">
+              <div class="sec-title">🚨 계정 탈퇴</div>
+              <div class="alert alert-danger">⚠️ 계정 탈퇴 시 모든 데이터가 삭제되며 복구가 불가능합니다.</div>
+              <button class="btn btn-danger btn-sm" onclick="showConfirm('정말 탈퇴하시겠습니까?\n탈퇴 후에는 모든 데이터가 삭제되며 복구할 수 없습니다.', () => showAlert('탈퇴 처리는 관리자 확인 후 진행됩니다.', {icon:'ℹ️'}), {confirmText:'탈퇴 신청'})">계정 탈퇴 신청</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="shared.js"></script>
+<script>
+initPage('partner', 'settings', '설정');
+function showTab(id, el) {
+  document.querySelectorAll('[id^="tab-"]').forEach(t => t.classList.add('hidden'));
+  document.getElementById('tab-'+id)?.classList.remove('hidden');
+  document.querySelectorAll('.sn-item').forEach(s => s.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
+</body>
+</html>

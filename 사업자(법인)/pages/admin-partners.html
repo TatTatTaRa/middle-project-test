@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>파트너 관리 — Super Admin</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left"><div class="header-title">파트너 관리</div></div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <button class="btn-icon" style="background:#1E293B;color:#818CF8">🔔</button>
+        <div class="avatar" style="background:#6366F1">A</div>
+      </div>
+    </header>
+    <div class="page" style="max-width: 1000px; margin: 0 auto; width: 100%;">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">파트너 관리</div>
+          <div class="page-subtitle">전체 1,284개 파트너 숙소를 관리합니다.</div>
+        </div>
+        <a href="admin-partners-pending.html"><button class="btn" style="background:#6366F1;color:#fff">⏳ 승인 대기 5건</button></a>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid">
+        <div class="stat-card"><div class="stat-label">🏨 전체 파트너</div><div class="stat-value">1,284</div></div>
+        <div class="stat-card"><div class="stat-label" style="color:var(--success)">✅ 승인 완료</div><div class="stat-value success">1,256</div></div>
+        <div class="stat-card"><div class="stat-label" style="color:var(--warning)">⏳ 승인 대기</div><div class="stat-value warning">5</div></div>
+        <div class="stat-card"><div class="stat-label" style="color:var(--danger)">🚫 계정 정지</div><div class="stat-value danger">23</div></div>
+      </div>
+
+      <!-- Filter -->
+      <div class="card" style="padding:14px 20px;margin-bottom:16px">
+        <div class="filter-bar">
+          <select><option>전체 상태</option><option>승인 완료</option><option>승인 대기</option><option>계정 정지</option></select>
+          <select><option>전체 지역</option><option>서울</option><option>경기</option><option>부산</option><option>제주</option></select>
+          <select><option>가입일 순</option><option>최근 가입 순</option><option>매출 높은 순</option></select>
+          <div class="search-box ml-auto"><input type="text" placeholder="법인명 또는 사업자번호 검색..."></div>
+          <button class="btn btn-sm" style="background:#6366F1;color:#fff">검색</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card" style="padding:0">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>법인명 / 숙소명</th>
+                <th>사업자등록번호</th>
+                <th>담당자</th>
+                <th>등록 객실</th>
+                <th>이번 달 매출</th>
+                <th>가입일</th>
+                <th>상태</th>
+                <th>상세</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><div style="font-weight:700">시그니엘 서울 (주)</div><div style="font-size:11px;color:var(--gray-400)">🏨 시그니엘 서울 호텔</div></td>
+                <td style="font-size:12px">120-88-22321</td>
+                <td style="font-size:12px">김파트너<br>partner@hotel.com</td>
+                <td style="text-align:center">6</td>
+                <td style="font-weight:600">₩12,450,000</td>
+                <td style="font-size:12px;color:var(--gray-400)">2023.01.15</td>
+                <td><span class="badge badge-approved">승인 완료</span></td>
+                <td><button class="btn btn-ghost btn-sm" data-status="active" onclick="openPartnerDetail('active')">상세</button></td>
+              </tr>
+              <tr>
+                <td><div style="font-weight:700">그랜드하얏트 (주)</div><div style="font-size:11px;color:var(--gray-400)">🏨 그랜드하얏트서울</div></td>
+                <td style="font-size:12px">345-67-89012</td>
+                <td style="font-size:12px">이담당<br>hyatt@hotel.com</td>
+                <td style="text-align:center">12</td>
+                <td style="font-weight:600">₩28,000,000</td>
+                <td style="font-size:12px;color:var(--gray-400)">2022.11.03</td>
+                <td><span class="badge badge-approved">승인 완료</span></td>
+                <td><button class="btn btn-ghost btn-sm" data-status="active" onclick="openPartnerDetail('active')">상세</button></td>
+              </tr>
+              <tr>
+                <td><div style="font-weight:700">제주오션뷰 리조트</div><div style="font-size:11px;color:var(--gray-400)">🏨 오션뷰 리조트 제주점</div></td>
+                <td style="font-size:12px">456-78-90123</td>
+                <td style="font-size:12px">박제주<br>ocean@jeju.com</td>
+                <td style="text-align:center">8</td>
+                <td style="font-weight:600">₩9,800,000</td>
+                <td style="font-size:12px;color:var(--gray-400)">2023.05.20</td>
+                <td><span class="badge badge-approved">승인 완료</span></td>
+                <td><button class="btn btn-ghost btn-sm" data-status="active" onclick="openPartnerDetail('active')">상세</button></td>
+              </tr>
+              <tr style="opacity:0.6">
+                <td><div style="font-weight:700">모텔 OO (정지됨)</div><div style="font-size:11px;color:var(--gray-400)">🏨 강남 OO 모텔</div></td>
+                <td style="font-size:12px">567-89-01234</td>
+                <td style="font-size:12px">최정지<br>motel@oo.com</td>
+                <td style="text-align:center">3</td>
+                <td style="font-weight:600;color:var(--gray-400)">-</td>
+                <td style="font-size:12px;color:var(--gray-400)">2023.08.10</td>
+                <td><span class="badge badge-suspended">정지됨</span></td>
+                <td><button class="btn btn-ghost btn-sm" data-status="suspended" onclick="openPartnerDetail('suspended')">상세</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid var(--gray-200)">
+          <div class="pagination">
+            <div class="pg-btn">‹</div>
+            <div class="pg-btn active">1</div>
+            <div class="pg-btn">2</div>
+            <div class="pg-btn">3</div>
+            <div class="pg-btn">···</div>
+            <div class="pg-btn">128</div>
+            <div class="pg-btn">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Partner Detail Modal -->
+<div class="modal-overlay hidden" id="modalPartnerDetail">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">파트너 상세 정보</div>
+      <button class="modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="flex items-center gap-4 mb-4" style="padding:16px;background:var(--gray-50);border-radius:var(--radius)">
+        <div style="font-size:40px">🏨</div>
+        <div>
+          <div style="font-size:16px;font-weight:700">시그니엘 서울 (주)</div>
+          <div style="font-size:12px;color:var(--gray-500)">숙소 ID: 12345678 &nbsp;·&nbsp; 가입일: 2023.01.15</div>
+        </div>
+        <span class="badge ml-auto" id="modalStatusBadge">승인 완료</span>
+      </div>
+      <div class="form-row mb-3">
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">사업자등록번호</div>
+          <div style="font-weight:600">120-88-22321</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">담당자 연락처</div>
+          <div style="font-weight:600">010-1234-5678</div>
+        </div>
+      </div>
+      <div class="form-row mb-3">
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">등록 객실 수</div>
+          <div style="font-size:20px;font-weight:700;color:var(--secondary)">6실</div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">이번 달 총 매출</div>
+          <div style="font-size:20px;font-weight:700;color:var(--success)">₩12,450,000</div>
+        </div>
+      </div>
+      <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;display:flex;align-items:center;justify-content:space-between">
+        <div>
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">적용 수수료율</div>
+          <div style="font-size:20px;font-weight:800;color:#6366F1">8.5%</div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:2px">시스템 기본값 자동 적용</div>
+        </div>
+        <a href="admin-system-settings.html" style="font-size:12px;color:#6366F1;text-decoration:underline">수수료 정책 변경 →</a>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="btnSuspend" onclick="suspendPartner()">계정 정지</button>
+      <button class="btn btn-success btn-sm" id="btnRestore" style="display:none" onclick="restorePartner()">정지 해제</button>
+      <button class="btn btn-ghost" data-modal-close>닫기</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+initPage('admin', 'partners', '파트너 관리');
+
+function openPartnerDetail(status) {
+  const badge = document.getElementById('modalStatusBadge');
+  const btnSuspend = document.getElementById('btnSuspend');
+  const btnRestore = document.getElementById('btnRestore');
+
+  if (status === 'suspended') {
+    badge.className = 'badge badge-suspended ml-auto';
+    badge.textContent = '정지됨';
+    btnSuspend.style.display = 'none';
+    btnRestore.style.display = '';
+  } else {
+    badge.className = 'badge badge-approved ml-auto';
+    badge.textContent = '승인 완료';
+    btnSuspend.style.display = '';
+    btnRestore.style.display = 'none';
+  }
+
+  document.getElementById('modalPartnerDetail').classList.remove('hidden');
+}
+
+function suspendPartner() {
+  showConfirm('해당 파트너 계정을 정지하시겠습니까?\n정지 시 파트너의 모든 서비스 이용이 중단됩니다.', () => {
+    document.getElementById('modalPartnerDetail').classList.add('hidden');
+    showAlert('계정이 정지되었습니다.', {icon:'🚫'});
+  }, {confirmText:'정지'});
+}
+
+function restorePartner() {
+  showConfirm('해당 파트너 계정의 정지를 해제하시겠습니까?', () => {
+    document.getElementById('modalPartnerDetail').classList.add('hidden');
+    showAlert('계정 정지가 해제되었습니다.', {icon:'✅'});
+  }, {confirmText:'해제', confirmClass:'btn-success'});
+}
+</script>
+</body>
+</html>
