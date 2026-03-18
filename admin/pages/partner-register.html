@@ -6,7 +6,7 @@
 <title>회원가입 — 파트너센터</title>
 <link rel="stylesheet" href="shared.css">
 <style>
-.auth-card { max-width: 540px; }
+.auth-card { max-width: 580px; }
 .step-panels > div { display: none; }
 .step-panels > div.active { display: block; }
 .verify-box { display: flex; gap: 8px; }
@@ -16,6 +16,44 @@
 .agree-row input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--primary); flex-shrink: 0; }
 .agree-link { color: var(--primary); margin-left: auto; font-size: 12px; }
 .success-icon { font-size: 56px; text-align: center; margin-bottom: 16px; }
+.sel {
+  width: 100%; padding: 9px 12px; border: 1px solid var(--gray-200);
+  border-radius: var(--radius); font-size: 14px; background: white;
+  color: var(--gray-800); appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239CA3AF' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; cursor: pointer;
+}
+.sel:focus { outline: none; border-color: var(--primary); }
+.verified-msg {
+  display: none; background: #ECFDF5; border: 1px solid #A7F3D0;
+  border-radius: var(--radius); padding: 10px 14px; font-size: 13px;
+  color: #065F46; margin-top: 8px; align-items: center; gap: 8px;
+}
+.verified-msg.show { display: flex; }
+.section-desc {
+  background: var(--gray-50); border-radius: var(--radius);
+  padding: 12px 14px; font-size: 12px; color: var(--gray-600);
+  margin-bottom: 20px; line-height: 1.6;
+}
+
+/* 프로그레스 바 */
+.progress-wrap {
+  margin-bottom: 28px;
+}
+.progress-meta {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px; font-size: 12px;
+}
+.progress-label { font-weight: 700; color: var(--gray-800); }
+.progress-count { color: var(--gray-400); }
+.progress-bar-bg {
+  height: 4px; background: var(--gray-200); border-radius: 99px; overflow: hidden;
+}
+.progress-bar-fill {
+  height: 100%; background: var(--primary);
+  border-radius: 99px; transition: width 0.4s ease;
+}
+
 </style>
 </head>
 <body>
@@ -25,20 +63,24 @@
       <div class="logo">✦ 파트너센터</div>
       <div class="sub">사업자(법인) 회원가입</div>
     </div>
-
-    <!-- Steps -->
-    <div class="steps" id="steps">
-      <div class="step-item active" id="s1"><div class="step-circle">1</div><div class="step-label">사업자 정보</div></div>
-      <div class="step-line"></div>
-      <div class="step-item" id="s2"><div class="step-circle">2</div><div class="step-label">회원 정보</div></div>
-      <div class="step-line"></div>
-      <div class="step-item" id="s3"><div class="step-circle">3</div><div class="step-label">약관 동의</div></div>
-      <div class="step-line"></div>
-      <div class="step-item" id="s4"><div class="step-circle">4</div><div class="step-label">완료</div></div>
+    <div style="text-align:left;margin-bottom:16px">
+      <a href="index.html" style="font-size:12px;color:var(--gray-400)">← 전체 페이지 목록</a>
     </div>
 
-    <!-- Panel 1 -->
+    <!-- 프로그레스 바 -->
+    <div class="progress-wrap">
+      <div class="progress-meta">
+        <span class="progress-label" id="progressLabel">사업자 정보</span>
+        <span class="progress-count" id="progressCount">1 / 6단계</span>
+      </div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progressFill" style="width:16.7%"></div>
+      </div>
+    </div>
+
     <div class="step-panels">
+
+      <!-- ① 사업자 정보 -->
       <div class="active" id="panel1">
         <div class="auth-title">사업자 정보 입력</div>
         <div class="auth-subtitle">법인 사업자 정보를 정확하게 입력해주세요.</div>
@@ -59,13 +101,6 @@
           <input type="text" class="form-control" value="김대표">
         </div>
         <div class="form-group">
-          <label class="form-label">업태 / 업종</label>
-          <div class="form-row">
-            <input type="text" class="form-control" value="숙박업">
-            <input type="text" class="form-control" value="호텔업">
-          </div>
-        </div>
-        <div class="form-group">
           <label class="form-label">연락처 <span style="color:var(--danger)">*</span></label>
           <div class="verify-box">
             <input type="tel" class="form-control" placeholder="010-0000-0000">
@@ -75,9 +110,95 @@
         <button class="btn btn-primary btn-full mt-4" onclick="goStep(2)">다음 단계</button>
       </div>
 
-      <!-- Panel 2 -->
+      <!-- ② 정산 계좌 인증 -->
       <div id="panel2">
-        <div class="auth-title">회원 정보 입력</div>
+        <div class="auth-title">정산 계좌 인증</div>
+        <div class="auth-subtitle">정산 대금을 받을 법인 계좌를 등록해주세요.</div>
+        <div class="section-desc">
+          ℹ️ 등록된 계좌는 검토 후 확정되며, 변경 시 재심사가 필요합니다.
+        </div>
+        <div class="form-group">
+          <label class="form-label">은행 선택 <span style="color:var(--danger)">*</span></label>
+          <select class="sel" id="bankSelect">
+            <option value="">은행을 선택하세요</option>
+            <option value="국민">국민은행</option>
+            <option value="신한">신한은행</option>
+            <option value="우리">우리은행</option>
+            <option value="하나">하나은행</option>
+            <option value="기업">기업은행</option>
+            <option value="농협">NH농협은행</option>
+            <option value="카카오">카카오뱅크</option>
+            <option value="토스">토스뱅크</option>
+            <option value="새마을">새마을금고</option>
+            <option value="부산">부산은행</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">계좌번호 <span style="color:var(--danger)">*</span></label>
+          <div class="verify-box">
+            <input type="text" id="accountInput" class="form-control" placeholder="'-' 없이 입력" maxlength="20">
+            <button class="btn btn-outline btn-sm" id="btnVerifyAcct" style="white-space:nowrap" onclick="verifyAccount()">인증 요청</button>
+          </div>
+        </div>
+        <div class="form-group" id="ownerGroup" style="display:none">
+          <label class="form-label">예금주 확인</label>
+          <input type="text" id="accountOwner" class="form-control" readonly style="background:var(--gray-50);">
+          <div class="form-hint" style="margin-top:4px;">법인명 또는 대표자명과 일치하는지 확인해주세요.</div>
+        </div>
+        <div class="verified-msg" id="acctVerifiedMsg">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          계좌 인증이 완료되었습니다.
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button class="btn btn-ghost btn-full" onclick="goStep(1)">이전</button>
+          <button class="btn btn-primary btn-full" id="btnNext2" onclick="goStep(3)" disabled style="opacity:0.45;cursor:not-allowed;">다음 단계</button>
+        </div>
+      </div>
+
+      <!-- ③ 숙소 기본 정보 -->
+      <div id="panel3">
+        <div class="auth-title">숙소 기본 정보</div>
+        <div class="auth-subtitle">운영하실 숙소 정보를 입력해주세요.</div>
+        <div class="section-desc">
+          ℹ️ 입력하신 정보는 심사 과정에서 검토되며, 승인 후 서비스에 반영됩니다. 변경 시 재심사가 필요합니다.
+        </div>
+        <div class="form-group">
+          <label class="form-label">숙소명 <span style="color:var(--danger)">*</span></label>
+          <input type="text" class="form-control" placeholder="예) 시그니엘 서울" id="propName">
+        </div>
+        <div class="form-group">
+          <label class="form-label">숙소 유형 <span style="color:var(--danger)">*</span></label>
+          <select class="sel" id="propType">
+            <option value="">유형을 선택하세요</option>
+            <option value="hotel">호텔</option>
+            <option value="pension">펜션</option>
+            <option value="motel">모텔</option>
+            <option value="guesthouse">게스트하우스</option>
+            <option value="resort">리조트</option>
+            <option value="poolvilla">풀빌라</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">주소 <span style="color:var(--danger)">*</span></label>
+          <div class="verify-box" style="margin-bottom:8px;">
+            <input type="text" class="form-control" id="propAddr" placeholder="주소 검색" readonly>
+            <button class="btn btn-outline btn-sm" style="white-space:nowrap" onclick="searchAddr()">주소 찾기</button>
+          </div>
+          <input type="text" class="form-control" placeholder="상세 주소 (동·호수 등)">
+        </div>
+        <div class="form-group">
+          <label class="form-label">숙소 대표 연락처 <span style="color:var(--danger)">*</span></label>
+          <input type="tel" class="form-control" placeholder="02-0000-0000">
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button class="btn btn-ghost btn-full" onclick="goStep(2)">이전</button>
+          <button class="btn btn-primary btn-full" onclick="goStep(4)">다음 단계</button>
+        </div>
+      </div>
+
+      <!-- ④ 계정(회원) 정보 -->
+      <div id="panel4">
+        <div class="auth-title">계정 정보 입력</div>
         <div class="auth-subtitle">로그인에 사용할 계정 정보를 입력해주세요.</div>
         <div class="form-group">
           <label class="form-label">이메일 (로그인 ID) <span style="color:var(--danger)">*</span></label>
@@ -93,68 +214,112 @@
           <input type="password" class="form-control" placeholder="비밀번호 재입력">
         </div>
         <div class="flex gap-2 mt-4">
-          <button class="btn btn-ghost btn-full" onclick="goStep(1)">이전</button>
-          <button class="btn btn-primary btn-full" onclick="goStep(3)">다음 단계</button>
+          <button class="btn btn-ghost btn-full" onclick="goStep(3)">이전</button>
+          <button class="btn btn-primary btn-full" onclick="goStep(5)">다음 단계</button>
         </div>
       </div>
 
-      <!-- Panel 3 -->
-      <div id="panel3">
+      <!-- ⑤ 약관 동의 -->
+      <div id="panel5">
         <div class="auth-title">약관 동의</div>
         <div class="auth-subtitle">서비스 이용을 위한 약관에 동의해주세요.</div>
         <div class="agree-list">
           <div class="agree-row" style="background:var(--gray-50)">
-            <input type="checkbox" id="all"> <label for="all" style="font-weight:700;cursor:pointer">전체 동의</label>
+            <input type="checkbox" id="all" onchange="toggleAll(this)">
+            <label for="all" style="font-weight:700;cursor:pointer">전체 동의</label>
           </div>
           <div class="agree-row">
-            <input type="checkbox" checked> <span>서비스 이용약관 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
+            <input type="checkbox" class="agree-check"> <span>서비스 이용약관 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
           </div>
           <div class="agree-row">
-            <input type="checkbox" checked> <span>개인정보 처리방침 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
+            <input type="checkbox" class="agree-check"> <span>개인정보 처리방침 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
           </div>
           <div class="agree-row">
-            <input type="checkbox" checked> <span>파트너 운영 정책 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
+            <input type="checkbox" class="agree-check"> <span>파트너 운영 정책 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
           </div>
           <div class="agree-row">
-            <input type="checkbox"> <span>마케팅 정보 수신 동의 (선택)</span>
+            <input type="checkbox" class="agree-check"> <span>마케팅 정보 수신 동의 (선택)</span>
           </div>
         </div>
         <div class="flex gap-2 mt-4">
-          <button class="btn btn-ghost btn-full" onclick="goStep(2)">이전</button>
-          <button class="btn btn-primary btn-full" onclick="goStep(4)">가입 신청</button>
+          <button class="btn btn-ghost btn-full" onclick="goStep(4)">이전</button>
+          <button class="btn btn-primary btn-full" onclick="goStep(6)">가입 신청</button>
         </div>
       </div>
 
-      <!-- Panel 4 -->
-      <div id="panel4">
+      <!-- ⑥ 완료 -->
+      <div id="panel6">
         <div class="success-icon">🎉</div>
-        <div style="text-align:center;margin-bottom:20px">
+        <div style="text-align:center;margin-bottom:24px">
           <div class="auth-title">가입 신청이 완료되었습니다!</div>
-          <div class="auth-subtitle">영업일 기준 1~2일 내에 서류 검토가 진행됩니다.<br>완료 시 이메일로 안내해 드립니다.</div>
+          <div class="auth-subtitle">
+            영업일 기준 1~2일 내에 사업자 정보 및 숙소 정보 심사가 진행됩니다.<br>
+            완료 시 이메일로 안내해 드립니다.
+          </div>
         </div>
         <div style="background:var(--gray-50);border-radius:var(--radius);padding:16px;margin-bottom:20px;font-size:13px">
-          <div style="font-weight:700;margin-bottom:8px">📋 신청 정보 요약</div>
-          <div style="color:var(--gray-600);line-height:2">
+          <div style="font-weight:700;margin-bottom:10px">📋 신청 정보 요약</div>
+          <div style="color:var(--gray-600);line-height:2.2;">
             법인명: (주)시그니엘호텔<br>
             사업자등록번호: 123-45-67890<br>
+            정산 계좌: 등록 완료<br>
+            숙소: 심사 대기 중<br>
             처리 예정: 영업일 1~2일 내
           </div>
         </div>
-        <a href="partner-review-in-progress.html"><button class="btn btn-primary btn-full">확인</button></a>
+        <a href="partner-review-in-progress.html">
+          <button class="btn btn-primary btn-full">확인</button>
+        </a>
       </div>
+
     </div>
   </div>
 </div>
 <script>
+const TOTAL = 6;
+const STEP_LABELS = ['사업자 정보', '정산 계좌', '숙소 기본 정보', '계정 정보', '약관 동의', '가입 완료'];
+
 function goStep(n) {
   document.querySelectorAll('.step-panels > div').forEach((p, i) => {
     p.classList.toggle('active', i === n - 1);
   });
-  document.querySelectorAll('.step-item').forEach((s, i) => {
-    s.classList.remove('active', 'done');
-    if (i < n - 1) s.classList.add('done');
-    if (i === n - 1) s.classList.add('active');
-  });
+  document.getElementById('progressLabel').textContent = STEP_LABELS[n - 1];
+  document.getElementById('progressCount').textContent = n + ' / ' + TOTAL + '단계';
+  document.getElementById('progressFill').style.width = (n / TOTAL * 100) + '%';
+}
+
+function verifyAccount() {
+  const bank = document.getElementById('bankSelect').value;
+  const account = document.getElementById('accountInput').value.trim();
+  if (!bank) { alert('은행을 선택해주세요.'); return; }
+  if (account.length < 10) { alert('올바른 계좌번호를 입력해주세요.'); return; }
+
+  const btn = document.getElementById('btnVerifyAcct');
+  btn.innerText = '확인 중...';
+  btn.disabled = true;
+
+  setTimeout(() => {
+    document.getElementById('ownerGroup').style.display = 'block';
+    document.getElementById('accountOwner').value = '(주)시그니엘호텔';
+    document.getElementById('acctVerifiedMsg').classList.add('show');
+
+    const next = document.getElementById('btnNext2');
+    next.disabled = false;
+    next.style.opacity = '1';
+    next.style.cursor = 'pointer';
+
+    btn.innerText = '인증 완료';
+    btn.style.color = 'var(--success)';
+    btn.style.borderColor = 'var(--success)';
+  }, 1200);
+}
+
+function searchAddr() {
+  document.getElementById('propAddr').value = '서울특별시 중구 을지로 30';
+}
+
+function toggleAll(el) {
+  document.querySelectorAll('.agree-check').forEach(c => c.checked = el.checked);
 }
 </script>
 </body>

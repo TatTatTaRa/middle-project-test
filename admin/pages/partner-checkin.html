@@ -357,7 +357,7 @@
                 </tr>
               </thead>
               <tbody id="tbodyToday">
-                <tr data-name="김철수" data-status="pending">
+                <tr data-name="김철수" data-status="pending" data-resno="#20260318-0001">
                   <td><span class="badge badge-pending">입실 대기</span></td>
                   <td><div style="font-weight:600">김철수</div><div style="font-size:11px;color:var(--gray-500)">010-1234-5678</div></td>
                   <td>Deluxe</td>
@@ -375,7 +375,7 @@
                   <td style="font-size:12px;color:var(--gray-500)">14:00 이후</td>
                   <td><button class="btn-ci-cancel" onclick="openCancelModal(this)">취소</button></td>
                 </tr>
-                <tr data-name="박지성" data-status="pending">
+                <tr data-name="박지성" data-status="pending" data-resno="#20260318-0003">
                   <td><span class="badge badge-pending">입실 대기</span></td>
                   <td><div style="font-weight:600">박지성</div><div style="font-size:11px;color:var(--gray-500)">010-3456-7890</div></td>
                   <td>Suite</td>
@@ -393,7 +393,7 @@
                   <td style="font-size:12px;color:var(--gray-500)">14:00 이후</td>
                   <td><button class="btn-ci-cancel" onclick="openCancelModal(this)">취소</button></td>
                 </tr>
-                <tr data-name="나도현" data-status="pending">
+                <tr data-name="나도현" data-status="pending" data-resno="#20260318-0005">
                   <td><span class="badge badge-pending">입실 대기</span></td>
                   <td><div style="font-weight:600">나도현</div><div style="font-size:11px;color:var(--gray-500)">010-9988-7766</div></td>
                   <td>Deluxe</td>
@@ -428,7 +428,7 @@
                   <th>배정 호수</th>
                   <th>인원</th>
                   <th>경과 시간</th>
-                  <th>관리</th>
+                  <th>확인</th>
                 </tr>
               </thead>
               <tbody id="tbodyOverdue">
@@ -764,17 +764,28 @@
           <div>
             <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:2px;" id="oaName"></div>
             <div style="font-size:12px;color:rgba(255,255,255,0.5);" id="oaTypeAndPax"></div>
+            <!-- 예약번호 + 복사 -->
+            <div style="display:flex;align-items:center;gap:6px;margin-top:6px;">
+              <span style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:500;">예약번호</span>
+              <button id="oaResNoBtn" onclick="copyResNo()"
+                style="display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.18);border-radius:6px;padding:3px 8px;cursor:pointer;transition:all 0.15s;"
+                onmouseover="this.style.background='rgba(255,255,255,0.18)'"
+                onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+                <span id="oaResNo" style="font-size:11px;font-weight:700;color:rgba(255,255,255,0.85);font-family:monospace;letter-spacing:0.03em;"></span>
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+              </button>
+            </div>
           </div>
         </div>
-        <!-- 문의 뱃지 -->
-        <button id="oaChatBtn"
-          onclick="openChatPanel(document.getElementById('oaName').textContent,document.getElementById('oaRoom').textContent)"
-          title="문의 보기"
+        <!-- 협의 메모 버튼 -->
+        <button id="oaMemoBtn"
+          onclick="openMemoViewer()"
+          title="협의 메모 보기"
           style="position:relative;width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;"
           onmouseover="this.style.background='rgba(255,255,255,0.2)'"
           onmouseout="this.style.background='rgba(255,255,255,0.1)'">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-          <span style="position:absolute;top:-4px;right:-4px;background:#E11D48;color:#fff;font-size:9px;font-weight:700;padding:0 4px;border-radius:999px;min-width:14px;text-align:center;line-height:14px;border:2px solid #312E81;">2</span>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          <span id="oaMemoBadge" style="display:none;position:absolute;top:-4px;right:-4px;background:#F59E0B;color:#fff;font-size:9px;font-weight:700;padding:0 4px;border-radius:999px;min-width:14px;text-align:center;line-height:14px;border:2px solid #312E81;"></span>
         </button>
       </div>
     </div>
@@ -989,7 +1000,7 @@
   // 대기 중인 항목(pending)이 존재하고 현재 시각이 마감 시간 이후면 미처리 탭에 표시
   function updateOverdueTab() {
     const now = getCurrentTimeStr();
-    const isPassed = now >= deadlineTime;
+    const isPassed = true; // 데모: 항상 마감 경과 상태로 표시
 
     const pendingRows = document.querySelectorAll('#tbodyToday tr[data-status="pending"]');
     const tbody = document.getElementById('tbodyOverdue');
@@ -1000,6 +1011,7 @@
     if (isPassed) {
       pendingRows.forEach(row => {
         const name = row.dataset.name;
+        const resNo = row.dataset.resno || '';
         const cells = row.querySelectorAll('td');
         const type = cells[2].textContent;
         const room = cells[3].textContent;
@@ -1025,7 +1037,7 @@
           <td>
             <button class="btn btn-sm"
               style="background:white;border:1.5px solid var(--gray-300);color:var(--gray-700);font-weight:600;border-radius:6px;padding:5px 14px;"
-              onclick="openOverdueAction('${name}','${room}','${type}','${pax}')">처리</button>
+              onclick="openOverdueAction('${name}','${room}','${type}','${pax}','${resNo}')">확인</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -1081,13 +1093,41 @@
   }
 
   // ── 미처리 처리 선택 ──
+  // 예약별 협의 메모 저장소
+  const _memoStore = {};
+
   let _overdueGuest = null;
-  function openOverdueAction(name, room, type, pax) {
-    _overdueGuest = { name, room, type, pax };
+  function openOverdueAction(name, room, type, pax, reservationNo) {
+    _overdueGuest = { name, room, type, pax, reservationNo };
     document.getElementById('oaName').textContent = name;
     document.getElementById('oaRoom').textContent = room;
     document.getElementById('oaTypeAndPax').textContent = `${type} · ${pax}`;
+    document.getElementById('oaResNo').textContent = reservationNo || '#—';
+
+    // 협의 메모 배지: 해당 예약에 메모가 있으면 표시
+    const key = `${name}_${room}`;
+    const memos = _memoStore[key] || [];
+    const badge = document.getElementById('oaMemoBadge');
+    if (memos.length > 0) {
+      badge.textContent = memos.length;
+      badge.style.display = 'block';
+    } else {
+      badge.style.display = 'none';
+    }
+
     document.getElementById('modalOverdueAction').classList.remove('hidden');
+  }
+
+  function copyResNo() {
+    const no = document.getElementById('oaResNo').textContent;
+    if (!no || no === '#—') return;
+    navigator.clipboard.writeText(no).then(() => {
+      const btn = document.getElementById('oaResNoBtn');
+      const svg = btn.querySelector('svg');
+      const orig = svg.outerHTML;
+      svg.outerHTML = '<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+      setTimeout(() => { btn.querySelector('svg').outerHTML = orig; }, 1400);
+    });
   }
   function confirmOverdueCheckin() {
     if (!_overdueGuest) return;
@@ -1105,6 +1145,70 @@
     document.getElementById('modalOverdueAction').classList.add('hidden');
     showAlert(`${_overdueGuest.name} 님의 예약이 취소 처리되었습니다.`, { icon: '❌', title: '예약 취소 완료' });
     _overdueGuest = null;
+  }
+
+  // ── 협의 메모 뷰어 ──
+  function openMemoViewer() {
+    if (!_overdueGuest) return;
+    const { name, room, type } = _overdueGuest;
+    const key = `${name}_${room}`;
+
+    document.getElementById('mvGuestName').textContent = name + ' 님';
+    document.getElementById('mvGuestRoom').textContent = `${room} · ${type}`;
+
+    renderMemoList(key);
+    document.getElementById('modalMemoViewer').classList.remove('hidden');
+  }
+
+  function renderMemoList(key) {
+    const memos = _memoStore[key] || [
+      // 데모: 초기 협의 메모 항목
+      { time: '22:15', text: '고객이 자정 넥어 도착 예정이라고 연락함. 다음 날 체크인 처리하기로 협의.', staff: '강필두' },
+    ];
+    if (!_memoStore[key]) _memoStore[key] = memos; // 데모데이터 초기화
+
+    const list = document.getElementById('mvMemoList');
+    list.innerHTML = '';
+
+    if (memos.length === 0) {
+      list.innerHTML = `<div style="text-align:center;padding:40px 0;color:var(--gray-400);font-size:13px;">협의 메모가 없습니다</div>`;
+      return;
+    }
+
+    memos.forEach(m => {
+      const div = document.createElement('div');
+      div.style.cssText = 'background:#fff;border:1px solid var(--gray-100);border-radius:10px;padding:12px 14px;';
+      div.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:11px;font-weight:700;color:#4338CA;background:#EDE9FE;padding:2px 8px;border-radius:20px;">협의 메모</span>
+          <span style="font-size:11px;color:var(--gray-400);">${m.time}${m.staff ? ' · ' + m.staff : ''}</span>
+        </div>
+        <div style="font-size:13px;color:var(--gray-700);line-height:1.6;">${m.text.replace(/</g,'&lt;')}</div>
+      `;
+      list.appendChild(div);
+    });
+
+    // 스크롤 켜속기
+    setTimeout(() => { list.scrollTop = list.scrollHeight; }, 30);
+
+    // 메모 배지 갱신
+    const badge = document.getElementById('oaMemoBadge');
+    if (memos.length > 0) { badge.textContent = memos.length; badge.style.display = 'block'; }
+    else { badge.style.display = 'none'; }
+  }
+
+  function addMemoEntry() {
+    if (!_overdueGuest) return;
+    const input = document.getElementById('mvInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const key = `${_overdueGuest.name}_${_overdueGuest.room}`;
+    const now = new Date();
+    const timeStr = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    if (!_memoStore[key]) _memoStore[key] = [];
+    _memoStore[key].push({ time: timeStr, text, staff: '나' });
+    input.value = '';
+    renderMemoList(key);
   }
 
   // ── 투숙객 상세 정보 ──

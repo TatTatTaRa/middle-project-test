@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>자주 묻는 질문 — Super Admin</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.faq-layout { display: grid; grid-template-columns: 220px 1fr; gap: 20px; align-items: start; }
+
+/* 카테고리 사이드 */
+.cat-panel { background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); box-shadow: var(--shadow-sm); overflow: hidden; }
+.cat-header { padding: 14px 16px; font-size: 13px; font-weight: 700; color: var(--gray-700); border-bottom: 1px solid var(--gray-200); display: flex; align-items: center; justify-content: space-between; }
+.cat-item { padding: 10px 16px; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: space-between; color: var(--gray-700); transition: background 0.1s; }
+.cat-item:hover { background: var(--gray-50); }
+.cat-item.active { background: var(--primary-light); color: var(--primary); font-weight: 700; }
+.cat-count { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 99px; background: var(--gray-100); color: var(--gray-500); }
+.cat-item.active .cat-count { background: var(--primary); color: #fff; }
+
+/* FAQ 목록 */
+.faq-list { display: flex; flex-direction: column; gap: 10px; }
+.faq-card { background: #fff; border-radius: var(--radius-lg); border: 1px solid var(--gray-200); box-shadow: var(--shadow-sm); overflow: hidden; }
+.faq-card-header { padding: 14px 18px; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+.faq-card-header:hover { background: var(--gray-50); }
+.faq-q { font-size: 14px; font-weight: 600; color: var(--gray-800); flex: 1; }
+.faq-category-tag { font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 99px; background: var(--primary-light); color: var(--primary); flex-shrink: 0; }
+.faq-actions { display: flex; gap: 6px; flex-shrink: 0; }
+.faq-body { padding: 0 18px 16px 18px; font-size: 13px; color: var(--gray-600); line-height: 1.8; border-top: 1px dashed var(--gray-200); padding-top: 14px; display: none; }
+.faq-card.open .faq-body { display: block; }
+.faq-arrow { font-size: 12px; color: var(--gray-400); transition: transform 0.2s; flex-shrink: 0; }
+.faq-card.open .faq-arrow { transform: rotate(180deg); }
+.drag-handle { color: var(--gray-300); cursor: grab; font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left"><div class="header-title">자주 묻는 질문</div></div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <div class="avatar" style="background:#6366F1">A</div>
+      </div>
+    </header>
+
+    <div class="page" style="max-width:1000px;margin:0 auto;width:100%">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">FAQ 관리</div>
+          <div class="page-subtitle">고객 및 파트너에게 노출되는 FAQ를 관리합니다.</div>
+        </div>
+        <button class="btn" style="background:#6366F1;color:#fff" onclick="openModal()">+ 질문 추가</button>
+      </div>
+
+      <div class="faq-layout">
+        <!-- 카테고리 패널 -->
+        <div class="cat-panel">
+          <div class="cat-header">
+            카테고리
+            <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" onclick="openCatModal()">편집</button>
+          </div>
+          <div id="catList"></div>
+        </div>
+
+        <!-- FAQ 목록 -->
+        <div>
+          <div class="card" style="padding:12px 16px;margin-bottom:14px">
+            <div class="filter-bar" style="gap:8px">
+              <select id="filterCat" onchange="renderFAQ()">
+                <option value="">전체 카테고리</option>
+              </select>
+              <input type="text" class="form-control" id="faqSearch" placeholder="질문 내용 검색..." oninput="renderFAQ()" style="flex:1;font-size:13px">
+            </div>
+          </div>
+          <div class="faq-list" id="faqList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FAQ 추가/수정 모달 -->
+<div class="modal-overlay hidden" id="modalFAQ">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalFAQTitle">FAQ 추가</div>
+      <button class="modal-close" onclick="closeModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">카테고리 <span style="color:var(--danger)">*</span></label>
+        <select class="form-control" id="faqCat"></select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">질문 <span style="color:var(--danger)">*</span></label>
+        <input type="text" class="form-control" id="faqQ" placeholder="질문을 입력하세요">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">답변 <span style="color:var(--danger)">*</span></label>
+        <textarea class="form-control" id="faqA" rows="5" placeholder="답변을 입력하세요"></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">취소</button>
+      <button class="btn btn-primary" onclick="saveFAQ()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 카테고리 편집 모달 -->
+<div class="modal-overlay hidden" id="modalCat">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">카테고리 편집</div>
+      <button class="modal-close" onclick="document.getElementById('modalCat').classList.add('hidden')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="catEditList" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px"></div>
+      <div style="display:flex;gap:8px">
+        <input type="text" class="form-control" id="newCatInput" placeholder="새 카테고리 이름" style="flex:1;font-size:13px">
+        <button class="btn btn-sm btn-primary" onclick="addCategory()">추가</button>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="document.getElementById('modalCat').classList.add('hidden')">완료</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+initPage('admin', 'faq', 'FAQ 관리');
+
+let CATEGORIES = ['예약', '결제/환불', '회원', '파트너', '기타'];
+let FAQS = [
+  { id:1, cat:'예약', q:'예약 후 변경이 가능한가요?', a:'체크인 3일 전까지는 예약 변경이 가능합니다. 앱 > 내 예약 > 예약 변경에서 날짜 변경을 하실 수 있으며, 체크인 3일 이내는 취소 후 재예약하셔야 합니다.' },
+  { id:2, cat:'예약', q:'예약 확인서는 어디서 받을 수 있나요?', a:'예약 완료 후 등록하신 이메일로 자동 발송됩니다. 앱 > 내 예약 > 예약 상세에서도 PDF로 다운로드하실 수 있습니다.' },
+  { id:3, cat:'결제/환불', q:'환불은 언제 입금되나요?', a:'카드 결제 취소 후 영업일 기준 3~5일 이내 환불됩니다. 카드사에 따라 일부 차이가 있을 수 있습니다.' },
+  { id:4, cat:'결제/환불', q:'부분 취소가 가능한가요?', a:'일부 숙소의 경우 부분 취소가 가능합니다. 해당 숙소 예약 상세 페이지에서 확인하실 수 있으며, 부분 취소가 불가한 경우 고객센터로 문의해주세요.' },
+  { id:5, cat:'회원', q:'비밀번호를 잊었어요.', a:'로그인 화면 하단의 "비밀번호 찾기"를 클릭하시고 가입하신 이메일을 입력하시면 재설정 링크를 발송해드립니다.' },
+  { id:6, cat:'파트너', q:'파트너 가입 심사는 얼마나 걸리나요?', a:'서류 제출 완료 후 영업일 기준 3~5일 이내에 결과를 안내드립니다. 서류 미비 시 추가 요청이 발송될 수 있습니다.' },
+  { id:7, cat:'기타', q:'앱 오류 및 버그는 어디에 신고하나요?', a:'고객 문의 > 기술 문의 또는 앱 내 설정 > 고객센터를 통해 신고해주시면 기술팀이 검토 후 처리합니다.' },
+];
+let editingId = null;
+let selectedCat = '';
+
+function renderCatList() {
+  // 사이드 카테고리
+  const counts = {};
+  FAQS.forEach(f => { counts[f.cat] = (counts[f.cat]||0)+1; });
+  document.getElementById('catList').innerHTML =
+    [{ name:'전체', val:'' }, ...CATEGORIES.map(c => ({name:c, val:c}))].map(c => `
+      <div class="cat-item${selectedCat===c.val?' active':''}" onclick="setCat('${c.val}')">
+        ${c.name}
+        <span class="cat-count">${c.val===''?FAQS.length:(counts[c.val]||0)}</span>
+      </div>
+    `).join('');
+
+  // select 옵션
+  const selEl = document.getElementById('filterCat');
+  selEl.innerHTML = `<option value="">전체</option>` + CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('');
+  const faqCatSel = document.getElementById('faqCat');
+  faqCatSel.innerHTML = CATEGORIES.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+function setCat(val) {
+  selectedCat = val;
+  document.getElementById('filterCat').value = val;
+  renderCatList();
+  renderFAQ();
+}
+
+function renderFAQ() {
+  const q = document.getElementById('faqSearch').value.toLowerCase();
+  const cat = document.getElementById('filterCat').value;
+  const data = FAQS.filter(f =>
+    (!cat || f.cat === cat) &&
+    (!q || f.q.includes(q) || f.a.includes(q))
+  );
+
+  document.getElementById('faqList').innerHTML = data.length ? data.map(f => `
+    <div class="faq-card" id="faq-${f.id}">
+      <div class="faq-card-header" onclick="toggleFAQ(${f.id})">
+        <span class="drag-handle">⠿</span>
+        <span class="faq-category-tag">${f.cat}</span>
+        <div class="faq-q">Q. ${f.q}</div>
+        <div class="faq-actions" onclick="event.stopPropagation()">
+          <button class="btn btn-ghost btn-sm" style="font-size:11px;padding:3px 8px" onclick="editFAQ(${f.id})">수정</button>
+          <button class="btn btn-sm" style="background:#FEE2E2;color:#DC2626;border:none;font-size:11px;padding:3px 8px" onclick="deleteFAQ(${f.id})">삭제</button>
+        </div>
+        <span class="faq-arrow">▼</span>
+      </div>
+      <div class="faq-body">A. ${f.a.replace(/\n/g,'<br>')}</div>
+    </div>
+  `).join('') : '<div style="padding:40px;text-align:center;color:var(--gray-400);background:#fff;border-radius:var(--radius-lg);border:1px solid var(--gray-200)">등록된 FAQ가 없습니다.</div>';
+}
+
+function toggleFAQ(id) {
+  document.getElementById('faq-'+id).classList.toggle('open');
+}
+
+function openModal(id=null) {
+  editingId = id;
+  document.getElementById('modalFAQTitle').textContent = id ? 'FAQ 수정' : 'FAQ 추가';
+  if (id) {
+    const f = FAQS.find(x=>x.id===id);
+    document.getElementById('faqCat').value = f.cat;
+    document.getElementById('faqQ').value = f.q;
+    document.getElementById('faqA').value = f.a;
+  } else {
+    document.getElementById('faqCat').value = CATEGORIES[0];
+    document.getElementById('faqQ').value = '';
+    document.getElementById('faqA').value = '';
+  }
+  document.getElementById('modalFAQ').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('modalFAQ').classList.add('hidden'); }
+
+function editFAQ(id) { openModal(id); }
+
+function saveFAQ() {
+  const cat = document.getElementById('faqCat').value;
+  const q = document.getElementById('faqQ').value.trim();
+  const a = document.getElementById('faqA').value.trim();
+  if (!q || !a) { showAlert('질문과 답변을 모두 입력해주세요.', {icon:'⚠️'}); return; }
+
+  if (editingId) {
+    const f = FAQS.find(x=>x.id===editingId);
+    f.cat=cat; f.q=q; f.a=a;
+    showAlert('FAQ가 수정되었습니다.', {icon:'✅'});
+  } else {
+    FAQS.push({ id: Date.now(), cat, q, a });
+    showAlert('FAQ가 등록되었습니다.', {icon:'✅'});
+  }
+  closeModal();
+  renderCatList();
+  renderFAQ();
+}
+
+function deleteFAQ(id) {
+  const f = FAQS.find(x=>x.id===id);
+  showConfirm(`"${f.q}" 항목을 삭제하시겠습니까?`, () => {
+    FAQS = FAQS.filter(x=>x.id!==id);
+    renderCatList();
+    renderFAQ();
+    showAlert('삭제되었습니다.', {icon:'🗑️'});
+  }, {confirmText:'삭제'});
+}
+
+function openCatModal() {
+  renderCatEditList();
+  document.getElementById('modalCat').classList.remove('hidden');
+}
+function renderCatEditList() {
+  document.getElementById('catEditList').innerHTML = CATEGORIES.map((c,i) => `
+    <div style="display:flex;align-items:center;gap:8px">
+      <input type="text" class="form-control" value="${c}" id="catInput-${i}" style="flex:1;font-size:13px">
+      <button class="btn btn-sm" style="background:#FEE2E2;color:#DC2626;border:none;padding:5px 10px" onclick="removeCat(${i})">삭제</button>
+    </div>
+  `).join('');
+}
+function addCategory() {
+  const val = document.getElementById('newCatInput').value.trim();
+  if (!val) return;
+  if (CATEGORIES.includes(val)) { showAlert('이미 존재하는 카테고리입니다.', {icon:'⚠️'}); return; }
+  CATEGORIES.push(val);
+  document.getElementById('newCatInput').value = '';
+  renderCatEditList();
+  renderCatList();
+  renderFAQ();
+}
+function removeCat(i) {
+  const cat = CATEGORIES[i];
+  if (FAQS.some(f=>f.cat===cat)) { showAlert(`"${cat}" 카테고리에 FAQ가 있습니다.\n먼저 해당 FAQ를 삭제하거나 이동해주세요.`, {icon:'⚠️'}); return; }
+  CATEGORIES.splice(i,1);
+  renderCatEditList();
+  renderCatList();
+  renderFAQ();
+}
+
+renderCatList();
+renderFAQ();
+</script>
+</body>
+</html>

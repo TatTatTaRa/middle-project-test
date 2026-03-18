@@ -237,16 +237,35 @@
               </div>
             </div>
             
-            <div style="margin-bottom: 24px;">
+            <!-- 판매 상태 -->
+            <div style="margin-bottom: 32px;">
               <label class="form-field-label">판매 상태 (읽기 전용)</label>
-              <div class="status-info-row" style="align-items: flex-start;">
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                  <div class="status-badge inspect" style="width: fit-content;">
-                    <span class="s-dot"></span>
-                    <span>점검중</span>
-                  </div>
-                  <div class="status-period-text">2026-03-25 ~ 2026-03-28</div>
+              <div style="display:flex; align-items:center; gap:8px; margin-top:4px;">
+                <div class="status-badge inspect">
+                  <span class="s-dot"></span>
+                  <span>점검중</span>
                 </div>
+                <div class="status-period-text" style="margin:0; font-size:13px; font-weight:600;">2026-03-25 ~ 2026-03-28</div>
+              </div>
+            </div>
+
+            <hr style="border:none; border-top:1px dashed var(--gray-200); margin:0 0 32px 0;">
+
+            <!-- 할당 호실 셋팅 -->
+            <div style="margin-bottom: 24px;">
+              <label class="form-field-label">할당 호실 현황 (재고) *</label>
+              <div style="display:flex; gap:8px; height:44px; margin-bottom:12px;">
+                <input type="number" class="fe-input" id="editInventory" value="5" readonly style="flex:1; height:100%; background:var(--gray-50); color:var(--gray-500); cursor:not-allowed;">
+                <button class="btn btn-outline" style="white-space:nowrap; height:100%; padding:0 20px; font-weight:700; border-radius:10px; background:#fff; border:1.5px solid #6366F1; color:#6366F1; cursor:pointer;" onclick="openUnitModal()">방 번호 셋팅</button>
+              </div>
+
+              <!-- 할당 호실 결과 텍스트 영역 -->
+              <div id="unitResultBox" style="background:#EEF2FF; border:1px solid #C7D2FE; border-radius:10px; padding:16px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <div style="font-size:12px; font-weight:700; color:#4F46E5;">등록된 방 번호 목록 (총 <span id="resCountText">5</span>개)</div>
+                  <div style="font-size:11px; font-weight:600; color:#6366F1; cursor:pointer; text-decoration:underline;" onclick="openUnitModal()">셋팅 방 변경</div>
+                </div>
+                <div id="unitResultText" style="font-size:14px; font-weight:700; color:#3730A3; line-height:1.6; word-break:break-all;">201호, 202호, 203호, 204호, 205호</div>
               </div>
             </div>
 
@@ -273,29 +292,6 @@
                   <span>₩</span>
                   <input type="number" class="fe-input" id="editPriceWeekend" value="180000">
                 </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 운영 정책 -->
-          <div class="rd-section">
-            <div class="rd-section-title">Operation</div>
-            <div class="op-grid">
-              <div>
-                <label class="form-field-label">체크인 (IN)</label>
-                <select class="fe-select" id="editOpIn">
-                  <option value="14:00">14:00</option>
-                  <option value="15:00" selected>15:00</option>
-                  <option value="16:00">16:00</option>
-                </select>
-              </div>
-              <div>
-                <label class="form-field-label">체크아웃 (OUT)</label>
-                <select class="fe-select" id="editOpOut">
-                  <option value="10:00">10:00</option>
-                  <option value="11:00" selected>11:00</option>
-                  <option value="12:00">12:00</option>
-                </select>
               </div>
             </div>
           </div>
@@ -384,11 +380,80 @@
   </div>
 </div>
 
+<div class="modal-overlay hidden" id="modalUnitCreate" style="z-index: 1010;">
+  <div class="modal-box" style="width: 500px; padding:0; overflow:hidden;">
+    <div style="padding:24px 24px 20px; border-bottom:1px solid var(--gray-200); display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="font-size:18px; font-weight:700; color:var(--gray-900); margin:0;">호실 일괄 추가 셋팅</h2>
+      <button onclick="closeUnitModal()" style="background:none; border:none; font-size:24px; cursor:pointer; margin-top:-4px; color:var(--gray-400); line-height:1;">&times;</button>
+    </div>
+    
+    <div style="padding:24px 24px 32px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px;">
+        <div>
+          <label class="form-field-label" style="font-size:13px; color:var(--gray-900);">호실명 생성 방식</label>
+          <div style="display:flex; gap:16px; margin-top:8px;">
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+              <input type="radio" name="creationMode" value="sequence" checked onchange="switchUnitMode()"> 규칙 있는 연속 번호
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+              <input type="radio" name="creationMode" value="manual" onchange="switchUnitMode()"> 특수 명칭 직접 입력
+            </label>
+          </div>
+        </div>
+        <div style="font-size:13px; color:var(--gray-600); margin-bottom:3px;">
+          생성 개수: <strong style="color:var(--primary); font-size:16px; font-weight:800;" id="unitInvCount">0개</strong>
+        </div>
+      </div>
+
+      <!-- 순차 모드 -->
+      <div id="modeSequence" style="display:block;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
+          <div>
+            <label class="form-field-label">접두어 (선택)</label>
+            <input type="text" class="fe-input" id="seqPrefix" placeholder="예: 2" oninput="updateUnitPreview()">
+          </div>
+          <div>
+            <label class="form-field-label">시작 번호</label>
+            <input type="text" class="fe-input" id="seqStart" placeholder="01" value="01" oninput="updateUnitPreview()">
+          </div>
+          <div>
+            <label class="form-field-label">끝 번호</label>
+            <input type="text" class="fe-input" id="seqEnd" placeholder="05" value="05" oninput="updateUnitPreview()">
+          </div>
+        </div>
+        <div>
+          <label class="form-field-label">접미어 (선택)</label>
+          <input type="text" class="fe-input" id="seqSuffix" placeholder="예: 호" value="호" oninput="updateUnitPreview()">
+        </div>
+      </div>
+
+      <!-- 수동 모드 -->
+      <div id="modeManual" style="display:none;">
+        <label class="form-field-label">호실명 목록 (쉼표 구분)</label>
+        <textarea class="fe-textarea" id="manualText" placeholder="쉼표(,) 혹은 엔터로 구분해 호실 이름을 나열하세요.&#10;예: 독채 1동, 본관 VIP룸..." rows="3" oninput="updateUnitPreview()"></textarea>
+      </div>
+
+      <!-- 공통 미리보기 영역 -->
+      <div style="margin-top:24px; padding:16px; background:var(--gray-50); border:1px dashed var(--gray-300); border-radius:8px; font-size:13px; color:var(--gray-600); line-height:1.6;">
+        <div style="font-weight:700; color:var(--gray-800); margin-bottom:4px;">생성될 호실 프리뷰</div>
+        <div id="unitPreviewText">201호, 202호, 203호, 204호, 205호</div>
+      </div>
+    </div>
+    
+    <div style="padding:16px 24px; border-top:1px solid var(--gray-200); display:flex; justify-content:flex-end; gap:8px; background:var(--gray-50);">
+      <button class="btn btn-outline" style="border-radius:8px;" onclick="closeUnitModal()">취소</button>
+      <button class="btn btn-primary" style="border-radius:8px;" onclick="applyUnitCreation()">본 폼에 반영</button>
+    </div>
+  </div>
+</div>
+
 <script src="shared.js"></script>
 <script>
 initPage('partner', 'rooms', '객실 수정');
 
 let initialState = {};
+
+let currentUnits = ['201호', '202호', '203호', '204호', '205호'];
 
 function getFormState() {
   const amenities = Array.from(document.querySelectorAll('#amenityList .am-btn.active'))
@@ -396,11 +461,11 @@ function getFormState() {
   return {
     roomType: document.getElementById('editRoomType').value,
     capacity: document.getElementById('editCapacity').value,
+    inventory: document.getElementById('editInventory').value,
+    units: currentUnits.join(', '),
     description: document.getElementById('editDescription').value,
     priceWeekday: document.getElementById('editPriceWeekday').value,
     priceWeekend: document.getElementById('editPriceWeekend').value,
-    opIn: document.getElementById('editOpIn').value,
-    opOut: document.getElementById('editOpOut').value,
     amenities: amenities.join(', ')
   };
 }
@@ -412,11 +477,11 @@ document.addEventListener('DOMContentLoaded', () => {
 const FIELD_LABELS = {
   roomType: '객실 타입',
   capacity: '기준 인원',
+  inventory: '자동 배정 재고(실)',
+  units: '할당 호실',
   description: '객실 설명',
   priceWeekday: '평일 요금',
   priceWeekend: '주말 요금',
-  opIn: '체크인',
-  opOut: '체크아웃',
   amenities: '편의시설'
 };
 
@@ -425,10 +490,96 @@ function formatValue(key, val) {
     return '₩' + parseInt(val).toLocaleString();
   }
   if (key === 'capacity') return val + '인';
+  if (key === 'inventory') return val + '실';
   if (key === 'description') return `<div style="padding:10px;background:var(--gray-50);border-radius:8px;margin-top:4px">${val||'없음'}</div>`;
   if (!val) return '없음';
   return val;
 }
+
+// ---------------------------
+// 호실 일괄 추가 셋팅 모달 로직
+// ---------------------------
+function switchUnitMode() {
+  const isSeq = document.querySelector('input[name="creationMode"]:checked').value === 'sequence';
+  document.getElementById('modeSequence').style.display = isSeq ? 'block' : 'none';
+  document.getElementById('modeManual').style.display = isSeq ? 'none' : 'block';
+  updateUnitPreview();
+}
+
+function openUnitModal() {
+  document.getElementById('modalUnitCreate').classList.remove('hidden');
+  updateUnitPreview();
+}
+
+function closeUnitModal() {
+  document.getElementById('modalUnitCreate').classList.add('hidden');
+}
+
+function padZero(num, len) {
+  return String(num).padStart(len, '0');
+}
+
+function generateSequenceArray() {
+  const prefix = document.getElementById('seqPrefix').value.trim();
+  const suffix = document.getElementById('seqSuffix').value.trim();
+  const startStr = document.getElementById('seqStart').value.trim();
+  const endStr = document.getElementById('seqEnd').value.trim();
+  if(!startStr || !endStr) return [];
+  const startNum = parseInt(startStr, 10);
+  const endNum = parseInt(endStr, 10);
+  const len = Math.max(startStr.length, endStr.length);
+  if(isNaN(startNum) || isNaN(endNum) || startNum > endNum || (endNum - startNum) > 100) return [];
+  const arr = [];
+  for(let i=startNum; i<=endNum; i++) arr.push(prefix + padZero(i, len) + suffix);
+  return arr;
+}
+
+function getManualArray() {
+  const val = document.getElementById('manualText').value;
+  return val.split(/[\n,]+/).map(v => v.trim()).filter(v => v.length > 0);
+}
+
+function getFinalUnitsArray() {
+  const isSeq = document.querySelector('input[name="creationMode"]:checked').value === 'sequence';
+  return isSeq ? generateSequenceArray() : getManualArray();
+}
+
+function updateUnitPreview() {
+  const arr = getFinalUnitsArray();
+  const elText = document.getElementById('unitPreviewText');
+  const elCount = document.getElementById('unitInvCount');
+  
+  if(arr.length === 0) {
+    elText.textContent = '올바른 값을 입력해 주세요. (가용 최대 100객실)';
+    elText.style.color = 'var(--danger)';
+    elCount.textContent = '0개';
+  } else {
+    elText.textContent = arr.join(', ');
+    elText.style.color = 'var(--gray-700)';
+    elCount.textContent = arr.length + '개';
+  }
+}
+
+function applyUnitCreation() {
+  const arr = getFinalUnitsArray();
+  if(arr.length === 0) {
+    alert("존재하는 호실을 하나 이상 생성해야 합니다.");
+    return;
+  }
+  
+  currentUnits = arr;
+  
+  // 폼 필드 반영
+  document.getElementById('editInventory').value = currentUnits.length;
+  
+  // 결과 박스에 찍어주기
+  document.getElementById('unitResultBox').classList.remove('hidden');
+  document.getElementById('resCountText').textContent = currentUnits.length;
+  document.getElementById('unitResultText').textContent = currentUnits.join(', ');
+  
+  closeUnitModal();
+}
+// ---------------------------
 
 function handleSave() {
   const currentState = getFormState();

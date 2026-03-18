@@ -245,6 +245,7 @@
           <div class="settings-nav">
             <div class="settings-nav-section">정책 관리</div>
             <div class="settings-nav-item active" onclick="showTab('fee')">💰 수수료율 변경</div>
+            <div class="settings-nav-item" onclick="showTab('penalty')">⚠️ 귀책 취소 패널티</div>
             <div class="settings-nav-item" onclick="showTab('notice')">🔔 자동 공지 템플릿</div>
           </div>
 
@@ -343,14 +344,129 @@
               </div>
             </div>
 
-            <!-- ── Tab: 자동 공지 설정 ── -->
-            <div id="tab-notice" class="hidden">
+            <!-- ── Tab: 귀책 취소 패널티 정책 ── -->
+            <div id="tab-penalty" class="hidden">
+
+              <!-- 현재 적용 정책 요약 -->
               <div class="section-block">
-                <div class="section-block-title">🔔 수수료 변경 자동 공지 템플릿</div>
+                <div class="section-block-title">⚠️ 귀책 취소 패널티 정책</div>
+                <div class="section-block-sub">파트너가 직접 예약을 취소하는 경우(귀책 사유) 일정 기간 수수료율이 한시적으로 인상됩니다.</div>
+
+                <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:14px 18px;margin-bottom:20px;font-size:13px;color:#92400E;line-height:1.7">
+                  ⚠️ <strong>귀책 취소란?</strong> 파트너(숙소 운영자)가 고객이 확정된 예약을 직접 취소하는 경우를 말합니다.<br>
+                  이 경우 고객에게 전액 환불되며, 해당 파트너에게는 아래 정의된 단계별 패널티가 자동 적용됩니다.
+                </div>
+
+                <!-- 단계별 정책 테이블 -->
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+                  <div style="font-size:13px;font-weight:700;color:var(--gray-800)">단계별 패널티 정책 설정</div>
+                  <button class="btn btn-sm" style="background:#6366F1;color:#fff;border:none;display:flex;align-items:center;gap:4px" onclick="addTier()">+ 단계 추가</button>
+                </div>
+                <table class="history-table" style="margin-bottom:20px">
+                  <thead>
+                    <tr>
+                      <th style="width:70px">단계</th>
+                      <th>누적 귀책 취소 횟수</th>
+                      <th>수수료 인상 폭</th>
+                      <th>적용 기간</th>
+                      <th>추가 조치</th>
+                      <th style="text-align:right">관리</th>
+                    </tr>
+                  </thead>
+                  <tbody id="penaltyTierBody"></tbody>
+                </table>
+
+                <div style="background:var(--gray-50);border-radius:8px;padding:12px 14px;font-size:12px;color:var(--gray-500);line-height:1.7">
+                  · 패널티는 가장 최근 귀책 취소 발생일 기준으로 판단하며, 단계는 <strong>월 기준 누적횟수</strong>로 산정합니다.<br>
+                  · 패널티 적용 기간이 만료되면 수수료율이 자동으로 기본값으로 복귀됩니다.<br>
+                  · 단계를 추가하거나 삭제할 수 있으며, 최소 1단계는 유지해야 합니다.
+                </div>
+              </div>
+
+              <!-- 현재 패널티 적용 파트너 현황 -->
+              <div class="section-block">
+                <div class="section-block-title">📋 현재 패널티 적용 파트너</div>
+                <div class="section-block-sub">현재 패널티 수수료율이 적용 중인 파트너 목록입니다.</div>
+                <table class="history-table">
+                  <thead>
+                    <tr>
+                      <th>파트너명</th>
+                      <th>단계</th>
+                      <th>귀책 취소 횟수</th>
+                      <th>적용 수수료율</th>
+                      <th>패널티 만료일</th>
+                      <th>잔여일</th>
+                      <th>조치</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td style="font-weight:600">시그니엘 서울</td>
+                      <td><span style="font-size:11px;font-weight:700;padding:2px 8px;background:#FEF3C7;color:#92400E;border-radius:4px">2단계</span></td>
+                      <td style="text-align:center">2건</td>
+                      <td><span style="font-weight:700;color:#92400E">15%</span> <span style="font-size:11px;color:var(--gray-400)">(+5%)</span></td>
+                      <td>2026-04-17</td>
+                      <td style="font-weight:600;color:#F59E0B">30일</td>
+                      <td>
+                        <button class="btn btn-ghost btn-sm" onclick="showConfirm('시그니엘 서울의 패널티를 즉시 해제하시겠습니까?\n기본 수수료율(10%)로 복귀됩니다.', () => showAlert('패널티가 해제되었습니다.', {icon:'✅'}), {confirmText:'패널티 해제', confirmClass:'btn-danger'})">해제</button>
+                      </td>
+                    </tr>
+                    <tr style="color:var(--gray-400)">
+                      <td colspan="7" style="text-align:center;padding:20px;font-size:13px">이 외 현재 패널티 적용 파트너 없음</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- 귀책 취소 이력 -->
+              <div class="section-block">
+                <div class="section-block-title">🕒 귀책 취소 발생 이력</div>
+                <div class="section-block-sub">최근 귀책 취소 발생 내역입니다.</div>
+                <table class="history-table">
+                  <thead>
+                    <tr>
+                      <th>발생일</th>
+                      <th>파트너명</th>
+                      <th>객실</th>
+                      <th>예약번호</th>
+                      <th>고객 환불액</th>
+                      <th>적용 단계</th>
+                      <th>패널티 상태</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>2026-03-18</td>
+                      <td style="font-weight:600">시그니엘 서울</td>
+                      <td>스탠다드 더블</td>
+                      <td style="font-size:12px;color:var(--gray-400)">#20260318-0007</td>
+                      <td style="color:var(--danger);font-weight:600">₩120,000</td>
+                      <td><span style="font-size:11px;font-weight:700;padding:2px 7px;background:#FEF3C7;color:#92400E;border-radius:4px">2단계</span></td>
+                      <td><span class="badge" style="background:#FFFBEB;color:#92400E;border:1px solid #FDE68A;font-size:11px">적용 중 (~04/17)</span></td>
+                    </tr>
+                    <tr>
+                      <td>2026-02-10</td>
+                      <td style="font-weight:600">시그니엘 서울</td>
+                      <td>프리미엄 스위트</td>
+                      <td style="font-size:12px;color:var(--gray-400)">#20260210-0031</td>
+                      <td style="color:var(--danger);font-weight:600">₩250,000</td>
+                      <td><span style="font-size:11px;font-weight:700;padding:2px 7px;background:#EDE9FE;color:#4338CA;border-radius:4px">1단계</span></td>
+                      <td><span class="badge badge-completed" style="font-size:11px">만료</span></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div id="tab-notice" class="hidden">
+
+              <!-- ── 수수료율 변경 공지 템플릿 ── -->
+              <div class="section-block">
+                <div class="section-block-title">💰 수수료율 변경 자동 공지 템플릿</div>
 
                 <div
                   style="background:#FFFBEB;border:1px solid #FDE68A;border-radius:var(--radius);padding:14px 16px;font-size:13px;color:#92400E;margin-bottom:20px;line-height:1.6">
-                  ℹ️ <strong>수수료율이 변경되면 전체 파트너에게 자동으로 공지가 발송됩니다.</strong><br>
+                  ℹ️ <strong>수수료율 변경 또는 귀책 취소 패널티 정책 변경 시 전체 파트너에게 자동으로 공지가 발송됩니다.</strong><br>
                   별도의 발송 작업 없이 아래 템플릿 형식으로 공지사항 게시판, 파트너 앱 푸시, 담당자 이메일로 전송됩니다.
                 </div>
 
@@ -370,6 +486,27 @@
                   </div>
                 </div>
               </div>
+
+              <!-- ── 귀책 취소 패널티 공지 템플릿 ── -->
+              <div class="section-block">
+                <div class="section-block-title">⚠️ 귀책 취소 패널티 변경 자동 공지 템플릿</div>
+                <div class="section-block-sub">패널티 단계 정책이 변경될 때마다 아래 형식으로 자동 발송됩니다.</div>
+
+                <div
+                  style="background:#FEF3F2;border:1px solid #FECACA;border-radius:var(--radius);padding:14px 16px;font-size:13px;color:#991B1B;margin-bottom:20px;line-height:1.6">
+                  ⚠️ <strong>귀책 취소 패널티 정책(단계 추가·수정·삭제)이 변경되면 전체 파트너에게 자동으로 공지됩니다.</strong><br>
+                  아래 미리보기는 현재 설정된 패널티 단계를 기준으로 자동 생성됩니다.
+                </div>
+
+                <div class="notice-preview" id="penaltyNoticePreview">
+                  <div class="np-badge" style="background:#FEF3C7;color:#92400E">공지</div>
+                  <div class="np-title">[귀책 취소 패널티 정책 변경 안내]</div>
+                  <div id="pvPenaltyBody">
+                    <!-- JS로 동적 렌더링 -->
+                  </div>
+                </div>
+              </div>
+
             </div>
 
           </div>
@@ -400,11 +537,11 @@
     })();
 
     function showTab(id) {
-      ['fee', 'notice'].forEach(t => {
+      ['fee', 'penalty', 'notice'].forEach(t => {
         document.getElementById('tab-' + t).classList.toggle('hidden', t !== id);
       });
       document.querySelectorAll('.settings-nav-item').forEach((el, i) => {
-        el.classList.toggle('active', ['fee', 'notice'][i] === id);
+        el.classList.toggle('active', ['fee', 'penalty', 'notice'][i] === id);
       });
     }
 
@@ -479,7 +616,176 @@
 
     // 초기 미리보기 렌더링
     updatePreview();
-  </script>
-</body>
 
+    /* ─── 패널티 단계 ─── */
+    let TIERS = [
+      { count:1, rate:3,  days:30, extra:'없음' },
+      { count:2, rate:5,  days:30, extra:'없음' },
+      { count:3, rate:10, days:90, extra:'노출 제한 경고' },
+    ];
+
+    // 단계 색상 정의
+    const TIER_COLORS = [
+      { bg:'#EDE9FE', text:'#4338CA' }, // 1
+      { bg:'#FEF3C7', text:'#92400E' }, // 2
+      { bg:'#FEE2E2', text:'#DC2626' }, // 3
+      { bg:'#FCE7F3', text:'#9D174D' }, // 4
+      { bg:'#D1FAE5', text:'#065F46' }, // 5+
+    ];
+    function tierColor(i) {
+      return TIER_COLORS[Math.min(i, TIER_COLORS.length - 1)];
+    }
+    function rateColor(extra) {
+      if (extra === '계정 정지') return 'var(--danger)';
+      if (extra === '노출 일시 제한' || extra === '노출 제한 경고') return '#DC2626';
+      return '#F59E0B';
+    }
+    function extraColor(extra) {
+      if (extra === '없음') return 'var(--gray-400)';
+      if (extra === '계정 정지') return 'var(--danger)';
+      return '#DC2626';
+    }
+
+    function renderTiers() {
+      const tbody = document.getElementById('penaltyTierBody');
+      tbody.innerHTML = TIERS.map((t, i) => {
+        const n    = i + 1;
+        const c    = tierColor(i);
+        const rc   = rateColor(t.extra);
+        const canDel = TIERS.length > 1;
+        return `<tr>
+          <td><span style="font-size:12px;font-weight:700;padding:2px 8px;background:${c.bg};color:${c.text};border-radius:4px">${n}단계</span></td>
+          <td><strong>${t.count}건</strong> 이상</td>
+          <td><span style="color:${rc};font-weight:700">+${t.rate}%</span></td>
+          <td>${t.days}일</td>
+          <td style="color:${extraColor(t.extra)};font-weight:${t.extra!=='없음'?'600':'400'}">${t.extra}</td>
+          <td style="text-align:right">
+            <button class="btn btn-ghost btn-sm" style="margin-right:4px" onclick="openPenaltyEdit(${i})">수정</button>
+            <button class="btn btn-sm" style="background:var(--gray-100);color:var(--gray-500);border:none;${canDel?'':'opacity:0.35;pointer-events:none'}" onclick="deleteTier(${i})" ${canDel?'':' disabled'}>삭제</button>
+          </td>
+        </tr>`;
+      }).join('');
+    }
+
+    function addTier() {
+      const last = TIERS[TIERS.length - 1];
+      TIERS.push({
+        count: last.count + 1,
+        rate:  Math.min(30, last.rate + 2),
+        days:  last.days,
+        extra: '없음',
+      });
+      renderTiers();
+      updatePenaltyNoticePreview();
+      showAlert(TIERS.length + '단계가 추가되었습니다. 수정 버튼으로 세부 설정을 조정하세요.', {icon:'✅'});
+    }
+
+    function deleteTier(i) {
+      if (TIERS.length <= 1) { showAlert('최소 1단계는 유지해야 합니다.', {icon:'⚠️'}); return; }
+      showConfirm(`${i+1}단계 패널티를 삭제하시겠습니까?`, () => {
+        TIERS.splice(i, 1);
+        renderTiers();
+        updatePenaltyNoticePreview();
+        showAlert('단계가 삭제되었습니다. 이후 단계 번호가 자동으로 재정렬됩니다.', {icon:'✅'});
+      }, { confirmText:'삭제', confirmClass:'btn-danger' });
+    }
+
+    let _editIdx = -1;
+    function openPenaltyEdit(i) {
+      _editIdx = i;
+      const t = TIERS[i];
+      document.getElementById('editTierNum').textContent   = (i+1) + '단계';
+      document.getElementById('editTierCount').value  = t.count;
+      document.getElementById('editTierRate').value   = t.rate;
+      document.getElementById('editTierDays').value   = t.days;
+      document.getElementById('editTierExtra').value  = t.extra;
+      document.getElementById('modalPenaltyEdit').classList.remove('hidden');
+    }
+    function savePenaltyEdit() {
+      const cnt  = parseInt(document.getElementById('editTierCount').value);
+      const rate = parseFloat(document.getElementById('editTierRate').value);
+      const days = parseInt(document.getElementById('editTierDays').value);
+      const ext  = document.getElementById('editTierExtra').value;
+      if (!cnt || !rate || !days) { showAlert('모든 항목을 입력해 주세요.', {icon:'⚠️'}); return; }
+      TIERS[_editIdx] = { count:cnt, rate:rate, days:days, extra:ext||'없음' };
+      renderTiers();
+      updatePenaltyNoticePreview();
+      document.getElementById('modalPenaltyEdit').classList.add('hidden');
+      showAlert((_editIdx+1)+'단계 패널티 정책이 업데이트되었습니다.\n자동 공지 템플릿에도 변경 내용이 반영되었습니다.', {icon:'✅'});
+    }
+
+    renderTiers();
+    updatePenaltyNoticePreview();
+
+    function updatePenaltyNoticePreview() {
+      const tierLines = TIERS.map((t, i) => {
+        const n = i + 1;
+        const extraText = t.extra !== '없음' ? ` / 추가 조치: <strong style="color:#DC2626">${t.extra}</strong>` : '';
+        return `&nbsp;&nbsp;· <strong>${n}단계</strong>: 귀책 취소 ${t.count}건 이상 → 수수료 <strong style="color:#F59E0B">+${t.rate}%</strong> / ${t.days}일 적용${extraText}`;
+      }).join('<br>');
+
+      document.getElementById('pvPenaltyBody').innerHTML =
+        `안녕하세요, 호텔 미들 플랫폼 운영팀입니다.<br><br>
+귀책 취소 패널티 정책이 아래와 같이 업데이트되었습니다.<br><br>
+<strong>■ 변경된 단계별 패널티 정책</strong><br>
+${tierLines}<br><br>
+귀책 취소는 파트너께서 고객의 확정된 예약을 직접 취소하는 경우이며,<br>
+해당 발생 즉시 아래 단계에 따른 패널티가 자동 적용됩니다.<br><br>
+문의사항은 파트너 고객센터(1588-0000)로 연락 부탁드립니다.<br>
+감사합니다.`;
+    }
+  </script>
+
+  <!-- 패널티 단계 수정 모달 -->
+  <div class="modal-overlay hidden" id="modalPenaltyEdit">
+    <div class="modal" style="max-width:420px">
+      <div class="modal-header">
+        <div class="modal-title">⚠️ <span id="editTierNum">1단계</span> 패널티 설정 수정</div>
+        <button class="modal-close" onclick="document.getElementById('modalPenaltyEdit').classList.add('hidden')">×</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="currentEditTier">
+        <div class="form-group">
+          <label class="form-label">귀책 취소 누적 횟수 기준 <span style="color:var(--danger)">*</span></label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="number" id="editTierCount" class="form-control" min="1" max="20" style="width:80px">
+            <span style="font-size:13px;color:var(--gray-600);">건 이상부터 적용</span>
+          </div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:4px">월 기준 누적 귀책 취소 건수입니다.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">수수료율 인상 폭 <span style="color:var(--danger)">*</span></label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:16px;font-weight:700;color:#F59E0B">+</span>
+            <input type="number" id="editTierRate" class="form-control" min="0.1" max="30" step="0.1" style="width:80px">
+            <span style="font-size:13px;color:var(--gray-600);">% 인상</span>
+          </div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:4px">기본 수수료율에 더해 인상되는 폭입니다. (예: 기본 10% + 인상 5% = 15%)</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">패널티 적용 기간 <span style="color:var(--danger)">*</span></label>
+          <div style="display:flex;align-items:center;gap:8px">
+            <input type="number" id="editTierDays" class="form-control" min="1" max="365" style="width:80px">
+            <span style="font-size:13px;color:var(--gray-600);">일</span>
+          </div>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:4px">귀책 취소 발생일로부터 해당 일수 동안 인상된 수수료율이 적용됩니다.</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">추가 조치</label>
+          <select id="editTierExtra" class="form-control">
+            <option value="없음">없음</option>
+            <option value="노출 제한 경고">노출 제한 경고</option>
+            <option value="노출 일시 제한">노출 일시 제한</option>
+            <option value="계정 정지">계정 정지</option>
+          </select>
+          <div style="font-size:11px;color:var(--gray-400);margin-top:4px">수수료 인상 외 추가로 적용할 제재입니다.</div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content:flex-end;gap:8px">
+        <button class="btn btn-ghost" onclick="document.getElementById('modalPenaltyEdit').classList.add('hidden')">취소</button>
+        <button class="btn" style="background:#6366F1;color:#fff;border:none" onclick="savePenaltyEdit()">저장</button>
+      </div>
+    </div>
+  </div>
+</body>
 </html>

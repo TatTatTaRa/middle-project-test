@@ -12,6 +12,24 @@
 .sb:hover { opacity: 0.8; }
 .sb.active { box-shadow: 0 -3px 0 var(--primary-dark); }
 .sb-label { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--gray-400); white-space: nowrap; }
+
+/* 패널티 배너 */
+.penalty-banner {
+  display:flex; align-items:center; gap:14px;
+  background:linear-gradient(135deg,#FEF3C7,#FDE68A);
+  border:1.5px solid #F59E0B; border-radius:var(--radius-lg);
+  padding:14px 18px; margin-bottom:20px;
+}
+.penalty-banner-icon { font-size:24px; flex-shrink:0; }
+.penalty-rate-chip {
+  display:inline-flex; align-items:center; gap:4px;
+  background:#F59E0B; color:#fff;
+  font-size:11px; font-weight:800;
+  padding:2px 8px; border-radius:99px;
+}
+/* 귀책 행 하이라이트 */
+.tr-penalty { background:#FFFBEB !important; }
+.tr-penalty:hover { background:#FEF3C7 !important; }
 </style>
 </head>
 <body>
@@ -35,6 +53,23 @@
           <button class="btn btn-ghost btn-sm">📥 CSV 내보내기</button>
           <button class="btn btn-ghost btn-sm">📄 보고서 인쇄</button>
         </div>
+      </div>
+
+      <!-- 패널티 배너 -->
+      <div class="penalty-banner" id="penaltyBanner">
+        <div class="penalty-banner-icon">⚠️</div>
+        <div style="flex:1">
+          <div style="font-size:14px;font-weight:800;color:#92400E;margin-bottom:4px">
+            귀책 취소 패널티 수수료율 적용 중
+            <span class="penalty-rate-chip">15% 적용 중</span>
+          </div>
+          <div style="font-size:12px;color:#B45309;line-height:1.6">
+            기본 수수료율 <strong>10%</strong> + 패널티 <strong>+5%</strong> · 적용 기간: 2026-03-18 ~ 2026-04-17
+            <span id="penaltyRemain" style="margin-left:6px;font-weight:700;color:#92400E"></span>
+          </div>
+          <div style="font-size:11px;color:#B45309;margin-top:4px">귀책 취소 발생일: 2026-03-18 · 사유: 파트너 직접 취소 (스탠다드 더블 / 예약 #20260318-0007)</div>
+        </div>
+        <button onclick="document.getElementById('modalPenaltyDetail').classList.remove('hidden')" class="btn btn-sm" style="background:#F59E0B;color:#fff;border:none;flex-shrink:0;font-size:12px">상세 보기</button>
       </div>
 
       <!-- Stats -->
@@ -92,13 +127,40 @@
               </tr>
             </thead>
             <tbody>
+              <!-- 파트너 귀책 취소 행 -->
+              <tr class="tr-penalty" onclick="document.getElementById('modalPenaltyDetail').classList.remove('hidden')" style="cursor:pointer">
+                <td style="font-size:12px">2026-03-18<br><span style="color:var(--gray-400)">취소일</span></td>
+                <td style="font-size:12px">
+                  2026.03.20 ~ 03.22
+                  <div style="font-size:10px;color:var(--warning);font-weight:600;margin-top:2px">⚠️ 귀책 취소</div>
+                </td>
+                <td>
+                  스탠다드 더블
+                  <div style="font-size:10px;color:var(--gray-400);margin-top:1px">예약 #20260318-0007</div>
+                </td>
+                <td style="font-weight:600;color:var(--gray-400)">₩0
+                  <div style="font-size:10px;color:var(--gray-400);font-weight:400">고객 전액 환불</div>
+                </td>
+                <td style="color:var(--gray-400)">—
+                  <div style="font-size:10px;color:var(--gray-400)">수수료 미발생</div>
+                </td>
+                <td style="font-weight:700;color:var(--gray-400)">₩0</td>
+                <td>
+                  <span class="badge" style="background:#FEF3C7;color:#92400E;border:1px solid #FDE68A">⚠️ 귀책 취소</span>
+                  <div style="font-size:10px;color:#B45309;margin-top:3px">패널티 +5% 30일</div>
+                </td>
+                <td><button class="btn btn-ghost btn-sm">›</button></td>
+              </tr>
               <tr>
                 <td style="font-size:12px">2026-03-30<br>2026-03-31</td>
                 <td style="font-size:12px">2026.11.15 ~ 11.30</td>
                 <td>디럭스 더블</td>
                 <td style="font-weight:600">₩3,500,000</td>
-                <td style="color:var(--danger)">-₩300,000</td>
-                <td style="font-weight:700;color:var(--primary)">₩3,200,000</td>
+                <td style="color:var(--danger)">
+                  -₩525,000
+                  <div style="font-size:10px;color:var(--warning);font-weight:600">15% 패널티 적용</div>
+                </td>
+                <td style="font-weight:700;color:var(--primary)">₩2,975,000</td>
                 <td><span class="badge badge-pending">정산 예정</span></td>
                 <td><button class="btn btn-ghost btn-sm">›</button></td>
               </tr>
@@ -135,7 +197,7 @@
             </tbody>
           </table>
         </div>
-        <div style="padding:10px 20px;border-top:1px solid var(--gray-200);font-size:12px;color:var(--gray-400)">전체 12건 · 1-4 표시</div>
+        <div style="padding:10px 20px;border-top:1px solid var(--gray-200);font-size:12px;color:var(--gray-400)">전체 12건 · 1-5 표시</div>
         <div style="padding:8px 20px 12px">
           <div class="pagination">
             <div class="pg-btn">‹</div>
@@ -149,19 +211,113 @@
     </div>
   </div>
 </div>
+
+<!-- 패널티 상세 모달 -->
+<div class="modal-overlay hidden" id="modalPenaltyDetail">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <div class="modal-title">⚠️ 귀책 취소 패널티 상세</div>
+      <button class="modal-close" onclick="document.getElementById('modalPenaltyDetail').classList.add('hidden')">×</button>
+    </div>
+    <div class="modal-body">
+
+      <!-- 발생 내역 -->
+      <div style="background:#FFFBEB;border:1.5px solid #FDE68A;border-radius:10px;padding:14px 16px;margin-bottom:16px">
+        <div style="font-size:12px;font-weight:700;color:#92400E;margin-bottom:8px">귀책 취소 발생 내역</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--gray-700)">
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--gray-500)">취소 일자</span><span style="font-weight:600">2026-03-18</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--gray-500)">객실명</span><span style="font-weight:600">스탠다드 더블</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--gray-500)">예약 번호</span><span style="font-weight:600">#20260318-0007</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--gray-500)">취소 사유</span><span style="font-weight:600">파트너 직접 취소</span></div>
+          <div style="display:flex;justify-content:space-between"><span style="color:var(--gray-500)">고객 환불액</span><span style="font-weight:600;color:var(--danger)">₩120,000 (전액)</span></div>
+        </div>
+      </div>
+
+      <!-- 패널티 내용 -->
+      <div style="margin-bottom:16px">
+        <div style="font-size:13px;font-weight:700;color:var(--gray-800);margin-bottom:10px">적용 패널티 내용</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <div style="border:1.5px solid var(--gray-200);border-radius:10px;padding:12px;text-align:center">
+            <div style="font-size:11px;color:var(--gray-500);margin-bottom:4px">기본 수수료율</div>
+            <div style="font-size:20px;font-weight:900;color:var(--gray-700)">10%</div>
+          </div>
+          <div style="border:1.5px solid #F59E0B;border-radius:10px;padding:12px;text-align:center;background:#FFFBEB">
+            <div style="font-size:11px;color:#B45309;margin-bottom:4px">패널티 적용 수수료율</div>
+            <div style="font-size:20px;font-weight:900;color:#92400E">15% <span style="font-size:13px;color:#F59E0B">+5%</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 적용 기간 -->
+      <div style="background:var(--gray-50);border-radius:10px;padding:12px 14px;margin-bottom:16px">
+        <div style="font-size:12px;font-weight:700;color:var(--gray-700);margin-bottom:6px">패널티 적용 기간</div>
+        <div style="display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:13px;color:var(--gray-700)">2026-03-18 ~ 2026-04-17</span>
+          <span style="font-size:12px;font-weight:700;color:#F59E0B" id="modalRemain"></span>
+        </div>
+        <div style="margin-top:8px;background:var(--gray-200);border-radius:99px;height:6px;overflow:hidden">
+          <div style="width:3%;height:100%;background:#F59E0B;border-radius:99px;transition:width 0.3s" id="penaltyProgress"></div>
+        </div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:4px">패널티 기간이 지나면 수수료율이 자동으로 10%로 복귀됩니다.</div>
+      </div>
+
+      <!-- 패널티 단계 안내 -->
+      <div style="border:1px solid var(--gray-200);border-radius:10px;padding:12px 14px">
+        <div style="font-size:12px;font-weight:700;color:var(--gray-700);margin-bottom:8px">📋 귀책 취소 패널티 정책</div>
+        <div style="display:flex;flex-direction:column;gap:6px;font-size:12px">
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:var(--primary-light);border-radius:6px">
+            <span style="font-weight:700;color:var(--primary)">1건</span>
+            <span style="color:var(--gray-600)">수수료율 +3% · 30일 적용</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#FFFBEB;border-radius:6px;border:1px solid #FDE68A">
+            <span style="font-weight:700;color:#92400E">2건</span>
+            <span style="color:var(--gray-600)">수수료율 +5% · 30일 적용</span>
+            <span style="margin-left:auto;font-size:10px;font-weight:700;color:#F59E0B">◀ 현재</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;padding:6px 8px;background:#FFF1F2;border-radius:6px">
+            <span style="font-weight:700;color:var(--danger)">3건+</span>
+            <span style="color:var(--gray-600)">수수료율 +10% · 90일 + 노출 제한 경고</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer" style="justify-content:flex-end">
+      <button class="btn btn-ghost" onclick="document.getElementById('modalPenaltyDetail').classList.add('hidden')">닫기</button>
+    </div>
+  </div>
+</div>
+
 <script src="shared.js"></script>
 <script>
 initPage('partner', 'settlements', '정산 내역');
+
+// 패널티 잔여일 계산
+(function() {
+  const endDate = new Date('2026-04-17');
+  const today = new Date('2026-03-18'); // 현재 시각 기준
+  const totalDays = 30;
+  const elapsed = Math.floor((today - new Date('2026-03-18')) / 86400000);
+  const remain = Math.max(0, Math.ceil((endDate - today) / 86400000));
+  const pct = Math.min(100, Math.round((elapsed / totalDays) * 100));
+  const txt = `잔여 ${remain}일`;
+  const el1 = document.getElementById('penaltyRemain');
+  const el2 = document.getElementById('modalRemain');
+  if (el1) el1.textContent = `(잔여 ${remain}일)`;
+  if (el2) el2.textContent = txt;
+  const prog = document.getElementById('penaltyProgress');
+  if (prog) prog.style.width = pct + '%';
+})();
 
 // Settlement bar chart
 const barData = [
   {label:'2/14', v:280, active:false},
   {label:'2/21', v:450, active:false},
   {label:'2/28', v:380, active:false},
-  {label:'3/7', v:520, active:false},
+  {label:'3/7',  v:520, active:false},
   {label:'3/14', v:920, active:true},
-  {label:'3/21', v:0, active:false},
-  {label:'3/28', v:0, active:false},
+  {label:'3/21', v:0,   active:false},
+  {label:'3/28', v:0,   active:false},
 ];
 const maxV = Math.max(...barData.map(d=>d.v));
 document.getElementById('settleBars').innerHTML = barData.map(d => {

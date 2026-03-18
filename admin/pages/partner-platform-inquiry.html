@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>플랫폼 문의 — 파트너센터</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+.inq-wrap {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 0;
+  height: calc(100vh - 64px);
+  overflow: hidden;
+}
+
+/* 왼쪽 사이드 */
+.inq-side {
+  background: #fff;
+  border-right: 1px solid var(--gray-200);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.inq-side-header {
+  padding: 16px;
+  border-bottom: 1px solid var(--gray-200);
+}
+.inq-side-title { font-size: 14px; font-weight: 700; color: var(--gray-800); margin-bottom: 12px; }
+.inq-list { flex: 1; overflow-y: auto; }
+.inq-thread {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--gray-100);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.inq-thread:hover, .inq-thread.active { background: var(--primary-light); }
+.inq-thread-top { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+.inq-thread-subject { font-size: 13px; font-weight: 700; color: var(--gray-800); flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inq-thread-time { font-size: 11px; color: var(--gray-400); flex-shrink: 0; }
+.inq-thread-preview { font-size: 12px; color: var(--gray-500); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.inq-status { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 99px; flex-shrink: 0; }
+.inq-status-new  { background: #EDE9FE; color: var(--primary); }
+.inq-status-wait { background: #FEF3C7; color: #92400E; }
+.inq-status-done { background: var(--gray-100); color: var(--gray-500); }
+
+/* 오른쪽 채팅 */
+.inq-chat {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #F8FAFC;
+}
+.inq-chat-header {
+  padding: 14px 20px;
+  background: #fff;
+  border-bottom: 1px solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.inq-chat-body { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+.msg-row { display: flex; gap: 10px; }
+.msg-row.me { flex-direction: row-reverse; }
+.msg-av { width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; flex-shrink: 0; }
+.msg-bubble { max-width: 70%; padding: 10px 14px; border-radius: 12px; font-size: 13px; line-height: 1.6; }
+.msg-bubble.partner-msg { background: var(--primary); color: #fff; border-radius: 12px 2px 12px 12px; }
+.msg-bubble.admin-msg   { background: #fff; border: 1px solid var(--gray-200); color: var(--gray-800); border-radius: 2px 12px 12px 12px; }
+.msg-time { font-size: 10px; color: var(--gray-400); align-self: flex-end; flex-shrink: 0; }
+
+.inq-input-bar { padding: 12px 16px; background: #fff; border-top: 1px solid var(--gray-200); display: flex; gap: 8px; align-items: flex-end; }
+.inq-textarea { flex: 1; border: 1px solid var(--gray-200); border-radius: var(--radius); padding: 9px 12px; font-size: 13px; resize: none; outline: none; min-height: 40px; max-height: 120px; font-family: inherit; }
+.inq-textarea:focus { border-color: var(--primary); }
+
+.inq-empty { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: var(--gray-400); gap: 12px; }
+.notice-bar { background: #EFF6FF; border: 1px solid #BFDBFE; border-radius: var(--radius); padding: 10px 14px; font-size: 12px; color: #1E40AF; margin-bottom: 12px; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="main" style="display:flex;flex-direction:column;padding:0;">
+    <header class="header" style="flex-shrink:0">
+      <div class="header-left"><div class="header-title">플랫폼 문의</div></div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <div class="avatar">김</div>
+      </div>
+    </header>
+
+    <div class="inq-wrap">
+      <!-- 왼쪽: 문의 목록 + 새 문의 버튼 -->
+      <div class="inq-side">
+        <div class="inq-side-header">
+          <div class="inq-side-title">내 문의 내역</div>
+          <button class="btn btn-primary btn-full btn-sm" onclick="openNewInquiry()">+ 새 문의 작성</button>
+        </div>
+        <div class="inq-list" id="threadList"></div>
+      </div>
+
+      <!-- 오른쪽: 채팅창 -->
+      <div class="inq-chat" id="chatArea">
+        <div class="inq-empty" id="emptyState">
+          <div style="font-size:48px">🏢</div>
+          <div style="font-weight:600;color:var(--gray-600)">플랫폼 운영팀에 문의하세요</div>
+          <div style="font-size:12px;text-align:center">영업일 기준 1일 이내 답변드립니다.<br>왼쪽에서 문의를 선택하거나 새 문의를 작성하세요.</div>
+        </div>
+        <div id="chatView" style="display:none;flex:1;flex-direction:column;overflow:hidden;">
+          <div class="inq-chat-header" id="chatHeader"></div>
+          <div class="inq-chat-body" id="chatBody"></div>
+          <div class="inq-input-bar">
+            <textarea class="inq-textarea" id="replyInput" rows="1" placeholder="메시지를 입력하세요..."></textarea>
+            <button class="btn btn-sm" style="background:var(--primary);color:#fff;border:none;padding:9px 16px;flex-shrink:0" onclick="sendMsg()">전송</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 새 문의 모달 -->
+<div class="modal-overlay hidden" id="modalNewInq">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">새 문의 작성</div>
+      <button class="modal-close" onclick="document.getElementById('modalNewInq').classList.add('hidden')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">문의 유형 <span style="color:var(--danger)">*</span></label>
+        <select class="form-control" id="newInqType">
+          <option value="">선택하세요</option>
+          <option value="정산">정산 관련</option>
+          <option value="기술">기술/시스템 오류</option>
+          <option value="정책">정책 문의</option>
+          <option value="계정">계정 관련</option>
+          <option value="기타">기타</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">제목 <span style="color:var(--danger)">*</span></label>
+        <input type="text" class="form-control" id="newInqSubject" placeholder="문의 제목을 입력하세요">
+      </div>
+      <div class="form-group" style="margin-bottom:0">
+        <label class="form-label">내용 <span style="color:var(--danger)">*</span></label>
+        <textarea class="form-control" id="newInqContent" rows="4" placeholder="문의 내용을 자세히 입력해주세요."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>취소</button>
+      <button class="btn btn-primary" onclick="submitInquiry()">문의 접수</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+initPage('partner', 'platform-inquiry', '플랫폼 문의');
+
+const THREADS = [
+  {
+    id: 1, type: '정산', subject: '3월 정산 내역 확인 요청',
+    status: 'done', statusLabel: '답변완료',
+    time: '3일 전',
+    messages: [
+      { from: 'partner', text: '3월 정산 내역이 예상보다 적게 반영된 것 같습니다.\n3월 1~15일 예약 23건이 정산에 포함되었는지 확인 부탁드립니다.', time: '2026.03.15 10:12' },
+      { from: 'admin', text: '안녕하세요, 시그니엘 서울 파트너님!\n\n해당 기간 예약 23건 모두 정상적으로 정산에 포함되어 있습니다. 정산 내역 > 3월 항목에서 확인하실 수 있으며, 일부 예약은 체크아웃 기준으로 다음 달 정산에 반영될 수 있습니다.\n\n추가 확인이 필요하시면 말씀해주세요.', time: '2026.03.15 14:30' },
+      { from: 'partner', text: '확인했습니다. 감사합니다!', time: '2026.03.15 14:45' },
+    ]
+  },
+  {
+    id: 2, type: '기술', subject: '파트너센터 이미지 업로드 오류',
+    status: 'wait', statusLabel: '검토중',
+    time: '1일 전',
+    messages: [
+      { from: 'partner', text: '객실 이미지 업로드 시 "업로드에 실패했습니다" 오류가 계속 발생합니다.\n파일 크기는 2MB 이하이고 JPG 형식인데도 오류가 납니다.', time: '2026.03.17 09:20' },
+      { from: 'admin', text: '문의해주셔서 감사합니다. 해당 오류를 기술팀에 전달하였으며 확인 후 빠르게 답변드리겠습니다.', time: '2026.03.17 11:00' },
+    ]
+  },
+];
+
+let selectedId = null;
+
+function renderThreads() {
+  document.getElementById('threadList').innerHTML = THREADS.map(t => `
+    <div class="inq-thread${selectedId === t.id ? ' active' : ''}" onclick="openThread(${t.id})">
+      <div class="inq-thread-top">
+        <div class="inq-thread-subject">${t.subject}</div>
+        <span class="inq-status inq-status-${t.status === 'done' ? 'done' : t.status === 'wait' ? 'wait' : 'new'}">${t.statusLabel}</span>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <div class="inq-thread-preview">${t.messages[t.messages.length - 1].text.split('\n')[0]}</div>
+        <div class="inq-thread-time">${t.time}</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function openThread(id) {
+  selectedId = id;
+  const t = THREADS.find(d => d.id === id);
+  renderThreads();
+
+  document.getElementById('emptyState').style.display = 'none';
+  const cv = document.getElementById('chatView');
+  cv.style.display = 'flex';
+
+  document.getElementById('chatHeader').innerHTML = `
+    <div style="font-size:20px">🏢</div>
+    <div>
+      <div style="font-size:15px;font-weight:700">${t.subject}</div>
+      <div style="font-size:12px;color:var(--gray-400)">[${t.type}] · <span class="inq-status inq-status-${t.status === 'done' ? 'done' : t.status === 'wait' ? 'wait' : 'new'}">${t.statusLabel}</span></div>
+    </div>
+  `;
+
+  document.getElementById('chatBody').innerHTML = [
+    `<div style="text-align:center;font-size:11px;color:var(--gray-400);margin-bottom:4px">운영팀 응답 시간: 영업일 기준 1일 이내</div>`,
+    ...t.messages.map(m => `
+      <div class="msg-row${m.from === 'partner' ? ' me' : ''}">
+        <div class="msg-av" style="background:${m.from === 'partner' ? 'var(--primary-light)' : '#EDE9FE'}">${m.from === 'partner' ? '🏨' : '🏢'}</div>
+        <div class="msg-bubble ${m.from === 'partner' ? 'partner-msg' : 'admin-msg'}">${m.text.replace(/\n/g, '<br>')}</div>
+        <div class="msg-time">${m.time}</div>
+      </div>
+    `)
+  ].join('');
+
+  const body = document.getElementById('chatBody');
+  body.scrollTop = body.scrollHeight;
+}
+
+function sendMsg() {
+  const input = document.getElementById('replyInput');
+  const text = input.value.trim();
+  if (!text || !selectedId) return;
+
+  const t = THREADS.find(d => d.id === selectedId);
+  t.messages.push({ from: 'partner', text, time: '방금' });
+  t.time = '방금';
+  input.value = '';
+  openThread(selectedId);
+  renderThreads();
+}
+
+function openNewInquiry() {
+  document.getElementById('modalNewInq').classList.remove('hidden');
+}
+
+function submitInquiry() {
+  const type = document.getElementById('newInqType').value;
+  const subject = document.getElementById('newInqSubject').value.trim();
+  const content = document.getElementById('newInqContent').value.trim();
+  if (!type || !subject || !content) { showAlert('모든 항목을 입력해주세요.', {icon:'⚠️'}); return; }
+
+  const newId = THREADS.length + 1;
+  THREADS.unshift({
+    id: newId, type, subject,
+    status: 'new', statusLabel: '접수완료',
+    time: '방금',
+    messages: [{ from: 'partner', text: content, time: '방금' }]
+  });
+
+  document.getElementById('modalNewInq').classList.add('hidden');
+  document.getElementById('newInqType').value = '';
+  document.getElementById('newInqSubject').value = '';
+  document.getElementById('newInqContent').value = '';
+
+  renderThreads();
+  openThread(newId);
+  showAlert('문의가 접수되었습니다.\n영업일 기준 1일 이내 답변드립니다.', { icon: '✅' });
+}
+
+renderThreads();
+</script>
+</body>
+</html>

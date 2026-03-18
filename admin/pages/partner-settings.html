@@ -30,7 +30,6 @@
       <div class="header-left"><div class="header-title">설정</div></div>
       <div class="header-right">
         <div class="header-date"></div>
-        <button class="btn-icon">🔔</button>
         <div class="avatar">P</div>
       </div>
     </header>
@@ -39,9 +38,9 @@
         <!-- Settings Nav -->
         <div class="settings-nav">
           <div class="sn-item active" onclick="showTab('property',this)">🏨 숙소 정보</div>
-          <div class="sn-item" onclick="showTab('pricing',this)">💰 요금 캘린더</div>
+          <div class="sn-item" onclick="showTab('policy',this)">⏰ 시간 설정</div>
+          <div class="sn-item" onclick="showTab('pricing',this)">🗓️ 시즌 설정</div>
           <div class="sn-item" onclick="showTab('account',this)">👤 계정 설정</div>
-          <div class="sn-item" onclick="showTab('notifications',this)">🔔 알림 설정</div>
           <div class="sn-item" onclick="showTab('security',this)">🔒 보안</div>
         </div>
 
@@ -51,16 +50,16 @@
           <!-- Property -->
           <div id="tab-property">
             <div class="section-block">
-              <div class="sec-title">🏨 숙소 기본 정보</div>
-              <div class="form-group"><label class="form-label">숙소명</label><input class="form-control" value="시그니엘 서울"></div>
-              <div class="form-group"><label class="form-label">숙소 소개</label><textarea class="form-control" rows="3">서울 도심 속 최고의 휴식을 제공하는 럭셔리 호텔입니다. 탁월한 전망과 세심한 서비스로 잊지 못할 경험을 선사합니다.</textarea></div>
+              <div class="sec-title">🏨 숙소 기본 정보 <span style="font-size:12px; font-weight:500; color:var(--gray-400); margin-left:auto;">(수정 불가)</span></div>
+              <div class="form-group"><label class="form-label">숙소명</label><input class="form-control" value="시그니엘 서울" readonly style="background:var(--gray-50); color:var(--gray-600); cursor:not-allowed;"></div>
+              <div class="form-group"><label class="form-label">숙소 소개</label><textarea class="form-control" rows="3" readonly style="background:var(--gray-50); color:var(--gray-600); cursor:not-allowed;">서울 도심 속 최고의 휴식을 제공하는 럭셔리 호텔입니다. 탁월한 전망과 세심한 서비스로 잊지 못할 경험을 선사합니다.</textarea></div>
               <div class="form-row">
-                <div class="form-group"><label class="form-label">주소</label><input class="form-control" value="서울시 송파구 올림픽로 300"></div>
-                <div class="form-group"><label class="form-label">연락처</label><input class="form-control" value="02-3213-1000"></div>
+                <div class="form-group"><label class="form-label">주소</label><input class="form-control" value="서울시 송파구 올림픽로 300" readonly style="background:var(--gray-50); color:var(--gray-600); cursor:not-allowed;"></div>
+                <div class="form-group"><label class="form-label">연락처</label><input class="form-control" value="02-3213-1000" readonly style="background:var(--gray-50); color:var(--gray-600); cursor:not-allowed;"></div>
               </div>
               <div class="form-group">
                 <label class="form-label">편의시설 (숙소 전체)</label>
-                <div class="check-group">
+                <div class="check-group" style="pointer-events:none; opacity:0.8;">
                   <div class="check-item checked">🅿️ 주차장</div>
                   <div class="check-item checked">🏊 수영장</div>
                   <div class="check-item checked">🍽️ 레스토랑</div>
@@ -71,8 +70,53 @@
                   <div class="check-item checked">🚌 셔틀버스</div>
                 </div>
               </div>
+              
+              <div class="form-group" style="margin-top:32px; padding-top:24px; border-top:1px dashed var(--gray-200);">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                  <div>
+                    <label class="form-label" style="margin-bottom:4px;">숙소 유의사항 (이용 규칙)</label>
+                    <div style="font-size:12px; color:var(--gray-500);">이 부분은 파트너가 고객을 위해 자유롭게 수정할 수 있습니다.</div>
+                  </div>
+                  <button id="btnEditRules" class="btn btn-outline btn-sm" onclick="toggleRuleEdit(true)">수정</button>
+                </div>
+                <textarea id="rulesTextarea" class="form-control" rows="4" readonly style="background:var(--gray-50); color:var(--gray-600); cursor:not-allowed;">
+- 22시 이후 늦은 체크인 시 사전에 숙소로 연락 바랍니다.
+- 전 객실 금연입니다. (적발 시 클리닝 요금 청구)
+- 미성년자 혼숙 불가 (신분증 확인)
+                </textarea>
+                <div id="ruleEditActions" class="hidden" style="text-align:right; margin-top:12px;">
+                  <button class="btn btn-ghost btn-sm" onclick="toggleRuleEdit(false)">취소</button>
+                  <button class="btn btn-primary btn-sm" onclick="showAlert('숙소 유의사항이 수정되었습니다.', {icon:'✅'}); toggleRuleEdit(false);">저장</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Time Settings -->
+          <div id="tab-policy" class="hidden">
+            <div class="section-block">
+              <div class="sec-title">⏰ 체크인·체크아웃 기준 시각</div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">기본 체크인 시간 (IN)</label>
+                  <select class="form-control">
+                    <option value="14:00">14:00</option>
+                    <option value="15:00" selected>15:00</option>
+                    <option value="16:00">16:00</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">기본 체크아웃 시간 (OUT)</label>
+                  <select class="form-control">
+                    <option value="10:00">10:00</option>
+                    <option value="11:00" selected>11:00</option>
+                    <option value="12:00">12:00</option>
+                  </select>
+                </div>
+              </div>
+              
               <div class="flex justify-end mt-4">
-                <button class="btn btn-primary" onclick="showAlert('숙소 정보가 저장되었습니다.', {icon:'✅'})">변경사항 저장</button>
+                <button class="btn btn-primary" onclick="showAlert('시간 설정이 변경되었습니다.', {icon:'✅'})">시간 설정 저장</button>
               </div>
             </div>
           </div>
@@ -80,25 +124,109 @@
           <!-- Pricing Calendar -->
           <div id="tab-pricing" class="hidden">
             <div class="section-block">
-              <div class="sec-title">💰 요금 캘린더</div>
-              <div class="alert alert-info mb-4">ℹ️ 날짜별 특별 요금을 설정하면 기본 요금보다 우선 적용됩니다.</div>
-              <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:16px">
-                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--gray-500);padding:6px">일</div>
-                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--gray-500);padding:6px">월</div>
-                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--gray-500);padding:6px">화</div>
-                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--gray-500);padding:6px">수</div>
-                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--gray-500);padding:6px">목</div>
-                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--gray-600);padding:6px">금</div>
-                <div style="text-align:center;font-size:11px;font-weight:700;color:var(--danger);padding:6px">토</div>
-                ${Array.from({length:31},(_, i)=>{const d=i+1;const isWeekend=(i+5)%7>=5;const special=d===15||d===16||d===22||d===23;return `<div style="border:1px solid var(--gray-200);border-radius:8px;padding:6px;text-align:center;cursor:pointer;background:${special?'var(--primary-light)':isWeekend?'var(--gray-50)':'#fff'}" onclick="this.style.background='var(--primary-light)'">
-                  <div style="font-size:12px;font-weight:600;color:${special?'var(--primary)':isWeekend?'var(--gray-600)':'var(--gray-700)'}">${d}</div>
-                  <div style="font-size:10px;color:${special?'var(--primary)':'var(--gray-400)'}">${special?'₩200K':isWeekend?'₩180K':'₩150K'}</div>
-                </div>`;}).join('')}
+              <div class="flex justify-between items-center mb-4" style="border-bottom: 1px solid var(--gray-200); padding-bottom: 16px;">
+                <div class="sec-title" style="margin:0; border:none; padding:0;">🗓️ 시즌(성수기/비수기) 관리</div>
+                <button class="btn btn-outline btn-sm" style="font-weight:700; color:var(--primary); border-color:var(--primary);" onclick="document.getElementById('modal-season').classList.remove('hidden')">+ 새 시즌 추가</button>
               </div>
-              <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px">
-                <div style="display:flex;align-items:center;gap:6px;font-size:12px"><div style="width:12px;height:12px;background:var(--primary-light);border-radius:3px;border:1px solid var(--primary)"></div>특별 요금</div>
-                <div style="display:flex;align-items:center;gap:6px;font-size:12px"><div style="width:12px;height:12px;background:var(--gray-50);border-radius:3px;border:1px solid var(--gray-200)"></div>주말 요금</div>
-                <div style="display:flex;align-items:center;gap:6px;font-size:12px"><div style="width:12px;height:12px;background:#fff;border-radius:3px;border:1px solid var(--gray-200)"></div>평일 요금</div>
+
+              <div class="alert alert-info mb-4">ℹ️ 12개월 연간 단위로 성수기, 비수기 등 요금이 다르게 적용되는 시즌 기간을 등록하세요. 별도로 시즌이 설정되지 않은 기간은 모두 자동으로 '기본 요금'이 적용됩니다.</div>
+
+              <!-- Top Summary Banner -->
+              <div style="display:flex; gap:16px; margin-bottom:20px;">
+                <div style="flex:1; border:1px solid var(--primary-light); background:#EEF2FF; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:center;">
+                  <div style="font-size:12px; color:#4338CA; font-weight:700; margin-bottom:4px;">🟢 현재 진행 중인 시즌</div>
+                  <div style="font-size:18px; font-weight:800; color:var(--gray-900); display:flex; align-items:center; gap:8px;">
+                    봄맞이 특가 <span style="font-size:13px; font-weight:600; color:#4338CA; background:#E0E7FF; padding:2px 6px; border-radius:4px;">비수기</span>
+                  </div>
+                  <div style="font-size:13px; font-weight:500; color:var(--gray-500); margin-top:4px;">
+                    (2026.03.01 ~ 2026.03.31)
+                  </div>
+                  <div style="margin-top:12px; display:flex; gap:12px; font-size:13px; font-weight:600;">
+                    <div style="background:#fff; padding:6px 12px; border-radius:6px; color:#4338CA; border:1px solid #C7D2FE;">평일 요금 <span style="color:#2563EB;">-10%</span></div>
+                    <div style="background:#fff; padding:6px 12px; border-radius:6px; color:#4338CA; border:1px solid #C7D2FE;">주말 요금 <span style="color:var(--gray-600);">동일(0%)</span></div>
+                  </div>
+                </div>
+                <div style="flex:1; border:1px solid var(--gray-200); background:#FAFAFA; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:center;">
+                  <div style="font-size:12px; color:var(--gray-500); font-weight:700; margin-bottom:4px;">⏳ 다음 진행될 시즌</div>
+                  <div style="font-size:18px; font-weight:800; color:var(--gray-900); display:flex; align-items:center; gap:8px;">
+                    여름 바캉스 <span style="font-size:13px; font-weight:600; color:#DC2626; background:#FEE2E2; padding:2px 6px; border-radius:4px;">성수기</span>
+                  </div>
+                  <div style="font-size:13px; font-weight:500; color:var(--gray-500); margin-top:4px;">
+                    (2026.07.01 ~ 2026.08.31)
+                  </div>
+                  <div style="margin-top:12px; display:flex; gap:12px; font-size:13px; font-weight:600;">
+                    <div style="background:#fff; padding:6px 12px; border-radius:6px; color:var(--gray-700); border:1px solid var(--gray-200);">평일 요금 <span style="color:#DC2626;">+20%</span></div>
+                    <div style="background:#fff; padding:6px 12px; border-radius:6px; color:var(--gray-700); border:1px solid var(--gray-200);">주말 요금 <span style="color:#DC2626;">+40%</span></div>
+                  </div>
+                </div>
+              </div>
+              
+              <div class="table-responsive" style="margin-top:16px;">
+                <table class="data-table" style="width:100%; border-collapse:collapse; border:1px solid var(--gray-200); border-radius:8px; overflow:hidden;">
+                  <thead style="background:var(--gray-50); border-bottom:1px solid var(--gray-200);">
+                    <tr style="font-size:13px; color:var(--gray-600); text-align:left;">
+                      <th style="padding:14px 16px;">시즌명</th>
+                      <th style="padding:14px 16px;">시즌 타입</th>
+                      <th style="padding:14px 16px;">적용 기간 (시작일 ~ 종료일)</th>
+                      <th style="padding:14px 16px;">평일 요금(%)</th>
+                      <th style="padding:14px 16px;">주말 요금(%)</th>
+                      <th style="padding:14px 16px; text-align:right;">상세 정보</th>
+                    </tr>
+                  </thead>
+                  <tbody style="font-size:14px; color:var(--gray-800);">
+                    <!-- ROW 1 : Active Low Season -->
+                    <tr style="border-bottom:1px solid var(--gray-100);">
+                      <td style="padding:16px; font-weight:700; color:var(--gray-900);">봄맞이 특가</td>
+                      <td style="padding:16px;">
+                        <span style="display:inline-block; padding:2px 8px; background:#E0E7FF; color:#4338CA; border-radius:4px; font-weight:600; font-size:11px;">비수기</span>
+                      </td>
+                      <td style="padding:16px; font-weight:600;">2026.03.01 ~ 2026.03.31</td>
+                      <td style="padding:16px;">
+                        <span style="color:#2563EB; font-weight:600;">-10%</span>
+                      </td>
+                      <td style="padding:16px;">
+                        <span style="font-weight:600; color:var(--gray-500);">0%</span>
+                      </td>
+                      <td style="padding:16px; text-align:right;">
+                        <button class="btn btn-outline btn-sm" onclick="document.getElementById('modal-season-detail').classList.remove('hidden')">상세 보기</button>
+                      </td>
+                    </tr>
+                    <!-- ROW 2 : Upcoming High Season 1 -->
+                    <tr style="border-bottom:1px solid var(--gray-100);">
+                      <td style="padding:16px; font-weight:700; color:var(--gray-900);">여름 바캉스</td>
+                      <td style="padding:16px;">
+                        <span style="display:inline-block; padding:2px 8px; background:#FEE2E2; color:#DC2626; border-radius:4px; font-weight:600; font-size:11px;">성수기</span>
+                      </td>
+                      <td style="padding:16px; font-weight:600;">2026.07.01 ~ 2026.08.31</td>
+                      <td style="padding:16px;">
+                        <span style="color:#DC2626; font-weight:600;">+20%</span>
+                      </td>
+                      <td style="padding:16px;">
+                        <span style="color:#DC2626; font-weight:600;">+40%</span>
+                      </td>
+                      <td style="padding:16px; text-align:right;">
+                        <button class="btn btn-outline btn-sm" onclick="document.getElementById('modal-season-detail').classList.remove('hidden')">상세 보기</button>
+                      </td>
+                    </tr>
+                    <!-- ROW 3 : Upcoming High Season 2 -->
+                    <tr style="border-bottom:1px solid var(--gray-100);">
+                      <td style="padding:16px; font-weight:700; color:var(--gray-900);">크리스마스·연말 연시</td>
+                      <td style="padding:16px;">
+                        <span style="display:inline-block; padding:2px 8px; background:#FEE2E2; color:#DC2626; border-radius:4px; font-weight:600; font-size:11px;">성수기</span>
+                      </td>
+                      <td style="padding:16px; font-weight:600;">2026.12.24 ~ 2026.12.31</td>
+                      <td style="padding:16px;">
+                        <span style="color:#DC2626; font-weight:600;">+30%</span>
+                      </td>
+                      <td style="padding:16px;">
+                        <span style="color:#DC2626; font-weight:600;">+50%</span>
+                      </td>
+                      <td style="padding:16px; text-align:right;">
+                        <button class="btn btn-outline btn-sm" onclick="document.getElementById('modal-season-detail').classList.remove('hidden')">상세 보기</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -106,51 +234,42 @@
           <!-- Account -->
           <div id="tab-account" class="hidden">
             <div class="section-block">
-              <div class="sec-title">👤 계정 정보</div>
+              <div class="sec-title">👤 계정 설정 <span style="font-size:12px; font-weight:500; color:var(--gray-400); margin-left:auto;">(일부 정보만 수정 가능)</span></div>
               <div class="flex items-center gap-4 mb-4" style="padding:16px;background:var(--gray-50);border-radius:var(--radius)">
                 <div style="width:56px;height:56px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:22px;color:#fff;font-weight:700">P</div>
                 <div><div style="font-weight:700">파트너 관리자</div><div style="font-size:12px;color:var(--gray-400)">partner@hotel.com</div></div>
-                <button class="btn btn-ghost btn-sm ml-auto">프로필 사진 변경</button>
+                <button class="btn btn-outline btn-sm ml-auto">프로필 사진 변경</button>
               </div>
               <div class="form-row">
-                <div class="form-group"><label class="form-label">담당자명</label><input class="form-control" value="김담당"></div>
+                <div class="form-group"><label class="form-label">담당자명</label><input class="form-control" value="김담당" readonly style="background:var(--gray-50); color:var(--gray-600); cursor:not-allowed;"></div>
                 <div class="form-group"><label class="form-label">연락처</label><input class="form-control" value="010-1234-5678"></div>
               </div>
-              <div class="form-group"><label class="form-label">이메일</label><input class="form-control" value="partner@hotel.com" type="email"></div>
-              <div class="flex justify-end mt-4"><button class="btn btn-primary" onclick="showAlert('저장되었습니다.', {icon:'✅'})">저장</button></div>
+              <div class="form-group"><label class="form-label">이메일</label><input class="form-control" value="partner@hotel.com" type="email" readonly style="background:var(--gray-50); color:var(--gray-600); cursor:not-allowed;"></div>
+
+              <!-- 수수료율 현황 -->
+              <div style="margin-top:20px;padding-top:20px;border-top:1px dashed var(--gray-200)">
+                <div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px">💰 플랫폼 수수료율</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+                  <div style="border:1.5px solid var(--gray-200);border-radius:10px;padding:12px;text-align:center">
+                    <div style="font-size:11px;color:var(--gray-500);margin-bottom:4px">기본 수수료율</div>
+                    <div style="font-size:22px;font-weight:900;color:var(--gray-700)">10%</div>
+                  </div>
+                  <div style="border:1.5px solid #F59E0B;border-radius:10px;padding:12px;text-align:center;background:#FFFBEB">
+                    <div style="font-size:11px;color:#B45309;font-weight:700;margin-bottom:4px">⚠️ 현재 적용 수수료율</div>
+                    <div style="font-size:22px;font-weight:900;color:#92400E">15%</div>
+                    <div style="font-size:10px;font-weight:700;color:#F59E0B;margin-top:2px">패널티 +5% 적용 중</div>
+                  </div>
+                </div>
+                <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between">
+                  <div style="font-size:12px;color:#92400E">귀책 취소 패널티 · 잔여 <strong>30일</strong> (~ 2026-04-17)</div>
+                  <a href="partner-settlements.html" style="font-size:11px;font-weight:700;color:#B45309">정산 내역 보기 ›</a>
+                </div>
+              </div>
+
+              <div class="flex justify-end mt-4"><button class="btn btn-primary" onclick="showAlert('계정 정보가 업데이트되었습니다.', {icon:'✅'})">변경사항 저장</button></div>
             </div>
           </div>
 
-          <!-- Notifications -->
-          <div id="tab-notifications" class="hidden">
-            <div class="section-block">
-              <div class="sec-title">🔔 알림 설정</div>
-              <div class="toggle-row">
-                <div class="toggle-info"><div class="t-title">새 예약 알림</div><div class="t-desc">새 예약이 들어오면 알림을 받습니다.</div></div>
-                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-info"><div class="t-title">예약 취소 알림</div><div class="t-desc">예약이 취소되면 알림을 받습니다.</div></div>
-                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-info"><div class="t-title">리뷰 등록 알림</div><div class="t-desc">새 리뷰가 등록되면 알림을 받습니다.</div></div>
-                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-info"><div class="t-title">정산 완료 알림</div><div class="t-desc">정산이 완료되면 알림을 받습니다.</div></div>
-                <div class="toggle" onclick="this.classList.toggle('on')"></div>
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-info"><div class="t-title">플랫폼 공지 알림</div><div class="t-desc">운영팀의 공지사항을 알림으로 받습니다.</div></div>
-                <div class="toggle on" onclick="this.classList.toggle('on')"></div>
-              </div>
-              <div class="toggle-row">
-                <div class="toggle-info"><div class="t-title">마케팅 정보 알림</div><div class="t-desc">혜택 및 프로모션 정보를 받습니다.</div></div>
-                <div class="toggle" onclick="this.classList.toggle('on')"></div>
-              </div>
-            </div>
-          </div>
 
           <!-- Security -->
           <div id="tab-security" class="hidden">
@@ -173,6 +292,124 @@
     </div>
   </div>
 </div>
+
+  <!-- 시즌 관리 모달 추가 -->
+  <div class="modal-overlay hidden" id="modal-season">
+    <div class="modal" style="width: 500px; max-width: 90%;">
+      <div class="modal-header">
+        <h2 class="modal-title">📅 새 시즌 (요금/기간) 추가</h2>
+        <button class="btn btn-ghost modal-close" style="font-size:20px; padding:0;" onclick="this.closest('.modal-overlay').classList.add('hidden')">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <div class="form-group mb-4">
+          <label class="form-label">시즌명</label>
+          <input type="text" class="form-control" placeholder="예: 여름 성수기, 얼리버드 특가 등">
+        </div>
+
+        <div class="form-group mb-4">
+          <label class="form-label">시즌 타입 분류</label>
+          <select class="form-control">
+            <option value="high">성수기</option>
+            <option value="low">비수기</option>
+          </select>
+          <div style="font-size:12px; color:var(--gray-500); margin-top:6px;">이 타입에 따라 표에 노출될 뱃지의 색상이 결정됩니다.</div>
+        </div>
+
+        <div class="form-group mb-4">
+          <label class="form-label">적용 기간 (시작일 ~ 종료일)</label>
+          <div style="display:flex; align-items:center; gap:8px;">
+            <input type="date" class="form-control" style="flex:1;">
+            <span style="font-weight:700; color:var(--gray-500);">~</span>
+            <input type="date" class="form-control" style="flex:1;">
+          </div>
+        </div>
+
+        <div class="form-row mb-4">
+          <div class="form-group">
+            <label class="form-label">평일 요금 조정률(%)</label>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="number" class="form-control" placeholder="예: 20, -10, 0" style="flex:1;" value="0">
+              <span style="font-weight:600; color:var(--gray-600);">%</span>
+            </div>
+            <div style="font-size:11px; color:var(--gray-400); margin-top:4px;">기본가 대비 퍼센트</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">주말 요금 조정률(%)</label>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <input type="number" class="form-control" placeholder="예: 40, 0, -5" style="flex:1;" value="0">
+              <span style="font-weight:600; color:var(--gray-600);">%</span>
+            </div>
+            <div style="font-size:11px; color:var(--gray-400); margin-top:4px;">기본가 대비 퍼센트</div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer" style="justify-content: flex-end; display: flex; gap: 8px;">
+        <button class="btn btn-outline modal-close" style="color:var(--gray-700); border-color:var(--gray-300);" onclick="this.closest('.modal-overlay').classList.add('hidden')">취소</button>
+        <button class="btn btn-primary" onclick="this.closest('.modal-overlay').classList.add('hidden'); showAlert('새 시즌이 성공적으로 추가되었습니다.', {icon:'✅'})">시즌 저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 시즌 상세 정보 모달 -->
+  <div class="modal-overlay hidden" id="modal-season-detail">
+    <div class="modal" style="width: 500px; max-width: 90%;">
+      <div class="modal-header">
+        <h2 class="modal-title">🔍 시즌 상세 정보</h2>
+        <button class="btn btn-ghost modal-close" style="font-size:20px; padding:0;" onclick="this.closest('.modal-overlay').classList.add('hidden'); document.getElementById('season-more-options')?.classList.add('hidden')">&times;</button>
+      </div>
+      <div class="modal-body">
+        
+        <div style="background:var(--gray-50); padding:16px; border-radius:8px; margin-bottom:20px;">
+          <div style="font-size:12px; color:var(--gray-500); margin-bottom:4px;">시즌명</div>
+          <div style="font-size:16px; font-weight:700; color:var(--gray-900); display:flex; align-items:center; gap:8px;">
+            여름 바캉스
+            <span style="display:inline-block; padding:2px 8px; background:#FEE2E2; color:#DC2626; border-radius:4px; font-weight:600; font-size:11px;">성수기</span>
+          </div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+          <div style="font-size:12px; color:var(--gray-500); margin-bottom:4px;">적용 기간</div>
+          <div style="font-size:14px; font-weight:600; color:var(--gray-800);">2026.07.01 ~ 2026.08.31</div>
+        </div>
+
+        <div>
+          <div style="font-size:12px; color:var(--gray-500); margin-bottom:8px;">요금 변동률</div>
+          <div style="display:flex; gap:12px;">
+            <div style="flex:1; border:1px solid var(--gray-200); border-radius:6px; padding:12px; text-align:center;">
+              <div style="font-size:12px; color:var(--gray-500); margin-bottom:4px;">평일 요금</div>
+              <div style="font-size:16px; font-weight:700; color:#DC2626;">+20%</div>
+            </div>
+            <div style="flex:1; border:1px solid var(--gray-200); border-radius:6px; padding:12px; text-align:center;">
+              <div style="font-size:12px; color:var(--gray-500); margin-bottom:4px;">주말 요금</div>
+              <div style="font-size:16px; font-weight:700; color:#DC2626;">+40%</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="modal-footer" style="flex-direction: column; align-items: center; gap: 16px;">
+        <div style="display: flex; gap: 8px;">
+          <button class="btn btn-outline modal-close" style="color:var(--gray-700); border-color:var(--gray-300);" onclick="this.closest('.modal-overlay').classList.add('hidden'); document.getElementById('season-more-options')?.classList.add('hidden')">닫기</button>
+          <button class="btn btn-primary" onclick="this.closest('.modal-overlay').classList.add('hidden'); document.getElementById('season-more-options')?.classList.add('hidden'); document.getElementById('modal-season').classList.remove('hidden');">수정하기</button>
+        </div>
+        
+        <div style="width: 100%; border-top: 1px dashed var(--gray-200); padding-top: 12px; display: flex; flex-direction: column; align-items: center;">
+          <button class="btn btn-ghost btn-sm" style="color:var(--gray-500); font-size:12px; display:flex; align-items:center; gap:4px;" onclick="document.getElementById('season-more-options').classList.toggle('hidden')">
+            추가 옵션 펼치기 <span style="font-size:10px;">▼</span>
+          </button>
+          
+          <div id="season-more-options" class="hidden" style="margin-top:12px; width:100%; padding:16px; background:#FEF2F2; border:1px solid #FEE2E2; border-radius:8px; text-align:center;">
+            <div style="font-size:13px; color:#991B1B; font-weight:700; margin-bottom:8px;">이 시즌을 영구적으로 삭제하시겠습니까?</div>
+            <div style="font-size:12px; color:#DC2626; margin-bottom:12px;">이 작업은 되돌릴 수 없으며, 해당 기간의 객실료가 기본 요금으로 재설정됩니다.</div>
+            <button class="btn btn-outline btn-sm" style="color:#DC2626; border-color:#DC2626; background:#fff;" onclick="this.closest('.modal-overlay').classList.add('hidden'); document.getElementById('season-more-options').classList.add('hidden'); showAlert('선택한 시즌이 안전하게 삭제되었습니다.', {icon:'🗑️'})">시즌 영구 삭제</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 <script src="shared.js"></script>
 <script>
 initPage('partner', 'settings', '설정');
@@ -181,6 +418,29 @@ function showTab(id, el) {
   document.getElementById('tab-'+id)?.classList.remove('hidden');
   document.querySelectorAll('.sn-item').forEach(s => s.classList.remove('active'));
   el.classList.add('active');
+}
+
+function toggleRuleEdit(isEdit) {
+  const ta = document.getElementById('rulesTextarea');
+  const btnEdit = document.getElementById('btnEditRules');
+  const actions = document.getElementById('ruleEditActions');
+  
+  if (isEdit) {
+    ta.removeAttribute('readonly');
+    ta.style.background = '#fff';
+    ta.style.color = 'var(--gray-900)';
+    ta.style.cursor = 'text';
+    btnEdit.classList.add('hidden');
+    actions.classList.remove('hidden');
+    ta.focus();
+  } else {
+    ta.setAttribute('readonly', 'readonly');
+    ta.style.background = 'var(--gray-50)';
+    ta.style.color = 'var(--gray-600)';
+    ta.style.cursor = 'not-allowed';
+    btnEdit.classList.remove('hidden');
+    actions.classList.add('hidden');
+  }
 }
 </script>
 </body>

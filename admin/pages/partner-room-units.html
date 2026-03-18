@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>호실 관리 — 파트너센터</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .batch-mode-content { display: none; margin-top: 16px; }
+  .batch-mode-content.active { display: block; }
+  .preview-box {
+    margin-top: 12px;
+    padding: 12px;
+    background: var(--gray-50);
+    border-radius: 6px;
+    border: 1px dashed var(--gray-300);
+    font-size: 13px;
+    color: var(--gray-600);
+    line-height: 1.5;
+  }
+  .check-col { display: none; text-align: center; width: 4%; }
+  .delete-mode-active .check-col { display: table-cell; }
+  .delete-mode-active #unitListBody tr { cursor: pointer; transition: background-color 0.2s; }
+  .delete-mode-active #unitListBody tr:hover { background-color: var(--gray-50); }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left"><div class="header-title">호실 관리</div></div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <button class="btn-icon">🔔<span class="notification-dot"></span></button>
+        <div class="avatar">P</div>
+      </div>
+    </header>
+    <div class="page">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">호실 관리</div>
+          <div class="page-subtitle">실제 투숙이 이루어지는 개별 호실(방 번호)을 추가하고 관리하세요.</div>
+        </div>
+        <button class="btn btn-primary" onclick="openBatchModal()">+ 호실 일괄 추가</button>
+      </div>
+
+      <div class="card" style="padding:0">
+        <!-- 필터 & 검색 영역 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; padding: 16px 20px; border-bottom: 1px solid var(--gray-200);">
+          
+          <div style="display:flex; align-items:center; gap:12px;">
+            <select id="roomTypeFilter" class="form-control" style="width:220px; padding:8px 12px; font-size:13px; border-radius:8px; border:1px solid var(--gray-300); outline:none; background-color:var(--white);">
+              <option value="all">모든 객실 타입 (15)</option>
+              <option value="Deluxe">Deluxe (5)</option>
+              <option value="Standard">Standard (5)</option>
+              <option value="Suite">Suite (3)</option>
+              <option value="Sky">Sky (2)</option>
+            </select>
+            
+            <div style="position:relative; width:260px;">
+              <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; color:var(--gray-400)">🔍</span>
+              <input type="text" id="unitSearchInput" placeholder="호실명 검색" style="width:100%; border:1px solid var(--gray-300); border-radius:8px; padding:8px 12px 8px 36px; font-size:13px; box-sizing:border-box; outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='var(--gray-300)'">
+            </div>
+          </div>
+
+          <div style="display:flex; align-items:center; gap:8px;">
+            <!-- 삭제 모드 진입/취소 버튼 -->
+            <button class="btn btn-outline" id="btnEnterDeleteMode" style="color:var(--gray-600); border-color:var(--gray-300); padding:8px 16px;" onclick="toggleDeleteMode(true)">🗑️ 호실 선택 삭제</button>
+            <button class="btn btn-outline" id="btnCancelDeleteMode" style="display:none; padding:8px 16px;" onclick="toggleDeleteMode(false)">삭제 취소</button>
+            <button class="btn" id="btnDeleteSelected" style="background:var(--danger); color:var(--white); border:none; padding:8px 16px; display:none;" onclick="deleteSelectedUnits()">선택 삭제 (<span id="selCount">0</span>)</button>
+          </div>
+          
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th class="check-col"><input type="checkbox" id="checkAllUnits" onchange="toggleAllUnits(this)"></th>
+                <th style="width:26%">호실명 (방 번호)</th>
+                <th style="width:25%">소속 타입</th>
+                <th style="width:25%">판매 상태</th>
+                <th style="width:20%">관리</th>
+              </tr>
+            </thead>
+            <tbody id="unitListBody">
+              <!-- 더미 데이터들 -->
+              <tr data-type="Deluxe">
+                <td class="check-col"><input type="checkbox" class="unit-check" onchange="updateSelectedCount()"></td>
+                <td><div style="font-weight:700;font-size:15px;color:var(--gray-900)" class="unit-name">101호</div></td>
+                <td><span style="font-size:13px;color:var(--gray-600)">Deluxe</span></td>
+                <td><span class="badge badge-on-sale">판매중</span></td>
+                <td><button class="btn btn-outline btn-sm" onclick="openUnitDetail(this)">상세 관리</button></td>
+              </tr>
+              <tr data-type="Deluxe">
+                <td class="check-col"><input type="checkbox" class="unit-check" onchange="updateSelectedCount()"></td>
+                <td><div style="font-weight:700;font-size:15px;color:var(--gray-900)" class="unit-name">102호</div></td>
+                <td><span style="font-size:13px;color:var(--gray-600)">Deluxe</span></td>
+                <td><span class="badge badge-inspection">점검중</span></td>
+                <td><button class="btn btn-outline btn-sm" onclick="openUnitDetail(this)">상세 관리</button></td>
+              </tr>
+              <tr data-type="Standard">
+                <td class="check-col"><input type="checkbox" class="unit-check" onchange="updateSelectedCount()"></td>
+                <td><div style="font-weight:700;font-size:15px;color:var(--gray-900)" class="unit-name">201호</div></td>
+                <td><span style="font-size:13px;color:var(--gray-600)">Standard</span></td>
+                <td>
+                  <span class="badge badge-suspended" style="display:inline-flex; align-items:center; gap:4px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:help; opacity:0.8;" title="상위 객실 타입이 통째로 판매중지 상태이므로 잠겨 있습니다."><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    판매중지
+                  </span>
+                </td>
+                <td><button class="btn btn-outline btn-sm" onclick="openUnitDetail(this)">상세 관리</button></td>
+              </tr>
+              <tr data-type="Standard">
+                <td class="check-col"><input type="checkbox" class="unit-check" onchange="updateSelectedCount()"></td>
+                <td><div style="font-weight:700;font-size:15px;color:var(--gray-900)" class="unit-name">202호</div></td>
+                <td><span style="font-size:13px;color:var(--gray-600)">Standard</span></td>
+                <td>
+                  <span class="badge badge-suspended" style="display:inline-flex; align-items:center; gap:4px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="cursor:help; opacity:0.8;" title="상위 객실 타입이 통째로 판매중지 상태이므로 잠겨 있습니다."><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    판매중지
+                  </span>
+                </td>
+                <td><button class="btn btn-outline btn-sm" onclick="openUnitDetail(this)">상세 관리</button></td>
+              </tr>
+              <tr data-type="Suite">
+                <td class="check-col"><input type="checkbox" class="unit-check" onchange="updateSelectedCount()"></td>
+                <td><div style="font-weight:700;font-size:15px;color:var(--gray-900)" class="unit-name">VIP 1동</div></td>
+                <td><span style="font-size:13px;color:var(--gray-600)">Suite</span></td>
+                <td><span class="badge badge-on-sale">판매중</span></td>
+                <td><button class="btn btn-outline btn-sm" onclick="openUnitDetail(this)">상세 관리</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid var(--gray-200)">
+          <div class="pagination">
+            <div class="pg-btn">‹</div>
+            <div class="pg-btn active">1</div>
+            <div class="pg-btn">2</div>
+            <div class="pg-btn">›</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- 호실 일괄 추가 모달 -->
+<div class="modal-overlay hidden" id="batchCreateModal">
+  <div class="modal" style="max-width:500px">
+    <div class="modal-header">
+      <h2 class="modal-title">호실 일괄 추가</h2>
+      <button class="modal-close" onclick="closeBatchModal()">×</button>
+    </div>
+    <div class="modal-body">
+      
+      <div class="form-group">
+        <label class="form-label">소속 객실 타입</label>
+        <select class="form-control" id="targetRoomType">
+          <option value="Deluxe">Deluxe</option>
+          <option value="Standard">Standard</option>
+          <option value="Panorama">Panorama</option>
+          <option value="Suite">Suite</option>
+          <option value="Premium">Premium</option>
+          <option value="Sky">Sky</option>
+        </select>
+        <div class="form-hint">추가할 호실들이 배정될 객실 타입을 선택하세요.</div>
+      </div>
+
+      <div class="form-group" style="margin-top:24px;">
+        <label class="form-label">호실 생성 방식</label>
+        <div style="display:flex; gap:16px;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+            <input type="radio" name="creationMode" value="sequence" checked onchange="switchMode()">
+            연속된 번호 생성 (층/구역 단위)
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+            <input type="radio" name="creationMode" value="manual" onchange="switchMode()">
+            직접 입력 (콤마로 구분)
+          </label>
+        </div>
+      </div>
+
+      <!-- 모드 A: 연속 생성 -->
+      <div id="modeSequence" class="batch-mode-content active">
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px;">
+          <div>
+            <label class="form-label">접두어 (선택)</label>
+            <input type="text" class="form-control" id="seqPrefix" placeholder="예: 2" oninput="updatePreview()">
+          </div>
+          <div>
+            <label class="form-label">시작 번호</label>
+            <input type="text" class="form-control" id="seqStart" placeholder="01" value="01" oninput="updatePreview()">
+          </div>
+          <div>
+            <label class="form-label">끝 번호</label>
+            <input type="text" class="form-control" id="seqEnd" placeholder="05" value="05" oninput="updatePreview()">
+          </div>
+        </div>
+        <div>
+           <label class="form-label" style="margin-top:12px;">접미어 (선택)</label>
+           <input type="text" class="form-control" id="seqSuffix" placeholder="예: 호" value="호" oninput="updatePreview()">
+        </div>
+        <div class="preview-box">
+          <div style="font-weight:600; color:var(--gray-900); margin-bottom:4px;">생성 미리보기 <span id="seqCount" style="color:var(--primary); font-weight:700;">(5개)</span></div>
+          <div id="seqPreviewText">201호, 202호, 203호, 204호, 205호</div>
+        </div>
+      </div>
+
+      <!-- 모드 B: 직접 입력 -->
+      <div id="modeManual" class="batch-mode-content">
+        <label class="form-label">호실명 목록</label>
+        <textarea class="form-control fe-textarea" id="manualText" placeholder="쉼표(,) 또는 엔터로 구분하여 입력하세요.&#10;예: 별관A, VIP 1동, 110-1" rows="4" oninput="updateManualPreview()"></textarea>
+        <div class="preview-box">
+          <div style="font-weight:600; color:var(--gray-900); margin-bottom:4px;">분석된 호실 <span id="manCount" style="color:var(--primary); font-weight:700;">(0개)</span></div>
+          <div id="manPreviewText" style="color:var(--gray-400)">목록이 비어있습니다.</div>
+        </div>
+      </div>
+
+    </div>
+    <div class="modal-footer" style="padding:16px 24px; border-top:1px solid var(--gray-200); display:flex; justify-content:flex-end; gap:8px;">
+      <button class="btn btn-outline" onclick="closeBatchModal()">취소</button>
+      <button class="btn btn-primary" onclick="executeBatchCreate()">호실 생성하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 호실 일괄 추가 컨펌(더블체크) 모달 -->
+<div class="modal-overlay hidden" id="batchConfirmModal" style="z-index: 1010;">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header" style="background:#FEF2F2; border-bottom:1px solid #FEE2E2;">
+      <h2 class="modal-title" style="color:#DC2626;">최종 생성 확인</h2>
+      <button class="modal-close" onclick="closeConfirmModal()" style="color:#DC2626;">×</button>
+    </div>
+    <div class="modal-body" style="padding:24px;">
+      <div style="font-size:14px; color:var(--gray-900); margin-bottom:12px;">
+        <span id="confirmType" style="font-weight:700;">[타입]</span> 객실에 총 <span id="confirmCount" style="color:var(--danger); font-weight:700;">0개</span>의 호실을 생성합니다.
+      </div>
+      <div id="confirmList" style="padding:12px; background:var(--gray-50); border:1px solid var(--gray-200); border-radius:6px; max-height:80px; overflow-y:auto; font-size:13px; color:var(--gray-600); margin-bottom:24px; line-height:1.6;"></div>
+      
+      <div style="font-size:13px; color:var(--gray-700); margin-bottom:10px;">생성을 확정하려면 아래 입력란에 문구를 똑같이 적어주세요.</div>
+      <div style="font-weight:700; color:var(--danger); font-size:15px; text-align:center; padding:12px; background:#FEF2F2; border-radius:6px; margin-bottom:16px; user-select:none; border:1px dashed #FCA5A5;">호실 일괄 추가</div>
+      
+      <input type="text" class="form-control" id="confirmVerificationInput" placeholder="(여기에 입력)" oninput="checkConfirmInput()">
+    </div>
+    <div class="modal-footer" style="padding:16px 24px; border-top:1px solid var(--gray-200); display:flex; justify-content:flex-end; gap:8px;">
+      <button class="btn btn-outline" onclick="closeConfirmModal()">취소</button>
+      <button class="btn" id="finalCreateBtn" style="background:var(--danger); color:var(--white); opacity:0.5; pointer-events:none;" onclick="finalExecuteCreate()">최종 일괄 생성</button>
+    </div>
+  </div>
+</div>
+
+<!-- 작고 깔끔한 완료 알림 모달 -->
+<div class="modal-overlay hidden" id="alertModal" style="z-index: 1020;">
+  <div class="modal modal-sm" style="max-width:320px; text-align:center;">
+    <div class="modal-body" style="padding:32px 24px 24px;">
+      <div style="font-size:36px; margin-bottom:12px;">✅</div>
+      <h3 id="alertTitle" style="font-size:16px; font-weight:700; color:var(--gray-900); margin-bottom:8px;">타이틀</h3>
+      <p id="alertMessage" style="font-size:13px; color:var(--gray-600); line-height:1.5; word-break:keep-all;"></p>
+    </div>
+    <div class="modal-footer" style="padding:16px; justify-content:center; border-top:1px solid var(--gray-200);">
+      <button class="btn btn-primary" style="width:100%;" onclick="document.getElementById('alertModal').classList.add('hidden')">확인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 개별 호실 상세 관리 모달 -->
+<div class="modal-overlay hidden" id="unitDetailModal" style="z-index: 1010;">
+  <div class="modal" style="max-width:480px">
+    <div class="modal-header">
+      <h2 class="modal-title" id="unitDetailTitle">101호 상세 관리</h2>
+      <button class="modal-close" onclick="closeUnitDetailModal()">×</button>
+    </div>
+    <div class="modal-body">
+      
+      <div class="form-group" style="margin-bottom:20px;">
+        <label class="form-label">호실 판매/운영 상태</label>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+          <!-- 판매중 -->
+          <label id="lbl-on-sale" style="border:1px solid var(--primary); background:var(--primary-light); border-radius:8px; padding:12px; cursor:pointer; display:flex; flex-direction:column; gap:6px; text-align:center;">
+            <input type="radio" name="unitSaleStatus" value="on-sale" checked onchange="toggleUnitPeriodInput()" style="margin:0 auto;">
+            <div style="font-weight:700; font-size:14px; color:var(--primary);">판매중</div>
+            <div style="font-size:12px; color:var(--primary); opacity:0.8;">정상 판매 상태</div>
+          </label>
+          <!-- 점검중 -->
+          <label id="lbl-inspection" style="border:1px solid var(--gray-300); border-radius:8px; padding:12px; cursor:pointer; display:flex; flex-direction:column; gap:6px; text-align:center;">
+            <input type="radio" name="unitSaleStatus" value="inspection" onchange="toggleUnitPeriodInput()" style="margin:0 auto;">
+            <div style="font-weight:700; font-size:14px; color:var(--gray-800);">점검중</div>
+            <div style="font-size:12px; color:var(--gray-500);">수리 등 임시 중지</div>
+          </label>
+          <!-- 판매중지 -->
+          <label id="lbl-suspended" style="border:1px solid var(--gray-300); border-radius:8px; padding:12px; cursor:pointer; display:flex; flex-direction:column; gap:6px; text-align:center;">
+            <input type="radio" name="unitSaleStatus" value="suspended" onchange="toggleUnitPeriodInput()" style="margin:0 auto;">
+            <div style="font-weight:700; font-size:14px; color:var(--gray-800);">판매중지</div>
+            <div style="font-size:12px; color:var(--gray-500);">장기 예약 차단</div>
+          </label>
+        </div>
+        <div class="form-hint" style="margin-top:10px; color:var(--gray-500);">※ 상위 객실 타입이 '판매 중지'로 설정되어 있다면 개별 판매 상태를 변경해도 예약은 계속 차단됩니다.</div>
+      </div>
+
+      <!-- 기간 설정 영역 (기본 숨김) -->
+      <div class="form-group hidden" id="unitPeriodSection" style="margin-bottom:20px; padding:16px; background:var(--gray-50); border-radius:8px; border:1px dashed var(--gray-300);">
+        <label class="form-label" style="margin-bottom:12px;">적용 기간 설정</label>
+        <div style="display:flex; gap:16px; margin-bottom:12px;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+            <input type="radio" name="unitPeriodType" value="always" checked onchange="toggleUnitDateRange()"> 상시 적용 (기한 없음)
+          </label>
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+             <input type="radio" name="unitPeriodType" value="specific" onchange="toggleUnitDateRange()"> 특정 기간 설정
+          </label>
+        </div>
+        <div id="unitDateRangeWrap" class="hidden" style="display:flex; align-items:center; gap:8px;">
+           <input type="date" class="form-control" style="flex:1" title="시작일">
+           <span style="color:var(--gray-500);">~</span>
+           <input type="date" class="form-control" style="flex:1" title="종료일">
+        </div>
+      </div>
+      
+    </div>
+    <div class="modal-footer" style="padding:16px 24px; border-top:1px solid var(--gray-200); display:flex; justify-content:space-between; flex-direction:row-reverse;">
+      <div style="display:flex; gap:8px;">
+        <button class="btn btn-outline" onclick="closeUnitDetailModal()">취소</button>
+        <button class="btn btn-primary" onclick="saveUnitDetail()">저장하기</button>
+      </div>
+      <button class="btn btn-outline" style="color:var(--danger); border-color:var(--danger-light);" onclick="alert('관련된 예약 데이터가 처리되어 삭제가 불가능하거나, 삭제가 예약되었습니다.'); closeUnitDetailModal();">호실 삭제</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+  initPage('partner', 'room-units', '호실 관리');
+
+  // 상태 탭 & 검색 필터링 로직
+  const rows = document.querySelectorAll('#unitListBody tr');
+  let currentFilter = 'all';
+  let searchQuery = '';
+
+  function applyFilters() {
+    rows.forEach(row => {
+      const unitName = row.querySelector('.unit-name').textContent.toLowerCase();
+      const type = row.getAttribute('data-type');
+      
+      const matchesSearch = unitName.includes(searchQuery);
+      const matchesTab = (currentFilter === 'all') || (type === currentFilter);
+      
+      if (matchesSearch && matchesTab) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  const typeSelect = document.getElementById('roomTypeFilter');
+  if (typeSelect) {
+    typeSelect.addEventListener('change', (e) => {
+      currentFilter = e.target.value;
+      applyFilters();
+    });
+  }
+
+  const searchInput = document.getElementById('unitSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      applyFilters();
+    });
+  }
+
+  // 행(Row) 빈 공간 클릭 시 체크박스 토글 로직
+  document.getElementById('unitListBody').addEventListener('click', (e) => {
+    if(!isDeleteMode) return; // 삭제 모드가 아닐 땐 일반 클릭 무시
+    
+    // 상세 관리 버튼이나 체크박스 자체를 직접 클릭했을 때는 이중 동작 방지
+    if(e.target.tagName === 'BUTTON' || e.target.closest('button') || e.target.tagName === 'INPUT') return;
+    
+    const tr = e.target.closest('tr');
+    if(tr) {
+      const cb = tr.querySelector('.unit-check');
+      if(cb) {
+        cb.checked = !cb.checked;
+        updateSelectedCount();
+      }
+    }
+  });
+
+  /* 일괄 생성 모달 로직 */
+  function openBatchModal() {
+    document.getElementById('batchCreateModal').classList.remove('hidden');
+    updatePreview();
+  }
+
+  function closeBatchModal() {
+    document.getElementById('batchCreateModal').classList.add('hidden');
+  }
+
+  function switchMode() {
+    const isSeq = document.querySelector('input[name="creationMode"]:checked').value === 'sequence';
+    if(isSeq) {
+      document.getElementById('modeSequence').classList.add('active');
+      document.getElementById('modeManual').classList.remove('active');
+    } else {
+      document.getElementById('modeSequence').classList.remove('active');
+      document.getElementById('modeManual').classList.add('active');
+    }
+  }
+
+  // 앞의 0을 보존하면서 증가 (ex: '01' -> '02')
+  function padZero(num, len) {
+    return String(num).padStart(len, '0');
+  }
+
+  function generateSequenceArray() {
+    const prefix = document.getElementById('seqPrefix').value.trim();
+    const suffix = document.getElementById('seqSuffix').value.trim();
+    const startStr = document.getElementById('seqStart').value.trim();
+    const endStr = document.getElementById('seqEnd').value.trim();
+    
+    if(!startStr || !endStr) return [];
+    
+    const startNum = parseInt(startStr, 10);
+    const endNum = parseInt(endStr, 10);
+    const len = Math.max(startStr.length, endStr.length);
+
+    if(isNaN(startNum) || isNaN(endNum) || startNum > endNum || (endNum - startNum) > 100) {
+      return []; // 제한조건: 100개 이하 방지
+    }
+
+    const arr = [];
+    for(let i=startNum; i<=endNum; i++) {
+       arr.push(prefix + padZero(i, len) + suffix);
+    }
+    return arr;
+  }
+
+  function updatePreview() {
+    const arr = generateSequenceArray();
+    const elText = document.getElementById('seqPreviewText');
+    const elCount = document.getElementById('seqCount');
+    
+    if(arr.length === 0) {
+      elText.textContent = '올바른 시작/끝 번호를 입력해 주세요. (최대 100개 제한)';
+      elText.style.color = 'var(--danger)';
+      elCount.textContent = '(0개)';
+    } else {
+      elText.textContent = arr.join(', ');
+      elText.style.color = 'var(--gray-700)';
+      elCount.textContent = `(${arr.length}개)`;
+    }
+  }
+
+  function getManualArray() {
+    const val = document.getElementById('manualText').value;
+    return val.split(/[\n,]+/).map(v => v.trim()).filter(v => v.length > 0);
+  }
+
+  function updateManualPreview() {
+    const arr = getManualArray();
+    const elText = document.getElementById('manPreviewText');
+    const elCount = document.getElementById('manCount');
+
+    if(arr.length === 0) {
+      elText.textContent = '목록이 비어있습니다.';
+      elText.style.color = 'var(--gray-400)';
+      elCount.textContent = '(0개)';
+    } else {
+      elText.textContent = arr.join(', ');
+      elText.style.color = 'var(--gray-700)';
+      elCount.textContent = `(${arr.length}개)`;
+    }
+  }
+
+  let pendingCreateArr = [];
+  let pendingCreateType = '';
+
+  function executeBatchCreate() {
+    const type = document.getElementById('targetRoomType').value;
+    const isSeq = document.querySelector('input[name="creationMode"]:checked').value === 'sequence';
+    const arr = isSeq ? generateSequenceArray() : getManualArray();
+
+    if(arr.length === 0) {
+      alert('생성할 호실이 없습니다.');
+      return;
+    }
+
+    // 모달 데이터 채우기
+    pendingCreateArr = arr;
+    pendingCreateType = type;
+
+    document.getElementById('confirmType').textContent = '[' + type + ']';
+    document.getElementById('confirmCount').textContent = arr.length + '개';
+    document.getElementById('confirmList').textContent = arr.join(', ');
+    
+    // 모달 초기화
+    document.getElementById('confirmVerificationInput').value = '';
+    checkConfirmInput();
+    
+    // 두번째 모달(더블체크) 띄우기
+    document.getElementById('batchConfirmModal').classList.remove('hidden');
+  }
+
+  function closeConfirmModal() {
+    document.getElementById('batchConfirmModal').classList.add('hidden');
+  }
+
+  function checkConfirmInput() {
+    const val = document.getElementById('confirmVerificationInput').value.trim();
+    const btn = document.getElementById('finalCreateBtn');
+    if (val === '호실 일괄 추가') {
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+    } else {
+      btn.style.opacity = '0.5';
+      btn.style.pointerEvents = 'none';
+    }
+  }
+
+  function showCustomAlert(title, message) {
+    document.getElementById('alertTitle').textContent = title;
+    document.getElementById('alertMessage').textContent = message;
+    document.getElementById('alertModal').classList.remove('hidden');
+  }
+
+  function finalExecuteCreate() {
+    closeConfirmModal();
+    closeBatchModal();
+    
+    // 기본 브라우저 alert 대신 직접 만든 UI 모달 호출
+    showCustomAlert(
+      '일괄 생성 완료', 
+      `정상적으로 [${pendingCreateType}] 타입에 총 ${pendingCreateArr.length}개의 호실(${pendingCreateArr[0]} 등) 객체가 데이터베이스에 추가되었습니다.`
+    );
+    
+    // 폼 리셋
+    document.getElementById('seqStart').value = '01';
+    document.getElementById('seqEnd').value = '05';
+    document.getElementById('seqPrefix').value = '';
+    document.getElementById('manualText').value = '';
+    updatePreview();
+    updateManualPreview();
+  }
+
+  // 개별 호실 설정 모달 로직
+  function openUnitDetail(btn) {
+    const row = btn.closest('tr');
+    const unitName = row.querySelector('.unit-name').textContent;
+    
+    document.getElementById('unitDetailTitle').textContent = unitName + ' 상세 관리';
+    document.getElementById('unitDetailModal').classList.remove('hidden');
+  }
+
+  function closeUnitDetailModal() {
+    document.getElementById('unitDetailModal').classList.add('hidden');
+  }
+  
+  function saveUnitDetail() {
+    closeUnitDetailModal();
+    showCustomAlert('저장 완료', '개별 호실의 판매 설정이 성공적으로 반영되었습니다.');
+  }
+
+  // 상태 변경 이벤트
+  function toggleUnitPeriodInput() {
+    const status = document.querySelector('input[name="unitSaleStatus"]:checked').value;
+    const periodSec = document.getElementById('unitPeriodSection');
+    
+    // UI 초기화
+    document.querySelectorAll('input[name="unitSaleStatus"]').forEach(radio => {
+      const label = radio.closest('label');
+      label.style.borderColor = 'var(--gray-300)';
+      label.style.background = 'var(--white)';
+      label.querySelector('div').style.color = 'var(--gray-800)';
+    });
+
+    // 선택된 항목에 따른 기간설정 노출 여부
+    if(status === 'on-sale') {
+      periodSec.classList.add('hidden');
+      const lbl = document.getElementById('lbl-on-sale');
+      lbl.style.borderColor = 'var(--primary)';
+      lbl.style.background = 'var(--primary-light)';
+      lbl.children[1].style.color = 'var(--primary)';
+    } else {
+      periodSec.classList.remove('hidden');
+      if (status === 'inspection') {
+        const lbl = document.getElementById('lbl-inspection');
+        lbl.style.borderColor = '#D97706';
+        lbl.style.background = '#FEF3C7';
+        lbl.children[1].style.color = '#D97706';
+      } else if (status === 'suspended') {
+        const lbl = document.getElementById('lbl-suspended');
+        lbl.style.borderColor = 'var(--danger)';
+        lbl.style.background = '#FEF2F2';
+        lbl.children[1].style.color = 'var(--danger)';
+      }
+    }
+  }
+
+  function toggleUnitDateRange() {
+    const pType = document.querySelector('input[name="unitPeriodType"]:checked').value;
+    const wrap = document.getElementById('unitDateRangeWrap');
+    if(pType === 'specific') {
+      wrap.classList.remove('hidden');
+    } else {
+      wrap.classList.add('hidden');
+    }
+  }
+
+  let isDeleteMode = false;
+
+  function toggleDeleteMode(on) {
+    isDeleteMode = on;
+    const tableWrap = document.querySelector('table').parentElement;
+    
+    if(on) {
+      tableWrap.classList.add('delete-mode-active');
+      document.getElementById('btnEnterDeleteMode').style.display = 'none';
+      document.getElementById('btnCancelDeleteMode').style.display = 'inline-flex';
+      document.getElementById('btnDeleteSelected').style.display = 'inline-flex';
+      
+      document.getElementById('btnDeleteSelected').style.opacity = '0.5';
+      document.getElementById('btnDeleteSelected').style.pointerEvents = 'none';
+      updateSelectedCount(); // 카운트 초기화
+    } else {
+      tableWrap.classList.remove('delete-mode-active');
+      document.getElementById('btnEnterDeleteMode').style.display = 'inline-flex';
+      document.getElementById('btnCancelDeleteMode').style.display = 'none';
+      document.getElementById('btnDeleteSelected').style.display = 'none';
+      
+      // 체크박스 모두 해제
+      document.querySelectorAll('.unit-check').forEach(cb => cb.checked = false);
+      document.getElementById('checkAllUnits').checked = false;
+    }
+  }
+
+  // 일괄 삭제 로직
+  function toggleAllUnits(cb) {
+    const checks = document.querySelectorAll('.unit-check');
+    checks.forEach(c => {
+      // 숨겨진 row(검색/필터 무시됨)는 전체선택에서 제외하거나 다 선택하게 할 수 있음. 여기선 다 선택.
+      if (c.closest('tr').style.display !== 'none') {
+        c.checked = cb.checked;
+      }
+    });
+    updateSelectedCount();
+  }
+
+  function updateSelectedCount() {
+    // 체크된 대상 찾기
+    const checks = document.querySelectorAll('.unit-check:checked');
+    const btn = document.getElementById('btnDeleteSelected');
+    const cnt = document.getElementById('selCount');
+    
+    // 보이는(검색/필터에 맞는) 체크 리스트만 카운트
+    const visibleChecked = Array.from(checks).filter(c => c.closest('tr').style.display !== 'none');
+    
+    if (visibleChecked.length > 0) {
+      btn.style.opacity = '1';
+      btn.style.pointerEvents = 'auto';
+      cnt.textContent = visibleChecked.length;
+    } else {
+      btn.style.opacity = '0.5';
+      btn.style.pointerEvents = 'none';
+      cnt.textContent = '0';
+      document.getElementById('checkAllUnits').checked = false;
+    }
+  }
+
+  function deleteSelectedUnits() {
+    if(!isDeleteMode) return;
+    
+    const checks = document.querySelectorAll('.unit-check:checked');
+    const visibleChecked = Array.from(checks).filter(c => c.closest('tr').style.display !== 'none');
+    
+    if(confirm(`선택한 ${visibleChecked.length}개의 호실 항목을 일괄 삭제하시겠습니까?\n(삭제 시 해당 호실에 배정된 최신 예약이 존재할 경우 삭제가 취소됩니다.)`)) {
+       // 더미 삭제 동작: 실제로 행 제거
+       visibleChecked.forEach(c => c.closest('tr').remove());
+       
+       // 모드 끄기 & 초기화
+       toggleDeleteMode(false);
+       
+       showCustomAlert('삭제 처리 완료', `총 ${visibleChecked.length}개의 데이터가 안전하게 완전히 삭제되었습니다.`);
+    }
+  }
+</script>
+</body>
+</html>

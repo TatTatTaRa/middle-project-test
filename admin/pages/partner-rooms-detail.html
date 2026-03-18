@@ -276,16 +276,21 @@
             
             <div style="margin-bottom: 24px;">
               <div style="font-size: 11px; font-weight: 700; color: var(--gray-500); margin-bottom: 8px;">판매 상태</div>
-              <div class="status-info-row" style="align-items: flex-start;">
-                <div style="display:flex; flex-direction:column; gap:8px;">
-                  <div class="status-badge inspect" id="statusBadge" style="width: fit-content;">
+              <div class="status-info-row" style="align-items: center;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <div class="status-badge inspect" id="statusBadge" style="width: fit-content; margin:0;">
                     <span class="s-dot"></span>
                     <span id="statusLabel">점검중</span>
                   </div>
-                  <div class="status-period-text" id="statusPeriodText">2026-03-25 ~ 2026-03-28</div>
+                  <div class="status-period-text" id="statusPeriodText" style="margin:0; font-size:13px; font-weight:600;">2026-03-25 ~ 2026-03-28</div>
                 </div>
                 <button class="status-change-btn" onclick="openStatusModal()">판매 상태 변경</button>
               </div>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--gray-500); margin-bottom: 6px;">호실 개수</div>
+              <div style="font-size:14px; font-weight:800; color:#111827;">총 5실</div>
             </div>
 
             <div style="margin-bottom: 12px;">
@@ -307,21 +312,6 @@
               <div class="rd-price-item">
                 <div class="rd-price-period">주말 요금</div>
                 <div class="rd-price-box"><span>₩</span> 180,000</div>
-              </div>
-            </div>
-          </div>
-
-          <!-- 운영 정책 -->
-          <div class="rd-section">
-            <div class="rd-section-title">Operation</div>
-            <div class="rd-op-row">
-              <div class="rd-op-box">
-                <span class="rd-op-label">IN</span>
-                <span class="rd-op-value">15:00</span>
-              </div>
-              <div class="rd-op-box">
-                <span class="rd-op-label">OUT</span>
-                <span class="rd-op-value">11:00</span>
               </div>
             </div>
           </div>

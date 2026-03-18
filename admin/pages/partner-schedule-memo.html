@@ -305,7 +305,7 @@
       <div style="font-size:12px;color:rgba(255,255,255,0.55);" id="rmTypeNote"></div>
     </div>
     <div class="modal-body"><div class="form-group" style="margin-bottom:0;"><label class="form-label">변경할 호실</label>
-      <select class="form-control"><option value="">호실 선택</option><option>101호 — Standard</option><option>201호 — Standard</option><option>205호 — Deluxe</option><option>501호 — Suite</option></select>
+<select class="form-control" id="rmRoomSelect"><option value="">-- 호실 선택 --</option></select>
     </div></div>
     <div class="modal-footer">
       <button class="btn btn-ghost" data-modal-close>취소</button>
@@ -376,36 +376,120 @@
   </div>
 </div>
 
+<!-- ── 호실 배정 모달 ── -->
+<div class="modal-overlay hidden" id="modalAssign">
+  <div class="modal modal-sm" style="overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#0E7490,#06B6D4);padding:18px 20px;position:relative;">
+      <button class="modal-close" style="position:absolute;top:12px;right:14px;color:rgba(255,255,255,0.6);">×</button>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.08em;margin-bottom:6px;">ROOM ASSIGN</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;" id="asName"></div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.55);" id="asTypeNote"></div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">배정할 호실</label>
+        <select class="form-control" id="asRoomSelect"><option value="">-- 호실 선택 --</option></select>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>취소</button>
+      <button class="btn" style="background:#0E7490;color:#fff;font-weight:600;" onclick="confirmAct('modalAssign','🏠 호실이 배정되었습니다.')">배정 확정</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 퇴실일 변경 모달 ── -->
+<div class="modal-overlay hidden" id="modalCheckoutChange">
+  <div class="modal modal-sm" style="overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#059669,#10B981);padding:18px 20px;position:relative;">
+      <button class="modal-close" style="position:absolute;top:12px;right:14px;color:rgba(255,255,255,0.6);">×</button>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.08em;margin-bottom:6px;">CHECKOUT DATE CHANGE</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;" id="coName"></div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">변경 퇴실일</label>
+        <input type="date" class="form-control" id="coDate">
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>취소</button>
+      <button class="btn btn-success" onclick="confirmAct('modalCheckoutChange','📅 퇴실일이 변경되었습니다.')">변경 확정</button>
+    </div>
+  </div>
+</div>
+
+
 <script src="shared.js"></script>
 <script>
   initPage('partner', 'schedulememo', '협의 메모');
 
   const DATA = [
-    { id:1, name:'송혜교', room:'702호', sub:'Suite · 2인 · 퇴실 03/19', status:'staying', type:'Suite',
+    { id:1, name:'송혜교', phone:'010-3333-2222', room:'702호', sub:'Suite · 2인 · 퇴실 03/19', status:'staying', type:'Suite',
       memo:'체크아웃 13시로 연장 협의 중 — 703호 다음 예약이 15시라 가능 여부 검토.', time:'03/18 08:20' },
-    { id:2, name:'김민준', room:'305호', sub:'Deluxe · 2인 · 체크인 03/20', status:'upcoming', type:'Deluxe',
+    { id:2, name:'김민준', phone:'010-1234-5678', room:'305호', sub:'Deluxe · 2인 · 체크인 03/20', status:'upcoming', type:'Deluxe',
       memo:'저녁 7시 이후 늦은 체크인 요청 — 도착 30분 전 연락 달라고 안내함.', time:'03/17 14:30' },
-    { id:3, name:'박재현', room:'미배정', sub:'Standard · 2인 · 체크인 03/22', status:'unassigned', type:'Standard',
+    { id:3, name:'박재현', phone:'010-9876-5432', room:'미배정', sub:'Standard · 2인 · 체크인 03/22', status:'unassigned', type:'Standard',
       memo:'창가 선호 — 201호 또는 205호 검토 중. 체크인 전 연락해서 확정 예정.', time:'03/18 10:00' },
-    { id:4, name:'이수진', room:'410호', sub:'Suite · 3인 · 체크인 03/21', status:'upcoming', type:'Suite',
+    { id:4, name:'이수진', phone:'010-5553-4444', room:'410호', sub:'Suite · 3인 · 체크인 03/21', status:'upcoming', type:'Suite',
       memo:'생일 기념 방문 — 케이크·어메니티 추가 세팅 고려. 일정 1일 연장 문의 중.', time:'03/17 18:40' },
-    { id:5, name:'김태연', room:'102호', sub:'Standard · 2인 · 퇴실 03/20', status:'staying', type:'Standard',
+    { id:5, name:'김태연', phone:'010-7777-8888', room:'102호', sub:'Standard · 2인 · 퇴실 03/20', status:'staying', type:'Standard',
       memo:'1박 추가 요청 — 102호 03/21 예약 없음 확인. 고객에게 최종 확정 안내 필요.', time:'03/17 22:05' },
   ];
 
-  // 5개 공통 액션
+  // 상태별 액션 정의
   function getActions(d) {
-    const n = d.name, t = d.type;
+    const n = d.name, t = d.type, r = d.room;
+
+    if (d.status === 'unassigned') {
+      return [
+        { icon:'🏠', label:'호실 배정',      cls:'assign',  fn:`openAssign('${n}','${t}')`,          highlight:true },
+        { icon:'📅', label:'입실일 변경',    cls:'sched',   fn:`openCheckinChange('${n}','${r}')` },
+        { icon:'📅', label:'퇴실일 변경',    cls:'sched',   fn:`openCheckoutChange('${n}','${r}')` },
+        { icon:'🛏', label:'객실 타입 변경', cls:'type',    fn:`openType('${n}','${t}')` },
+        { icon:'✕',  label:'예약 취소',      cls:'cancel',  fn:`openCancelModal('${n}')` },
+      ];
+    }
+
+    if (d.status === 'upcoming') {
+      return [
+        { icon:'📅', label:'입실일 변경',    cls:'sched',   fn:`openCheckinChange('${n}','${r}')` },
+        { icon:'📅', label:'퇴실일 변경',    cls:'sched',   fn:`openCheckoutChange('${n}','${r}')` },
+        { icon:'🔄', label:'호실 변경',      cls:'room',    fn:`openRoom('${n}','${t}')` },
+        { icon:'🛏', label:'객실 타입 변경', cls:'type',    fn:`openType('${n}','${t}')` },
+        { icon:'✕',  label:'예약 취소',      cls:'cancel',  fn:`openCancelModal('${n}')` },
+      ];
+    }
+
+    // staying
     return [
-      { key:'checkin', icon:'📅', label:'입실일 변경',    fn:`openCheckinChange('${n}','${d.room}')` },
-      { key:'extend',  icon:'⏳', label:'숙박 연장',      fn:`openExtend('${n}','${d.room}')` },
-      { key:'type',    icon:'🛏', label:'객실 타입 변경', fn:`openType('${n}','${t}')` },
-      { key:'room',    icon:'🔄', label:'호실 변경',      fn:`openRoom('${n}','${t}')` },
-      { key:'early',   icon:'🏃', label:'중도 퇴실',      fn:`openEarly('${n}')` },
+      { icon:'⏳', label:'숙박 연장',      cls:'extend',  fn:`openExtend('${n}','${r}')`,          highlight:true },
+      { icon:'📅', label:'퇴실일 변경',    cls:'sched',   fn:`openCheckoutChange('${n}','${r}')` },
+      { icon:'🔄', label:'호실 변경',      cls:'room',    fn:`openRoom('${n}','${t}')` },
+      { icon:'🏃', label:'중도 퇴실',      cls:'early',   fn:`openEarly('${n}')` },
     ];
   }
 
   const statusLabel = { staying:'이용 중', upcoming:'이용 예정', unassigned:'미배정', done:'처리 완료' };
+
+
+  function actStyle(cls, highlight) {
+    const map = {
+      assign:  { border:'#A5F3FC', color:'#0E7490', hover:'#CFFAFE' },
+      sched:   { border:'#BBF7D0', color:'#15803D', hover:'#D1FAE5' },
+      type:    { border:'#DDD6FE', color:'#4338CA', hover:'#F5F3FF' },
+      room:    { border:'#BFDBFE', color:'#1D4ED8', hover:'#EFF6FF' },
+      guests:  { border:'#FDE68A', color:'#92400E', hover:'#FEF3C7' },
+      extend:  { border:'#BBF7D0', color:'#15803D', hover:'#D1FAE5' },
+      early:   { border:'#FED7AA', color:'#B45309', hover:'#FFF7ED' },
+      cancel:  { border:'#FECDD3', color:'#E11D48', hover:'#FFF1F2' },
+    };
+    const s = map[cls] || map.sched;
+    const base = highlight
+      ? `background:${s.hover};border-color:${s.border};`
+      : `background:none;border-color:${s.border};`;
+    return { base, hover:s.hover, off: highlight ? s.hover : 'none', color: s.color };
+  }
 
   let selectedId = null;
 
@@ -446,11 +530,24 @@
         ? 'linear-gradient(135deg,#78350F,#D97706)'
         : 'linear-gradient(135deg,#1E1B4B,#312E81)';
 
-    // 소형 액션 버튼 (5개 공통)
-    const actsHtml = d.done ? '<p style="font-size:12px;color:var(--gray-400);">✅ 처리 완료된 항목입니다.</p>'
-      : `<div class="sm-act-row">${getActions(d).map(a =>
-          `<button class="sm-act-btn ${a.key}" onclick="${a.fn}">${a.icon} ${a.label}</button>`
-        ).join('')}</div>`;
+    // 액션 버튼
+    const actsHtml = d.done
+      ? '<p style="font-size:12px;color:var(--gray-400);">✅ 처리 완료된 항목입니다.</p>'
+      : `<div class="sm-act-row">${getActions(d).map(a => {
+          const s = actStyle(a.cls, a.highlight);
+          return `<button
+            style="display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--radius);border:1.5px solid ${s.color === '#0E7490' ? '#A5F3FC' : s.color === '#15803D' ? '#BBF7D0' : s.color === '#4338CA' ? '#DDD6FE' : s.color === '#1D4ED8' ? '#BFDBFE' : s.color === '#92400E' ? '#FDE68A' : s.color === '#B45309' ? '#FED7AA' : s.color === '#E11D48' ? '#FECDD3' : '#E2E8F0'};background:${a.highlight ? (s.hover || '#F0FDF4') : 'none'};color:${s.color};font-size:12px;font-weight:600;cursor:pointer;transition:all 0.14s;"
+            onmouseover="this.style.opacity='0.8'"
+            onmouseout="this.style.opacity='1'"
+            onclick="${a.fn}">${a.icon} ${a.label}</button>`;
+        }).join('')}</div>`;
+    
+    // 상태라벨
+    const statusNote = {
+      unassigned: '<div style="font-size:11px;color:#92400E;background:#FEF3C7;border-radius:6px;padding:6px 10px;margin-bottom:4px;">⚠️ 호실이 배정되지 않았습니다. 맨저 호실 배정을 완료하세요.</div>',
+      upcoming:   '<div style="font-size:11px;color:#1D4ED8;background:#DBEAFE;border-radius:6px;padding:6px 10px;margin-bottom:4px;">📋 체크인 전 단계입니다. 일정·호실 변경이 가능합니다.</div>',
+      staying:    '<div style="font-size:11px;color:#5B21B6;background:#EDE9FE;border-radius:6px;padding:6px 10px;margin-bottom:4px;">🏨 현재 투숙 중입니다. 연장·호실 변경 등을 처리할 수 있습니다.</div>',
+    }[d.done ? 'done' : d.status] || '';
 
     // 처리 완료 버튼 (헤더 우상단)
     const doneBtnHtml = d.done ? '' : `
@@ -470,6 +567,17 @@
           <div>
             <div class="sm-dh-name">${d.name} 님</div>
             <div class="sm-dh-sub">${d.room} · ${d.sub}</div>
+            ${d.phone ? `<div style="margin-top:8px;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:12px;color:rgba(255,255,255,0.55);">연락처</span>
+              <span style="font-size:13px;font-weight:700;color:#fff;letter-spacing:0.02em;">${d.phone}</span>
+              <a href="tel:${d.phone}" title="전화 걸기"
+                style="display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.25);color:#fff;text-decoration:none;transition:background 0.15s;"
+                onmouseover="this.style.background='rgba(255,255,255,0.28)'"
+                onmouseout="this.style.background='rgba(255,255,255,0.15)'"
+                onclick="event.stopPropagation()">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.4 2 2 0 0 1 3.62 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.79a16 16 0 0 0 6.29 6.29l1.86-1.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              </a>
+            </div>` : ''}
           </div>
           <div style="display:flex;align-items:center;gap:8px;">
             <span class="sm-dh-badge ${d.done?'done':d.status}">${statusLabel[d.done?'done':d.status]}</span>
@@ -485,6 +593,7 @@
         </div>
         <div>
           <div class="sm-db-section-label">처리</div>
+          ${statusNote}
           ${actsHtml}
         </div>
       </div>`;
@@ -526,15 +635,45 @@
     document.getElementById('modalTypeChange').classList.remove('hidden');
   }
   function openRoom(name, type) {
+    const ROOMS = {
+      'Standard': ['101호', '201호', '202호'],
+      'Deluxe':   ['205호', '301호', '305호'],
+      'Suite':    ['410호', '501호', '702호'],
+    };
     document.getElementById('rmName').textContent = name + ' 님';
-    document.getElementById('rmTypeNote').textContent = type + ' 타입 내 호실만 표시';
+    document.getElementById('rmTypeNote').textContent = type + ' 타입 호실만 표시';
+    const sel = document.getElementById('rmRoomSelect');
+    const rooms = ROOMS[type] || [];
+    sel.innerHTML = '<option value="">-- 호실 선택 --</option>' +
+      rooms.map(r => `<option>${r} — ${type}</option>`).join('');
     document.getElementById('modalRoom').classList.remove('hidden');
   }
   function openEarly(name) {
     document.getElementById('ecName').textContent = name + ' 님';
     document.getElementById('modalEarly').classList.remove('hidden');
   }
-
+  function openAssign(name, type) {
+    const ROOMS = {
+      'Standard': ['101호', '201호', '202호'],
+      'Deluxe':   ['205호', '301호', '305호'],
+      'Suite':    ['410호', '501호', '702호'],
+    };
+    document.getElementById('asName').textContent = name + ' 님';
+    document.getElementById('asTypeNote').textContent = type + ' 타입 호실만 표시';
+    const sel = document.getElementById('asRoomSelect');
+    const rooms = ROOMS[type] || [];
+    sel.innerHTML = '<option value="">-- 호실 선택 --</option>' +
+      rooms.map(r => `<option>${r} — ${type}</option>`).join('');
+    document.getElementById('modalAssign').classList.remove('hidden');
+  }
+  function openCheckoutChange(name, room) {
+    document.getElementById('coName').textContent = name + ' 님 · ' + room;
+    document.getElementById('modalCheckoutChange').classList.remove('hidden');
+  }
+  function openCancelModal(name) {
+    document.getElementById('clName').textContent = name + ' 님';
+    document.getElementById('modalCancel').classList.remove('hidden');
+  }
 
   // ── 고객 검색 자동완성 ──
   // 실제 환경에서는 API로 전체 예약 목록을 가져옴 (여기선 모의 데이터)

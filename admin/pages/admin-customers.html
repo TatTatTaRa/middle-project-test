@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>고객 관리 — Super Admin</title>
+<link rel="stylesheet" href="shared.css">
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left"><div class="header-title">고객 관리</div></div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <button class="btn-icon" style="background:#1E293B;color:#818CF8">🔔</button>
+        <div class="avatar" style="background:#6366F1">A</div>
+      </div>
+    </header>
+
+    <div class="page" style="max-width:1100px;margin:0 auto;width:100%">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">고객 관리</div>
+          <div class="page-subtitle">플랫폼 가입 고객 계정을 조회하고 관리합니다.</div>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stat-grid" style="margin-bottom:20px">
+        <div class="stat-card"><div class="stat-label">👥 전체 고객</div><div class="stat-value">48,291</div></div>
+        <div class="stat-card"><div class="stat-label" style="color:var(--success)">✅ 활성 계정</div><div class="stat-value success">47,832</div></div>
+        <div class="stat-card"><div class="stat-label" style="color:var(--warning)">📅 이번 달 신규</div><div class="stat-value warning">1,243</div></div>
+        <div class="stat-card"><div class="stat-label" style="color:var(--danger)">🚫 정지 계정</div><div class="stat-value danger">459</div></div>
+      </div>
+
+      <!-- Filter -->
+      <div class="card" style="padding:14px 20px;margin-bottom:16px">
+        <div class="filter-bar">
+          <select id="filterStatus">
+            <option value="">전체 상태</option>
+            <option value="active">활성</option>
+            <option value="suspended">정지</option>
+            <option value="withdrawn">탈퇴</option>
+          </select>
+          <select id="filterJoin">
+            <option>가입일 순</option>
+            <option>최근 가입 순</option>
+            <option>예약 많은 순</option>
+          </select>
+          <div class="search-box ml-auto">
+            <input type="text" id="searchInput" placeholder="이름, 이메일, 전화번호 검색..." oninput="renderTable()">
+          </div>
+          <button class="btn btn-sm" style="background:#6366F1;color:#fff" onclick="renderTable()">검색</button>
+        </div>
+      </div>
+
+      <!-- Table -->
+      <div class="card" style="padding:0">
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>이름</th>
+                <th>이메일</th>
+                <th>연락처</th>
+                <th>가입일</th>
+                <th style="text-align:center">총 예약</th>
+                <th style="text-align:center">취소 횟수</th>
+                <th>상태</th>
+                <th>상세</th>
+              </tr>
+            </thead>
+            <tbody id="custTbody"></tbody>
+          </table>
+        </div>
+        <div style="padding:12px 20px;border-top:1px solid var(--gray-200)">
+          <div class="pagination">
+            <div class="pg-btn">‹</div>
+            <div class="pg-btn active">1</div>
+            <div class="pg-btn">2</div>
+            <div class="pg-btn">3</div>
+            <div class="pg-btn">···</div>
+            <div class="pg-btn">483</div>
+            <div class="pg-btn">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 고객 상세 모달 -->
+<div class="modal-overlay hidden" id="modalCust">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">고객 상세 정보</div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+      <!-- 프로필 영역 -->
+      <div style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--gray-50);border-radius:var(--radius);margin-bottom:16px">
+        <div id="custAvatar" style="width:52px;height:52px;border-radius:50%;background:#6366F1;color:#fff;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center"></div>
+        <div style="flex:1">
+          <div style="font-size:17px;font-weight:700" id="custName"></div>
+          <div style="font-size:12px;color:var(--gray-500)" id="custEmail"></div>
+        </div>
+        <span class="badge" id="custStatBadge"></span>
+      </div>
+
+      <!-- 기본 정보 -->
+      <div class="form-row mb-3">
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">연락처</div>
+          <div style="font-weight:600" id="custPhone"></div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">가입일</div>
+          <div style="font-weight:600" id="custJoinDate"></div>
+        </div>
+      </div>
+      <div class="form-row mb-3">
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px;text-align:center">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">총 예약</div>
+          <div style="font-size:22px;font-weight:800;color:var(--primary)" id="custResv"></div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px;text-align:center">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">취소 횟수</div>
+          <div style="font-size:22px;font-weight:800;color:var(--warning)" id="custCancel"></div>
+        </div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px;text-align:center">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">누적 결제액</div>
+          <div style="font-size:18px;font-weight:800;color:var(--success)" id="custPayment"></div>
+        </div>
+      </div>
+
+      <!-- 최근 예약 -->
+      <div style="font-size:13px;font-weight:700;margin-bottom:8px;color:var(--gray-700)">최근 예약 내역</div>
+      <div style="border:1px solid var(--gray-200);border-radius:var(--radius);overflow:hidden">
+        <table style="width:100%;border-collapse:collapse;font-size:12px">
+          <thead style="background:var(--gray-50)">
+            <tr>
+              <th style="padding:8px 12px;text-align:left;font-weight:600;color:var(--gray-600)">숙소</th>
+              <th style="padding:8px 12px;text-align:left;font-weight:600;color:var(--gray-600)">체크인</th>
+              <th style="padding:8px 12px;text-align:left;font-weight:600;color:var(--gray-600)">결제액</th>
+              <th style="padding:8px 12px;text-align:left;font-weight:600;color:var(--gray-600)">상태</th>
+            </tr>
+          </thead>
+          <tbody id="custResvList"></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-danger btn-sm" id="btnCustSuspend" onclick="suspendCust()">계정 정지</button>
+      <button class="btn btn-success btn-sm" id="btnCustRestore" style="display:none" onclick="restoreCust()">정지 해제</button>
+      <button class="btn btn-ghost" data-modal-close>닫기</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+initPage('admin', 'customers', '고객 관리');
+
+const CUSTOMERS = [
+  { id:1, name:'김철수', email:'kim.cs@example.com', phone:'010-1234-5678', joinDate:'2024.01.15', resv:24, cancel:1, payment:'₩1,240,000', status:'active', recentResv:[
+    { hotel:'시그니엘 서울', checkin:'2026.03.10', amount:'₩350,000', status:'완료' },
+    { hotel:'그랜드하얏트', checkin:'2026.02.14', amount:'₩280,000', status:'완료' },
+    { hotel:'제주신화월드', checkin:'2026.01.05', amount:'₩420,000', status:'취소' },
+  ]},
+  { id:2, name:'이영희', email:'lee.yh@example.com', phone:'010-2345-6789', joinDate:'2024.03.20', resv:8, cancel:0, payment:'₩560,000', status:'active', recentResv:[
+    { hotel:'소노벨 리조트', checkin:'2026.03.01', amount:'₩180,000', status:'완료' },
+    { hotel:'오션뷰 제주', checkin:'2026.01.20', amount:'₩380,000', status:'완료' },
+  ]},
+  { id:3, name:'박민준', email:'park.mj@example.com', phone:'010-3456-7890', joinDate:'2023.11.08', resv:41, cancel:5, payment:'₩3,820,000', status:'active', recentResv:[
+    { hotel:'롯데호텔 서울', checkin:'2026.03.15', amount:'₩620,000', status:'완료' },
+    { hotel:'시그니엘 서울', checkin:'2026.02.28', amount:'₩350,000', status:'완료' },
+  ]},
+  { id:4, name:'최지연', email:'choi.jy@example.com', phone:'010-4567-8901', joinDate:'2024.06.01', resv:3, cancel:3, payment:'₩0', status:'suspended', recentResv:[
+    { hotel:'강남 OO 모텔', checkin:'2026.02.10', amount:'₩80,000', status:'취소' },
+    { hotel:'강남 OO 모텔', checkin:'2026.01.15', amount:'₩80,000', status:'취소' },
+  ]},
+  { id:5, name:'한동욱', email:'han.dw@example.com', phone:'010-5678-9012', joinDate:'2023.08.22', resv:17, cancel:2, payment:'₩1,080,000', status:'active', recentResv:[
+    { hotel:'그랜드하얏트', checkin:'2026.03.05', amount:'₩280,000', status:'완료' },
+  ]},
+  { id:6, name:'윤서아', email:'yoon.sa@example.com', phone:'010-6789-0123', joinDate:'2025.01.10', resv:2, cancel:0, payment:'₩160,000', status:'withdrawn', recentResv:[]},
+];
+
+let selectedCustId = null;
+
+function statusBadge(st) {
+  if (st === 'active') return '<span class="badge badge-approved">활성</span>';
+  if (st === 'suspended') return '<span class="badge badge-suspended">정지</span>';
+  return '<span class="badge" style="background:var(--gray-100);color:var(--gray-500)">탈퇴</span>';
+}
+
+function renderTable() {
+  const q = document.getElementById('searchInput').value.toLowerCase();
+  const fs = document.getElementById('filterStatus').value;
+  const data = CUSTOMERS.filter(c => {
+    const match = !q || c.name.includes(q) || c.email.includes(q) || c.phone.includes(q);
+    const statMatch = !fs || c.status === fs;
+    return match && statMatch;
+  });
+
+  document.getElementById('custTbody').innerHTML = data.map(c => `
+    <tr>
+      <td style="font-weight:700">${c.name}</td>
+      <td style="font-size:12px;color:var(--gray-600)">${c.email}</td>
+      <td style="font-size:12px">${c.phone}</td>
+      <td style="font-size:12px;color:var(--gray-400)">${c.joinDate}</td>
+      <td style="text-align:center;font-weight:600">${c.resv}</td>
+      <td style="text-align:center;color:${c.cancel >= 3 ? 'var(--danger)' : 'var(--gray-600)'};font-weight:${c.cancel >= 3 ? '700' : '400'}">${c.cancel}</td>
+      <td>${statusBadge(c.status)}</td>
+      <td><button class="btn btn-ghost btn-sm" onclick="openCust(${c.id})">상세</button></td>
+    </tr>
+  `).join('') || '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--gray-400)">검색 결과가 없습니다.</td></tr>';
+}
+
+function openCust(id) {
+  selectedCustId = id;
+  const c = CUSTOMERS.find(x => x.id === id);
+
+  document.getElementById('custAvatar').textContent = c.name[0];
+  document.getElementById('custName').textContent = c.name;
+  document.getElementById('custEmail').textContent = c.email;
+  document.getElementById('custPhone').textContent = c.phone;
+  document.getElementById('custJoinDate').textContent = c.joinDate;
+  document.getElementById('custResv').textContent = c.resv + '건';
+  document.getElementById('custCancel').textContent = c.cancel + '회';
+  document.getElementById('custPayment').textContent = c.payment;
+
+  const badge = document.getElementById('custStatBadge');
+  badge.outerHTML; // reset
+  document.getElementById('custStatBadge').className = 'badge ' + (c.status === 'active' ? 'badge-approved' : c.status === 'suspended' ? 'badge-suspended' : '');
+  document.getElementById('custStatBadge').textContent = c.status === 'active' ? '활성' : c.status === 'suspended' ? '정지' : '탈퇴';
+
+  document.getElementById('custResvList').innerHTML = c.recentResv.length
+    ? c.recentResv.map(r => `
+      <tr style="border-top:1px solid var(--gray-100)">
+        <td style="padding:8px 12px">${r.hotel}</td>
+        <td style="padding:8px 12px;color:var(--gray-500)">${r.checkin}</td>
+        <td style="padding:8px 12px;font-weight:600">${r.amount}</td>
+        <td style="padding:8px 12px"><span style="font-size:11px;font-weight:700;color:${r.status==='완료'?'var(--success)':'var(--danger)'}">${r.status}</span></td>
+      </tr>`).join('')
+    : '<tr><td colspan="4" style="padding:16px;text-align:center;color:var(--gray-400);font-size:12px">예약 내역이 없습니다.</td></tr>';
+
+  const isSuspended = c.status === 'suspended';
+  const isWithdrawn = c.status === 'withdrawn';
+  document.getElementById('btnCustSuspend').style.display = (isSuspended || isWithdrawn) ? 'none' : '';
+  document.getElementById('btnCustRestore').style.display = isSuspended ? '' : 'none';
+
+  document.getElementById('modalCust').classList.remove('hidden');
+}
+
+function suspendCust() {
+  const c = CUSTOMERS.find(x => x.id === selectedCustId);
+  showConfirm(`${c.name} 고객 계정을 정지하시겠습니까?\n정지 시 해당 고객은 예약/로그인이 불가능합니다.`, () => {
+    c.status = 'suspended';
+    document.getElementById('modalCust').classList.add('hidden');
+    renderTable();
+    showAlert('계정이 정지되었습니다.', { icon: '🚫' });
+  }, { confirmText: '정지' });
+}
+
+function restoreCust() {
+  const c = CUSTOMERS.find(x => x.id === selectedCustId);
+  showConfirm(`${c.name} 고객 계정의 정지를 해제하시겠습니까?`, () => {
+    c.status = 'active';
+    document.getElementById('modalCust').classList.add('hidden');
+    renderTable();
+    showAlert('계정 정지가 해제되었습니다.', { icon: '✅' });
+  }, { confirmText: '해제', confirmClass: 'btn-success' });
+}
+
+renderTable();
+</script>
+</body>
+</html>

@@ -608,7 +608,7 @@
 
     const CHATS = [
       {
-        id: 1, name: '김민준', room: '305호', sub: 'Deluxe · 체크인 03/20',
+        id: 1, name: '김민준', phone: '010-1234-5678', room: '305호', sub: 'Deluxe · 체크인 03/20',
         status: 'waiting', unread: 2,
         messages: [
           { from: 'guest', text: '안녕하세요, 오늘 체크인 예약자인데요. 도착이 조금 늦어질 것 같습니다. 자정 넘어서 가도 될까요?', time: '오후 10:32' },
@@ -618,14 +618,14 @@
         ]
       },
       {
-        id: 2, name: '박재현', room: '미배정', sub: 'Standard · 체크인 03/22',
+        id: 2, name: '박재현', phone: '010-9876-5432', room: '미배정', sub: 'Standard · 체크인 03/22',
         status: 'waiting', unread: 1,
         messages: [
           { from: 'guest', text: '반려견 소형견 동반 가능한가요?', time: '오전 9:14', unread: true },
         ]
       },
       {
-        id: 3, name: '이수진', room: '410호', sub: 'Suite · 체크인 03/21',
+        id: 3, name: '이수진', phone: '010-5553-4444', room: '410호', sub: 'Suite · 체크인 03/21',
         status: 'replied', unread: 0,
         messages: [
           { from: 'guest', text: '생일 기념 방문인데요, 케이크 준비 가능할까요?', time: '어제 오후 3:22' },
@@ -635,7 +635,7 @@
         ]
       },
       {
-        id: 4, name: '최유정', room: '미배정', sub: 'Deluxe · 체크인 03/23',
+        id: 4, name: '최유정', phone: '010-7777-8888', room: '미배정', sub: 'Deluxe · 체크인 03/23',
         status: 'replied', unread: 0,
         messages: [
           { from: 'guest', text: '체크인 시간이 오후 4시인데 조금 일찍 가도 되나요?', time: '03/17 오후 2:00' },
@@ -643,7 +643,7 @@
         ]
       },
       {
-        id: 5, name: '송혜교', room: '702호', sub: 'Suite · 퇴실 03/19',
+        id: 5, name: '송혜교', phone: '010-3333-2222', room: '702호', sub: 'Suite · 퇴실 03/19',
         status: 'closed', unread: 0,
         messages: [
           { from: 'guest', text: '체크아웃을 오후 1시로 늦출 수 있을까요?', time: '03/16 오전 10:00' },
@@ -694,6 +694,17 @@
         <div class="info-row"><span class="info-key">객실</span><span class="info-val">${c.room}</span></div>
         <div class="info-row"><span class="info-key">유형</span><span class="info-val">${typePart}</span></div>
         <div class="info-row"><span class="info-key">일정</span><span class="info-val">${datePart}</span></div>
+        <div class="info-row" style="margin-top:2px;">
+          <span class="info-key">연락처</span>
+          <span class="info-val" style="display:flex;align-items:center;gap:6px;">
+            ${c.phone || '—'}
+            ${c.phone ? `<a href="tel:${c.phone}" title="전화 걸기"
+              style="display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#EEF2FF;color:#6366F1;text-decoration:none;flex-shrink:0;"
+              onclick="event.stopPropagation()">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.65 3.4 2 2 0 0 1 3.62 1.22h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.79a16 16 0 0 0 6.29 6.29l1.86-1.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            </a>` : ''}
+          </span>
+        </div>
       </div>
       <div class="memo-section">
         <div class="memo-section-title">

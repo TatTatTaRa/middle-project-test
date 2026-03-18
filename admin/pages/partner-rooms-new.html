@@ -183,18 +183,36 @@
               </div>
             </div>
             
-            <div class="form-grid-2">
-              <div>
-                <label class="form-field-label">판매 상태 (기본값)</label>
-                <select class="fe-select">
-                  <option value="inspect" selected>점검중 (노출 안됨)</option>
-                  <option value="sale">판매중 (즉시 노출)</option>
-                  <option value="stop">판매중지</option>
-                </select>
+            <!-- 판매 상태 -->
+            <div style="margin-bottom: 32px; max-width: 300px;">
+              <label class="form-field-label">판매 상태 (기본값)</label>
+              <select class="fe-select">
+                <option value="inspect" selected>점검중 (노출 안됨)</option>
+                <option value="sale">판매중 (즉시 노출)</option>
+                <option value="stop">판매중지</option>
+              </select>
+            </div>
+
+            <hr style="border:none; border-top:1px dashed var(--gray-200); margin:0 0 32px 0;">
+
+            <!-- 할당 호실 셋팅 -->
+            <div style="margin-bottom: 32px;">
+              <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px;">
+                <div>
+                  <label class="form-field-label" style="font-size:14px; color:var(--gray-900); margin-bottom:6px;">할당 호실 현황 (총 <span id="resCountText" style="color:var(--primary);">0</span>실)</label>
+                  <div style="font-size:12px; color:var(--gray-500);">객실에 속하는 물리적 호실을 설정하면 전체 재고 수량으로 자동 반영됩니다.</div>
+                </div>
+                <!-- 숨겨진 input (로직 연동용) -->
+                <input type="hidden" id="newInventory" value="0">
+                <button class="btn btn-outline" type="button" style="white-space:nowrap; padding:10px 20px; font-size:13px; font-weight:700; border-radius:8px; background:#fff; border:1.5px solid var(--primary); color:var(--primary); cursor:pointer;" onclick="openUnitModal()">⚙️ 호실 셋팅 / 변경</button>
               </div>
-              <div>
-                <label class="form-field-label">총 객실 수 (재고) *</label>
-                <input type="number" class="fe-input" id="newInventory" value="1" min="1">
+
+              <!-- 생성된 호실 결과 텍스트 영역 (기본: 데이터 없음) -->
+              <div id="unitResultBox" style="background:var(--gray-50); border:1px solid var(--gray-200); border-radius:12px; padding:20px; text-align:center;">
+                <div id="unitResultEmpty" style="font-size:13px; color:var(--gray-400);">아직 할당된 호실이 없습니다. 우측 셋팅 버튼을 눌러 추가해주세요.</div>
+                <div id="unitResultContent" class="hidden" style="text-align:left;">
+                  <div id="unitResultText" style="font-size:15px; font-weight:800; color:#3730A3; line-height:1.6; word-break:break-all;"></div>
+                </div>
               </div>
             </div>
 
@@ -299,6 +317,73 @@
   </div>
 </div>
 
+<div class="modal-overlay hidden" id="modalUnitCreate" style="z-index: 1010;">
+  <div class="modal-box" style="width: 500px; padding:0; overflow:hidden;">
+    <div style="padding:24px 24px 20px; border-bottom:1px solid var(--gray-200); display:flex; justify-content:space-between; align-items:center;">
+      <h2 style="font-size:18px; font-weight:700; color:var(--gray-900); margin:0;">호실 일괄 추가 셋팅</h2>
+      <button onclick="closeUnitModal()" style="background:none; border:none; font-size:24px; cursor:pointer; margin-top:-4px; color:var(--gray-400); line-height:1;">&times;</button>
+    </div>
+    
+    <div style="padding:24px 24px 32px;">
+      <div style="display:flex; justify-content:space-between; align-items:flex-end; margin-bottom:16px;">
+        <div>
+          <label class="form-field-label" style="font-size:13px; color:var(--gray-900);">호실명 생성 방식</label>
+          <div style="display:flex; gap:16px; margin-top:8px;">
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+              <input type="radio" name="creationMode" value="sequence" checked onchange="switchUnitMode()"> 규칙 있는 연속 번호
+            </label>
+            <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+              <input type="radio" name="creationMode" value="manual" onchange="switchUnitMode()"> 특수 명칭 직접 입력
+            </label>
+          </div>
+        </div>
+        <div style="font-size:13px; color:var(--gray-600); margin-bottom:3px;">
+          생성 개수: <strong style="color:var(--primary); font-size:16px; font-weight:800;" id="unitInvCount">0개</strong>
+        </div>
+      </div>
+
+      <!-- 순차 모드 -->
+      <div id="modeSequence" style="display:block;">
+        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
+          <div>
+            <label class="form-field-label">접두어 (선택)</label>
+            <input type="text" class="fe-input" id="seqPrefix" placeholder="예: 2" oninput="updateUnitPreview()">
+          </div>
+          <div>
+            <label class="form-field-label">시작 번호</label>
+            <input type="text" class="fe-input" id="seqStart" placeholder="01" value="01" oninput="updateUnitPreview()">
+          </div>
+          <div>
+            <label class="form-field-label">끝 번호</label>
+            <input type="text" class="fe-input" id="seqEnd" placeholder="05" value="05" oninput="updateUnitPreview()">
+          </div>
+        </div>
+        <div>
+          <label class="form-field-label">접미어 (선택)</label>
+          <input type="text" class="fe-input" id="seqSuffix" placeholder="예: 호" value="호" oninput="updateUnitPreview()">
+        </div>
+      </div>
+
+      <!-- 수동 모드 -->
+      <div id="modeManual" style="display:none;">
+        <label class="form-field-label">호실명 목록 (쉼표 구분)</label>
+        <textarea class="fe-textarea" id="manualText" placeholder="쉼표(,) 혹은 엔터로 구분해 호실 이름을 나열하세요.&#10;예: 독채 1동, 본관 VIP룸..." rows="3" oninput="updateUnitPreview()"></textarea>
+      </div>
+
+      <!-- 공통 미리보기 영역 -->
+      <div style="margin-top:24px; padding:16px; background:var(--gray-50); border:1px dashed var(--gray-300); border-radius:8px; font-size:13px; color:var(--gray-600); line-height:1.6;">
+        <div style="font-weight:700; color:var(--gray-800); margin-bottom:4px;">생성될 호실 프리뷰</div>
+        <div id="unitPreviewText">201호, 202호, 203호, 204호, 205호</div>
+      </div>
+    </div>
+    
+    <div style="padding:16px 24px; border-top:1px solid var(--gray-200); display:flex; justify-content:flex-end; gap:8px; background:var(--gray-50);">
+      <button class="btn btn-outline" style="border-radius:8px;" onclick="closeUnitModal()">취소</button>
+      <button class="btn btn-primary" style="border-radius:8px;" onclick="applyUnitCreation()">본 폼에 반영</button>
+    </div>
+  </div>
+</div>
+
 <script src="shared.js"></script>
 <script>
 initPage('partner', 'rooms', '새 객실 등록');
@@ -309,25 +394,127 @@ function formatValue(key, val) {
     return '₩' + parseInt(val).toLocaleString();
   }
   if (key === 'newCapacity') return val + '인';
-  if (key === 'newInventory') return val + '개';
   return val;
+}
+
+function switchUnitMode() {
+  const isSeq = document.querySelector('input[name="creationMode"]:checked').value === 'sequence';
+  document.getElementById('modeSequence').style.display = isSeq ? 'block' : 'none';
+  document.getElementById('modeManual').style.display = isSeq ? 'none' : 'block';
+  updateUnitPreview();
+}
+
+let createdUnits = [];
+
+function openUnitModal() {
+  document.getElementById('modalUnitCreate').classList.remove('hidden');
+  updateUnitPreview();
+}
+
+function closeUnitModal() {
+  document.getElementById('modalUnitCreate').classList.add('hidden');
+}
+
+function applyUnitCreation() {
+  const arr = getFinalUnitsArray();
+  if(arr.length === 0) {
+    alert("존재하는 호실을 하나 이상 생성해야 합니다.");
+    return;
+  }
+  
+  createdUnits = arr;
+  
+  // 폼 필드 반영
+  document.getElementById('newInventory').value = createdUnits.length;
+  
+  // 결과 박스 내용 교체
+  document.getElementById('unitResultBox').style.background = '#EEF2FF';
+  document.getElementById('unitResultBox').style.borderColor = '#C7D2FE';
+  document.getElementById('unitResultBox').style.textAlign = 'left';
+  document.getElementById('unitResultEmpty').classList.add('hidden');
+  document.getElementById('unitResultContent').classList.remove('hidden');
+  
+  document.getElementById('resCountText').textContent = createdUnits.length;
+  document.getElementById('unitResultText').textContent = createdUnits.join(', ');
+  
+  closeUnitModal();
+}
+
+function padZero(num, len) {
+  return String(num).padStart(len, '0');
+}
+
+function generateSequenceArray() {
+  const prefix = document.getElementById('seqPrefix').value.trim();
+  const suffix = document.getElementById('seqSuffix').value.trim();
+  const startStr = document.getElementById('seqStart').value.trim();
+  const endStr = document.getElementById('seqEnd').value.trim();
+  
+  if(!startStr || !endStr) return [];
+  
+  const startNum = parseInt(startStr, 10);
+  const endNum = parseInt(endStr, 10);
+  const len = Math.max(startStr.length, endStr.length);
+
+  if(isNaN(startNum) || isNaN(endNum) || startNum > endNum || (endNum - startNum) > 100) {
+    return [];
+  }
+
+  const arr = [];
+  for(let i=startNum; i<=endNum; i++) {
+     arr.push(prefix + padZero(i, len) + suffix);
+  }
+  return arr;
+}
+
+function getManualArray() {
+  const val = document.getElementById('manualText').value;
+  return val.split(/[\n,]+/).map(v => v.trim()).filter(v => v.length > 0);
+}
+
+function getFinalUnitsArray() {
+  const isSeq = document.querySelector('input[name="creationMode"]:checked').value === 'sequence';
+  return isSeq ? generateSequenceArray() : getManualArray();
+}
+
+function updateUnitPreview() {
+  const arr = getFinalUnitsArray();
+  const elText = document.getElementById('unitPreviewText');
+  const elCount = document.getElementById('unitInvCount');
+  
+  if(arr.length === 0) {
+    elText.textContent = '올바른 값을 입력해 주세요. (가용 최대 100객실)';
+    elText.style.color = 'var(--danger)';
+    elCount.textContent = '0개';
+  } else {
+    elText.textContent = arr.join(', ');
+    elText.style.color = 'var(--gray-700)';
+    elCount.textContent = arr.length + '개';
+  }
 }
 
 function handleRegister() {
   const roomType = document.getElementById('newRoomType').value || '(이름을 입력하지 않음)';
   const capacity = document.getElementById('newCapacity').value;
-  const inv = document.getElementById('newInventory').value;
   const pWd = document.getElementById('newPriceWeekday').value || '0';
   const pWe = document.getElementById('newPriceWeekend').value || '0';
   
   const amenities = Array.from(document.querySelectorAll('#amenityList .am-btn.active'))
                          .map(b => b.textContent.trim());
 
+  const inv = createdUnits.length;
+
+  if (inv === 0) {
+    alert("우측 셋팅 버튼을 눌러 객실에 속할 실물 방(호실)을 최소 1개라도 생성해야 등록이 가능합니다.");
+    return;
+  }
+
   const summaryHTML = `
-    <div style="margin-bottom:4px"><span style="color:#6366F1">객실 타입:</span> ${roomType}</div>
-    <div style="margin-bottom:4px"><span style="color:#6366F1">기본 제원:</span> 기준 ${formatValue('newCapacity', capacity)} / 재고 ${formatValue('newInventory', inv)}</div>
-    <div style="margin-bottom:4px"><span style="color:#6366F1">판매 요금:</span> 평일 ${formatValue('newPriceWeekday', pWd)} / 주말 ${formatValue('newPriceWeekend', pWe)}</div>
-    <div><span style="color:#6366F1">편의시설:</span> <span style="font-weight:500;color:var(--gray-500)">${amenities.length > 0 ? amenities.join(', ') : '선택 안 됨'}</span></div>
+    <div style="margin-bottom:6px"><span style="color:#6366F1; font-weight:700;">객실 타입:</span> ${roomType}</div>
+    <div style="margin-bottom:6px"><span style="color:#6366F1; font-weight:700;">기본 제원:</span> 기준 ${formatValue('newCapacity', capacity)} / 자동 재고 배정 <strong style="color:var(--gray-900);">${inv}실</strong></div>
+    <div style="margin-bottom:6px; line-height:1.5;"><span style="color:#6366F1; font-weight:700;">할당 호실:</span> <span style="color:var(--gray-800);">${createdUnits.join(', ')}</span></div>
+    <div style="margin-bottom:6px"><span style="color:#6366F1; font-weight:700;">판매 요금:</span> 평일 ${formatValue('newPriceWeekday', pWd)} / 주말 ${formatValue('newPriceWeekend', pWe)}</div>
+    <div><span style="color:#6366F1; font-weight:700;">편의시설:</span> <span style="font-weight:500;color:var(--gray-500)">${amenities.length > 0 ? amenities.join(', ') : '선택 안 됨'}</span></div>
   `;
   
   document.getElementById('modalSummaryDesc').innerHTML = summaryHTML;

@@ -29,8 +29,8 @@
             <div class="page-subtitle">전화·현장 취소/변경 요청 시 상세를 확인한 뒤 수정 또는 취소합니다.</div>
           </div>
           <div class="flex gap-2">
-            <a href="partner-reservations-calendar.html"><button class="btn btn-ghost btn-sm">📅 캘린더 뷰</button></a>
-            <a href="partner-reservations.html"><button class="btn btn-ghost btn-sm">📋 승인 대기</button></a>
+            <button class="btn btn-ghost btn-sm" onclick="openCalModal()">📅 캘린더 뷰</button>
+
           </div>
         </div>
 
@@ -41,7 +41,6 @@
             <input type="date" value="2026-03-31" id="dateTo">
             <select id="filterStatus">
               <option value="active">전체 활성 예약</option>
-              <option value="pending">예약 대기</option>
               <option value="unassigned">미배정</option>
               <option value="assigned">배정 완료</option>
               <option value="completed">이용 완료</option>
@@ -256,16 +255,15 @@
       { id: '20260308-0019', name: '이서연', phone: '010-9876-5432', room: '스탠다드 더블', assignedRoom: null, checkin: '2026-03-18T15:00', checkout: '2026-03-19T11:00', status: 'confirmed', guests: 1, request: '조용한 방 요청' },
       { id: '20260312-0077', name: '박도윤', phone: '010-5553-4444', room: '프리미어 스위트', assignedRoom: '501호', checkin: '2026-03-25T15:00', checkout: '2026-03-27T11:00', status: 'confirmed', guests: 3, request: '생일 이벤트 준비 요청' },
       { id: '20260309-0055', name: '최지우', phone: '010-7777-8888', room: '계곡뷰 A', assignedRoom: null, checkin: '2026-03-22T15:00', checkout: '2026-03-24T11:00', status: 'confirmed', guests: 2, request: '' },
-      { id: '20260314-0003', name: '정하은', phone: '010-3333-2222', room: '숲속 B', assignedRoom: null, checkin: '2026-03-18T15:00', checkout: '2026-03-20T11:00', status: 'pending', guests: 2, request: '' },
+      { id: '20260314-0003', name: '정하은', phone: '010-3333-2222', room: '숲속 B', assignedRoom: null, checkin: '2026-03-18T15:00', checkout: '2026-03-20T11:00', status: 'confirmed', guests: 2, request: '' },
       { id: '20260307-0061', name: '윤서아', phone: '010-1111-9999', room: '힐링 E', assignedRoom: '203호', checkin: '2026-03-28T15:00', checkout: '2026-03-30T11:00', status: 'confirmed', guests: 2, request: '알레르기 (복숭아)' },
-      { id: '20260315-0021', name: '한지민', phone: '010-8888-1111', room: '하늘 F', assignedRoom: null, checkin: '2026-03-29T15:00', checkout: '2026-03-31T11:00', status: 'pending', guests: 3, request: '' },
+      { id: '20260315-0021', name: '한지민', phone: '010-8888-1111', room: '하늘 F', assignedRoom: null, checkin: '2026-03-29T15:00', checkout: '2026-03-31T11:00', status: 'confirmed', guests: 3, request: '' },
       { id: '20260305-0034', name: '임준혁', phone: '010-4444-5555', room: '파노라마 C', assignedRoom: '401호', checkin: '2026-03-10T15:00', checkout: '2026-03-12T11:00', status: 'completed', guests: 1, request: '' },
       { id: '20260301-0088', name: '강현우', phone: '010-6666-7777', room: '계곡뷰 A', assignedRoom: null, checkin: '2026-03-05T15:00', checkout: '2026-03-07T11:00', status: 'cancelled', guests: 4, request: '' },
     ];
 
     // 배정 상태 판정
     function getAssignState(r) {
-      if (r.status === 'pending') return 'pending';
       if (r.status === 'completed') return 'completed';
       if (r.status === 'cancelled') return 'cancelled';
       return r.assignedRoom ? 'assigned' : 'unassigned';
@@ -275,7 +273,6 @@
       const s = getAssignState(r);
       if (s === 'assigned') return `<span class="badge badge-confirmed">배정완료</span>`;
       if (s === 'unassigned') return `<span class="badge badge-pending">미배정</span>`;
-      if (s === 'pending') return `<span class="badge" style="background:var(--gray-100);color:var(--gray-500)">승인대기</span>`;
       if (s === 'completed') return `<span class="badge badge-completed">이용완료</span>`;
       if (s === 'cancelled') return `<span class="badge badge-cancelled">취소</span>`;
     }
@@ -293,7 +290,6 @@
       const filtered = manageData.filter(r => {
         const s = getAssignState(r);
         if (filterVal === 'active' && !isActive(r)) return false;
-        if (filterVal === 'pending' && s !== 'pending') return false;
         if (filterVal === 'unassigned' && s !== 'unassigned') return false;
         if (filterVal === 'assigned' && s !== 'assigned') return false;
         if (filterVal === 'completed' && s !== 'completed') return false;
@@ -422,6 +418,120 @@
 
     renderManage();
   </script>
+
+<!-- 예약 현황 캘린더 모달 -->
+<style>
+.calmo{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000;padding:20px}
+.calmo.hidden{display:none}
+.calmo-box{background:#fff;border-radius:16px;box-shadow:0 24px 64px rgba(0,0,0,.2);width:100%;max-width:1020px;max-height:90vh;display:flex;flex-direction:column;overflow:hidden}
+.calmo-head{padding:14px 18px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;gap:8px;flex-shrink:0}
+.calmo-body{flex:1;overflow:auto;padding:16px 18px}
+.cal-wrap{overflow-x:auto}
+.cal-grid{border:1px solid var(--gray-200);border-radius:10px;overflow:hidden;min-width:660px}
+.cal-hrow,.cal-rrow{display:grid}
+.cal-hrow{background:var(--gray-50);border-bottom:1px solid var(--gray-200)}
+.cal-hcell{padding:5px 2px;text-align:center;font-size:10px;font-weight:600;color:var(--gray-500);border-right:1px solid var(--gray-100)}
+.cal-hcell.tday{color:var(--primary);background:var(--primary-light)}
+.cal-rlabel{padding:0 8px;display:flex;align-items:center;font-size:11px;font-weight:700;color:var(--gray-700);border-right:1px solid var(--gray-200);background:var(--gray-50);white-space:nowrap}
+.cal-rrow{border-bottom:1px solid var(--gray-100);position:relative;height:34px}
+.cal-rrow:last-child{border-bottom:none}
+.cal-dcell{border-right:1px solid var(--gray-100);height:100%}
+.cal-dcell.tc{background:rgba(99,102,241,.05)}
+.rbar{position:absolute;top:4px;height:26px;border-radius:5px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;cursor:default;z-index:2;padding:0 5px}
+.rbar:hover{opacity:.8}
+.calleg{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.calleg-i{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--gray-600)}
+.calleg-dot{width:11px;height:11px;border-radius:3px;flex-shrink:0}
+</style>
+
+<div class="calmo hidden" id="modalCal">
+  <div class="calmo-box">
+    <div class="calmo-head">
+      <div style="flex:1">
+        <div id="calTitle" style="font-size:16px;font-weight:800;color:var(--gray-800)"></div>
+        <div style="font-size:12px;color:var(--gray-400);margin-top:1px">객실별 예약이 이번 달 어떻게 채워져 있는지 확인합니다.</div>
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="shiftCal(-1)">‹ 이전달</button>
+      <button class="btn btn-ghost btn-sm" onclick="shiftCal(0)">오늘</button>
+      <button class="btn btn-ghost btn-sm" onclick="shiftCal(1)">다음달 ›</button>
+      <button style="width:30px;height:30px;border:none;background:var(--gray-100);border-radius:8px;cursor:pointer;font-size:18px;line-height:1" onclick="document.getElementById('modalCal').classList.add('hidden')">×</button>
+    </div>
+    <div class="calmo-body">
+      <div class="cal-wrap"><div class="cal-grid" id="calGrid"></div></div>
+      <div class="calleg" id="calLeg"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+let cY,cM;
+const CR=['스탠다드 더블','디럭스 트윈','프리미어 스위트','계곡뷰 A','힐링 E','하늘 F','파노라마 C','숲속 B'];
+const CC=['#6366F1','#10B981','#F59E0B','#EF4444','#8B5CF6','#0EA5E9','#EC4899','#14B8A6'];
+const CDATA=[
+  {room:'디럭스 트윈',n:'김민준',f:'2026-03-20',t:'2026-03-22'},
+  {room:'스탠다드 더블',n:'이서연',f:'2026-03-18',t:'2026-03-19'},
+  {room:'프리미어 스위트',n:'박도윤',f:'2026-03-25',t:'2026-03-27'},
+  {room:'계곡뷰 A',n:'최지우',f:'2026-03-22',t:'2026-03-24'},
+  {room:'힐링 E',n:'윤서아',f:'2026-03-28',t:'2026-03-30'},
+  {room:'하늘 F',n:'한지민',f:'2026-03-29',t:'2026-03-31'},
+  {room:'파노라마 C',n:'임준혁',f:'2026-03-10',t:'2026-03-12'},
+  {room:'숲속 B',n:'정하은',f:'2026-03-18',t:'2026-03-20'},
+  {room:'디럭스 트윈',n:'오예진',f:'2026-03-05',t:'2026-03-08'},
+  {room:'스탠다드 더블',n:'강준서',f:'2026-03-12',t:'2026-03-14'},
+  {room:'계곡뷰 A',n:'고다은',f:'2026-03-02',t:'2026-03-04'},
+  {room:'힐링 E',n:'임지호',f:'2026-03-14',t:'2026-03-16'},
+  {room:'디럭스 트윈',n:'소현진',f:'2026-03-01',t:'2026-03-03'},
+  {room:'프리미어 스위트',n:'권영환',f:'2026-03-08',t:'2026-03-11'},
+  {room:'숲속 B',n:'나태양',f:'2026-03-24',t:'2026-03-26'},
+];
+function openCalModal(){const n=new Date();cY=n.getFullYear();cM=n.getMonth()+1;renderCal();document.getElementById('modalCal').classList.remove('hidden');}
+function shiftCal(d){if(d===0){const n=new Date();cY=n.getFullYear();cM=n.getMonth()+1;}else{cM+=d;if(cM>12){cM=1;cY++;}if(cM<1){cM=12;cY--;}}renderCal();}
+function renderCal(){
+  const dim=new Date(cY,cM,0).getDate();
+  const tod=new Date().toISOString().slice(0,10);
+  const mn=['1월','2월','3월','4월','5월','6월','7월','8월','9월','10월','11월','12월'];
+  const dn=['일','월','화','수','목','금','토'];
+  document.getElementById('calTitle').textContent=cY+'년 '+mn[cM-1]+' 예약 현황';
+  const ym=cY+'-'+String(cM).padStart(2,'0');
+  const ms=ym+'-01', me=ym+'-'+String(dim).padStart(2,'0');
+  const LW=84,DW=27;
+  const cols=LW+'px '+Array(dim).fill(DW+'px').join(' ');
+  let h='<div class="cal-hrow" style="grid-template-columns:'+cols+'">';
+  h+='<div class="cal-rlabel" style="height:36px;background:var(--gray-100);font-size:11px">객실</div>';
+  for(let d=1;d<=dim;d++){
+    const ds=ym+'-'+String(d).padStart(2,'0');
+    const dow=new Date(ds).getDay();
+    const it=ds===tod;
+    const c=dow===0?'#EF4444':dow===6?'#6366F1':'';
+    h+='<div class="cal-hcell'+(it?' tday':'')+'" style="'+(c?'color:'+c:'')+'">'
+      +d+'<br><span style="font-size:8px">'+dn[dow]+'</span></div>';
+  }
+  h+='</div>';
+  CR.forEach(function(room,ri){
+    const col=CC[ri%CC.length];
+    const rvs=CDATA.filter(function(r){return r.room===room&&r.t>=ms&&r.f<=me;});
+    h+='<div class="cal-rrow" style="grid-template-columns:'+cols+';display:grid">';
+    h+='<div class="cal-rlabel">'+room+'</div>';
+    for(let d=1;d<=dim;d++){
+      const ds=ym+'-'+String(d).padStart(2,'0');
+      h+='<div class="cal-dcell'+(ds===tod?' tc':'')+'"></div>';
+    }
+    rvs.forEach(function(r){
+      const sd=Math.max(1,parseInt((r.f>=ms?r.f:ms).slice(8)));
+      const ed=Math.min(dim,parseInt((r.t<=me?r.t:me).slice(8)));
+      const span=ed-sd+1;
+      const left=LW+(sd-1)*DW+2;
+      const width=span*DW-4;
+      h+='<div class="rbar" style="left:'+left+'px;width:'+width+'px;background:'+col+'" title="'+r.n+' ('+r.f+'~'+r.t+')">'+(span>=3?r.n:'')+'</div>';
+    });
+    h+='</div>';
+  });
+  document.getElementById('calGrid').innerHTML=h;
+  document.getElementById('calLeg').innerHTML=CR.map(function(r,i){
+    return '<div class="calleg-i"><div class="calleg-dot" style="background:'+CC[i%CC.length]+'"></div>'+r+'</div>';
+  }).join('');
+}
+</script>
 </body>
 
 </html>
