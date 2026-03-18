@@ -7,7 +7,7 @@ const PARTNER_NAV = [
   { icon: '📊', label: '대시보드', href: 'partner-dashboard.html', id: 'dashboard' },
   { section: '예약' },
   { icon: '📋', label: '예약 관리', href: 'partner-reservations.html', id: 'reservations', badge: '8' },
-  { icon: '📅', label: '예약 캘린더', href: 'partner-reservations-calendar.html', id: 'calendar' },
+  { icon: '📅', label: '호실 배정', href: 'partner-reservations-calendar.html', id: 'calendar' },
   { icon: '🛎️', label: '체크인 관리', href: 'partner-checkin.html', id: 'checkin' },
   { icon: '📝', label: '변경 로그', href: 'partner-reservation-logs.html', id: 'logs' },
   { icon: '📋', label: '예약 목록 관리', href: 'partner-reservation-manage.html', id: 'manage' },
