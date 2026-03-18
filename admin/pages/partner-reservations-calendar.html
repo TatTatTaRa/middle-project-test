@@ -7,6 +7,20 @@
   <title>호실 배정 — 파트너센터</title>
   <link rel="stylesheet" href="shared.css">
   <style>
+    /* 그룹화된 카드 목록: wrapper는 단순 flex container, 카드 각자 card 스타일 유지 */
+    #unassignedCardGroup .unassigned-card {
+      border-radius: 12px !important;
+      border: 1px solid var(--gray-200) !important;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+      margin: 0 !important;
+      background: white !important;
+    }
+
+    #unassignedCardGroup .unassigned-card:hover {
+      border-color: #FECDD3 !important;
+      box-shadow: 0 2px 8px rgba(225, 29, 72, 0.08) !important;
+    }
+
     /* 79차 개편: 버튼 유무에 따른 카드 높이 점프(Layout Shift) 현상 방지를 위해, display 대신 visibility 기반 토글로 변경하여 레이아웃 영역 보존 */
     .unassigned-card .btn-assign-room {
       display: flex !important;
@@ -480,42 +494,259 @@
 
         <!-- 30차 개편: page 내부 컨텐츠 전체를 감싸는 1200px 폭의 비반응형 중앙 컨테이너 추가 -->
         <div class="content-wrapper">
-          <div class="page-header" style="justify-content: flex-start; align-items: center; background: #f3f4f6; padding: 12px 20px; border-radius: 8px; margin-bottom: 20px;">
+          <!-- 필터 팝오버 스타일 -->
+          <style>
+            .filter-trigger-btn {
+              display: flex;
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 2px;
+              padding: 7px 14px;
+              background: white;
+              border: 1.5px solid var(--gray-200);
+              border-radius: 10px;
+              cursor: pointer;
+              transition: border-color 0.15s, box-shadow 0.15s;
+              min-width: 110px;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            }
+
+            .filter-trigger-btn:hover {
+              border-color: #E11D48;
+            }
+
+            .filter-trigger-btn.has-filter {
+              border-color: #E11D48;
+            }
+
+            .filter-trigger-btn .ftb-label {
+              font-size: 10px;
+              color: var(--gray-500);
+              font-weight: 500;
+              line-height: 1;
+            }
+
+            .filter-trigger-btn .ftb-value {
+              font-size: 12px;
+              font-weight: 700;
+              color: var(--gray-800);
+              line-height: 1;
+            }
+
+            .filter-trigger-btn.has-filter .ftb-value {
+              color: #E11D48;
+            }
+
+            /* 팝오버 공통 */
+            .filter-popover {
+              display: none;
+              position: absolute;
+              top: calc(100% + 8px);
+              left: 0;
+              background: white;
+              border-radius: 16px;
+              box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
+              width: 260px;
+              z-index: 1000;
+              overflow: hidden;
+            }
+
+            .fp-header {
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              padding: 16px 20px 12px;
+            }
+
+            .fp-header-label {
+              font-size: 13px;
+              font-weight: 600;
+              color: var(--gray-500);
+            }
+
+            .fp-reset-btn {
+              background: none;
+              border: none;
+              font-size: 13px;
+              font-weight: 700;
+              color: #E11D48;
+              cursor: pointer;
+              padding: 0;
+            }
+
+            .fp-list {
+              padding: 4px 20px 20px;
+              display: flex;
+              flex-direction: column;
+              gap: 4px;
+            }
+
+            /* 커스텀 체크박스 행 */
+            .fp-cb-row {
+              display: flex;
+              align-items: center;
+              gap: 14px;
+              padding: 12px 0;
+              cursor: pointer;
+              border: none;
+              background: none;
+              width: 100%;
+              text-align: left;
+            }
+
+            .fp-cb-row:hover .fp-cb-box {
+              border-color: #E11D48;
+            }
+
+            .fp-cb-box {
+              width: 24px;
+              height: 24px;
+              border-radius: 7px;
+              border: 2px solid var(--gray-300);
+              flex-shrink: 0;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              transition: background 0.15s, border-color 0.15s;
+              background: white;
+            }
+
+            .fp-cb-box svg {
+              display: none;
+            }
+
+            .fp-cb-row.checked .fp-cb-box {
+              background: #E11D48;
+              border-color: #E11D48;
+            }
+
+            .fp-cb-row.checked .fp-cb-box svg {
+              display: block;
+            }
+
+            .fp-cb-label {
+              font-size: 15px;
+              font-weight: 700;
+              color: var(--gray-800);
+            }
+
+            /* 가용인원 팝오버 - 버튼 그리드 */
+            .fp-cap-grid {
+              padding: 8px 16px 20px;
+              display: flex;
+              flex-wrap: wrap;
+              gap: 8px;
+            }
+
+            .fp-cap-btn {
+              padding: 8px 18px;
+              border-radius: 8px;
+              border: 1.5px solid var(--gray-200);
+              background: white;
+              font-size: 13px;
+              font-weight: 700;
+              color: var(--gray-600);
+              cursor: pointer;
+              transition: all 0.15s;
+            }
+
+            .fp-cap-btn:hover {
+              border-color: #E11D48;
+              color: #E11D48;
+            }
+
+            .fp-cap-btn.active {
+              background: #FFF1F2;
+              border-color: #E11D48;
+              color: #E11D48;
+            }
+          </style>
+
+          <div class="page-header"
+            style="justify-content: flex-start; align-items: center; padding: 0; margin-bottom: 16px;">
             <div style="display: flex; align-items: center; gap: 12px;">
-              <span style="font-weight: 700; font-size: 14px; color: var(--gray-700);">객실 타입</span>
-              <div style="display: flex; gap: 6px;" id="filterTypeGroup">
-                <button class="filter-btn active" data-filter="all" style="padding: 6px 16px; border-radius: 6px; border: 1px solid var(--gray-300); font-size: 13px; font-weight: 600; cursor: pointer; background: #111827; color: white;">전체</button>
-                <button class="filter-btn" data-filter="STANDARD" style="padding: 6px 16px; border-radius: 6px; border: 1px solid var(--gray-300); font-size: 13px; font-weight: 600; cursor: pointer; background: white; color: var(--gray-600);">Standard</button>
-                <button class="filter-btn" data-filter="DELUXE" style="padding: 6px 16px; border-radius: 6px; border: 1px solid var(--gray-300); font-size: 13px; font-weight: 600; cursor: pointer; background: white; color: var(--gray-600);">Deluxe</button>
-                <button class="filter-btn" data-filter="SUITE" style="padding: 6px 16px; border-radius: 6px; border: 1px solid var(--gray-300); font-size: 13px; font-weight: 600; cursor: pointer; background: white; color: var(--gray-600);">Suite</button>
+
+              <!-- 객실 타입 트리거 -->
+              <div style="position: relative;">
+                <button class="filter-trigger-btn" id="btnTypePopover">
+                  <span class="ftb-label">객실 타입</span>
+                  <span class="ftb-value" id="typeFilterBtnText">전체</span>
+                </button>
+                <!-- 타입 팝오버 -->
+                <div class="filter-popover" id="typeFilterPopover">
+                  <div class="fp-header">
+                    <span class="fp-header-label">타입 다중 선택</span>
+                    <button class="fp-reset-btn" id="btnTypeReset">초기화</button>
+                  </div>
+                  <div class="fp-list" id="filterTypeGroup">
+                    <button class="fp-cb-row" data-type="STANDARD">
+                      <span class="fp-cb-box">
+                        <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+                          <path d="M1.5 5L5 8.5L11.5 1" stroke="white" stroke-width="2.2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        </svg>
+                      </span>
+                      <span class="fp-cb-label">Standard</span>
+                    </button>
+                    <button class="fp-cb-row" data-type="DELUXE">
+                      <span class="fp-cb-box">
+                        <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+                          <path d="M1.5 5L5 8.5L11.5 1" stroke="white" stroke-width="2.2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        </svg>
+                      </span>
+                      <span class="fp-cb-label">Deluxe</span>
+                    </button>
+                    <button class="fp-cb-row" data-type="SUITE">
+                      <span class="fp-cb-box">
+                        <svg width="13" height="10" viewBox="0 0 13 10" fill="none">
+                          <path d="M1.5 5L5 8.5L11.5 1" stroke="white" stroke-width="2.2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                        </svg>
+                      </span>
+                      <span class="fp-cb-label">Suite</span>
+                    </button>
+                  </div>
+                </div>
               </div>
-              
-              <div style="width: 1px; height: 16px; background: var(--gray-300); margin: 0 12px;"></div>
-              
-              <span style="font-weight: 700; font-size: 14px; color: var(--gray-700);">가용 인원</span>
-              <div style="display: flex; gap: 6px;" id="filterCapGroup">
-                <button class="filter-btn cap-btn" data-cap="2" style="padding: 6px 16px; border-radius: 6px; border: 1px solid var(--gray-300); font-size: 13px; font-weight: 600; cursor: pointer; background: white; color: var(--gray-600);">2인</button>
-                <button class="filter-btn cap-btn" data-cap="4" style="padding: 6px 16px; border-radius: 6px; border: 1px solid var(--gray-300); font-size: 13px; font-weight: 600; cursor: pointer; background: white; color: var(--gray-600);">4인</button>
-                <button class="filter-btn cap-btn" data-cap="6" style="padding: 6px 16px; border-radius: 6px; border: 1px solid var(--gray-300); font-size: 13px; font-weight: 600; cursor: pointer; background: white; color: var(--gray-600);">6인+</button>
+
+              <!-- 가용 인원 트리거 -->
+              <div style="position: relative;">
+                <button class="filter-trigger-btn" id="btnCapPopover">
+                  <span class="ftb-label">가용 인원</span>
+                  <span class="ftb-value" id="capFilterBtnText">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle; margin-right:2px;">
+                      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                      <circle cx="12" cy="7" r="4" />
+                    </svg>
+                    전체
+                  </span>
+                </button>
+                <!-- 인원 팝오버 -->
+                <div class="filter-popover" id="capFilterPopover">
+                  <div class="fp-header">
+                    <span class="fp-header-label">가용 인원 선택</span>
+                    <button class="fp-reset-btn" id="btnCapReset">초기화</button>
+                  </div>
+                  <div class="fp-cap-grid" id="filterCapGroup">
+                    <button class="fp-cap-btn" data-cap="2">2인</button>
+                    <button class="fp-cap-btn" data-cap="4">4인</button>
+                    <button class="fp-cap-btn" data-cap="6">6인+</button>
+                  </div>
+                </div>
               </div>
+
             </div>
           </div>
 
           <div class="assign-board">
             <!-- 좌측: 미배정 예약 패널 (순수 확정건 용도) -->
             <div class="assign-sidebar">
-              <div
-                style="font-size:18px; font-weight:700; margin-bottom:2px; display:flex; justify-content:space-between; align-items:center;">
-                <div style="display:flex; align-items:center; gap:8px;">
-                  배정 대기
-                  <span id="badgeTotalUnassigned"
-                    style="background:#FFF1F2;color:#E11D48;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:13px;font-weight:700;">3</span>
-                </div>
-              </div>
 
-              <!-- 객실 부족 주의 위젯 (심플 텍스트 위주 버전) -->
+              <!-- 객실 부족 주의 위젯 (이미지 참고: 맨 위 배치) -->
               <div id="impossibleWarningBox"
-                style="display:none; background:#FFF1F2; border:1px solid #FFE4E6; border-radius:8px; padding:6px 10px; margin-bottom:4px; align-items:center; gap:6px;">
+                style="display:none; background:#FFF1F2; border:1px solid #FFE4E6; border-radius:8px; padding:8px 12px; margin-bottom:12px; align-items:center; gap:8px;">
                 <div
                   style="background:#F43F5E; width:18px; height:18px; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
                   <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"
@@ -526,91 +757,102 @@
                     <line x1="12" y1="17" x2="12.01" y2="17"></line>
                   </svg>
                 </div>
-                <div style="font-size:12px; font-weight:500; color:#E11D48;">현재 <span id="textImpossible">0</span>건의 배정
+                <div style="font-size:12px; font-weight:700; color:#E11D48;">현재 <span id="textImpossible">0</span>건의 배정
                   불가능한 예약이 있습니다.</div>
               </div>
 
-              <!-- 54차 개편: 사용자 요청 확정 문구 적용 -->
-              <div style="margin-bottom:8px;">
+              <!-- 헤더 -->
+              <div
+                style="font-size:18px; font-weight:700; margin-bottom:2px; display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:8px;">
+                  배정 대기
+                  <span id="badgeTotalUnassigned"
+                    style="background:#FFF1F2;color:#E11D48;width:24px;height:24px;display:flex;align-items:center;justify-content:center;border-radius:12px;font-size:13px;font-weight:700;">3</span>
+                </div>
+              </div>
+
+              <!-- 54차 개편: 설명 문구 -->
+              <div style="margin-bottom:12px;">
                 <div style="font-size:11px; color:var(--gray-500); line-height:1.4; word-break:keep-all;">
                   달력 기간 내 <strong style="color:var(--gray-700)">체크인하는 결제 완료 건</strong>만 표시됩니다.
                 </div>
               </div>
+              <!-- 카드 그룹 wrapper: padding + flex gap -->
+              <div id="unassignedCardGroup" style="display: flex; flex-direction: column; gap: 10px;">
 
-              <div class="unassigned-card" data-name="김철수" data-nights="1" data-start="1" data-type="DELUXE"
-                onclick="handleEventClick(event)">
-                <div class="uc-header">
-                  <span class="uc-name">김철수</span>
-                  <span class="uc-badge" style="background:#E0E7FF;color:#3730A3">DELUXE</span>
+                <div class="unassigned-card" data-name="김철수" data-nights="1" data-start="1" data-type="DELUXE"
+                  onclick="handleEventClick(event)">
+                  <div class="uc-header">
+                    <span class="uc-name">김철수</span>
+                    <span class="uc-badge" style="background:#E0E7FF;color:#3730A3">DELUXE</span>
+                  </div>
+                  <div class="uc-info">📅 3/15 ~ 3/16 (1박)</div>
+                  <div class="uc-info">📞 010-9876-5432</div>
+                  <div class="uc-info"
+                    style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <span class="avail-status" style="color:#3b82f6; font-weight:500;">배정 가능: -실</span>
+                    <button class="btn-assign-room" onmouseover="this.style.background='#4338CA'"
+                      onmouseout="this.style.background='var(--primary)'"
+                      style="padding: 5px 12px; background: var(--primary); color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: 0.2s;"
+                      onclick="event.stopPropagation(); openManualAssignModal(this);">
+                      방 배정
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18l6-6-6-6"></path>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-                <div class="uc-info">📅 3/15 ~ 3/16 (1박)</div>
-                <div class="uc-info">📞 010-9876-5432</div>
-                <div class="uc-info"
-                  style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                  <span class="avail-status" style="color:#3b82f6; font-weight:500;">배정 가능: -실</span>
-                  <button class="btn-assign-room" onmouseover="this.style.background='#4338CA'"
-                    onmouseout="this.style.background='var(--primary)'"
-                    style="padding: 5px 12px; background: var(--primary); color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: 0.2s;"
-                    onclick="event.stopPropagation(); openManualAssignModal(this);">
-                    방 배정
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M9 18l6-6-6-6"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
 
-              <div class="unassigned-card" data-name="박민수" data-nights="2" data-start="2" data-type="SUITE"
-                onclick="handleEventClick(event)">
-                <div class="uc-header">
-                  <span class="uc-name">박민수</span>
-                  <span class="uc-badge" style="background:#D1FAE5;color:#065F46">SUITE</span>
+                <div class="unassigned-card" data-name="박민수" data-nights="2" data-start="2" data-type="SUITE"
+                  onclick="handleEventClick(event)">
+                  <div class="uc-header">
+                    <span class="uc-name">박민수</span>
+                    <span class="uc-badge" style="background:#D1FAE5;color:#065F46">SUITE</span>
+                  </div>
+                  <div class="uc-info">📅 3/16 ~ 3/18 (2박)</div>
+                  <div class="uc-info">📞 010-3344-5556</div>
+                  <div class="uc-info"
+                    style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <span class="avail-status" style="color:#3b82f6; font-weight:500;">배정 가능: -실</span>
+                    <button class="btn-assign-room" onmouseover="this.style.background='#4338CA'"
+                      onmouseout="this.style.background='var(--primary)'"
+                      style="padding: 5px 12px; background: var(--primary); color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: 0.2s;"
+                      onclick="event.stopPropagation(); openManualAssignModal(this);">
+                      방 배정
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18l6-6-6-6"></path>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-                <div class="uc-info">📅 3/16 ~ 3/18 (2박)</div>
-                <div class="uc-info">📞 010-3344-5556</div>
-                <!-- 77차 개편: 불필요한 장식성 이모지(✨) 제거로 시각적 노이즈 최소화 -->
-                <div class="uc-info"
-                  style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                  <span class="avail-status" style="color:#3b82f6; font-weight:500;">배정 가능: -실</span>
-                  <button class="btn-assign-room" onmouseover="this.style.background='#4338CA'"
-                    onmouseout="this.style.background='var(--primary)'"
-                    style="padding: 5px 12px; background: var(--primary); color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: 0.2s;"
-                    onclick="event.stopPropagation(); openManualAssignModal(this);">
-                    방 배정
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M9 18l6-6-6-6"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
 
-              <div class="unassigned-card" data-name="최성호" data-nights="1" data-start="4" data-type="STANDARD"
-                onclick="handleEventClick(event)">
-                <div class="uc-header">
-                  <span class="uc-name">최성호</span>
-                  <span class="uc-badge" style="background:#F3F4F6;color:#4B5563">STANDARD</span>
+                <div class="unassigned-card" data-name="최성호" data-nights="1" data-start="4" data-type="STANDARD"
+                  onclick="handleEventClick(event)">
+                  <div class="uc-header">
+                    <span class="uc-name">최성호</span>
+                    <span class="uc-badge" style="background:#F3F4F6;color:#4B5563">STANDARD</span>
+                  </div>
+                  <div class="uc-info">📅 3/18 ~ 3/19 (1박)</div>
+                  <div class="uc-info">📞 010-1111-2222</div>
+                  <div class="uc-info"
+                    style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
+                    <span class="avail-status" style="color:#3b82f6; font-weight:500;">배정 가능: -실</span>
+                    <button class="btn-assign-room" onmouseover="this.style.background='#4338CA'"
+                      onmouseout="this.style.background='var(--primary)'"
+                      style="padding: 5px 12px; background: var(--primary); color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: 0.2s;"
+                      onclick="event.stopPropagation(); openManualAssignModal(this);">
+                      방 배정
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 18l6-6-6-6"></path>
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-                <div class="uc-info">📅 3/18 ~ 3/19 (1박)</div>
-                <div class="uc-info">📞 010-1111-2222</div>
-                <!-- 77차 개편: 불필요한 장식성 이모지(✨) 제거 -->
-                <div class="uc-info"
-                  style="margin-top:8px; display:flex; justify-content:space-between; align-items:center;">
-                  <span class="avail-status" style="color:#3b82f6; font-weight:500;">배정 가능: -실</span>
-                  <button class="btn-assign-room" onmouseover="this.style.background='#4338CA'"
-                    onmouseout="this.style.background='var(--primary)'"
-                    style="padding: 5px 12px; background: var(--primary); color: white; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 3px; transition: 0.2s;"
-                    onclick="event.stopPropagation(); openManualAssignModal(this);">
-                    방 배정
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                      stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M9 18l6-6-6-6"></path>
-                    </svg>
-                  </button>
-                </div>
-              </div>
 
+              </div><!-- /#unassignedCardGroup -->
             </div>
 
             <!-- 우측: 캘린더 그리드 -->
