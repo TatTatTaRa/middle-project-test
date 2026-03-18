@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>채팅 문의 — 파트너센터</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* ── 레이아웃 ── */
+    .chat-wrap {
+      display: grid;
+      grid-template-columns: 300px 1fr 240px;
+      height: calc(100vh - 64px - 80px);
+      border: 1px solid var(--gray-200);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      background: #fff;
+    }
+
+    /* ── 좌: 대화 목록 ── */
+    .cl-list {
+      border-right: 1px solid var(--gray-200);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .cl-header {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+
+    .cl-header-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-500);
+      letter-spacing: 0.06em;
+    }
+
+    .cl-search {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--gray-100);
+      flex-shrink: 0;
+    }
+
+    .cl-search input {
+      width: 100%;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius);
+      padding: 7px 12px;
+      font-size: 12px;
+      outline: none;
+      font-family: inherit;
+      transition: border-color 0.15s;
+    }
+
+    .cl-search input:focus {
+      border-color: #6366F1;
+    }
+
+    .cl-body {
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .cl-item {
+      padding: 12px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--gray-100);
+      transition: background 0.12s;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .cl-item:hover {
+      background: var(--gray-50);
+    }
+
+    .cl-item.active {
+      background: #EEF2FF;
+    }
+
+    .cl-item.unread .cl-name {
+      font-weight: 800;
+      color: var(--gray-900);
+    }
+
+    .cl-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 800;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .cl-unread-dot {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 10px;
+      height: 10px;
+      background: #E11D48;
+      border-radius: 50%;
+      border: 2px solid #fff;
+    }
+
+    .cl-item-body {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .cl-name {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-800);
+      margin-bottom: 2px;
+    }
+
+    .cl-preview {
+      font-size: 11px;
+      color: var(--gray-400);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .cl-meta {
+      font-size: 10px;
+      color: var(--gray-400);
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .cl-badge {
+      display: inline-block;
+      background: #E11D48;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 999px;
+      padding: 1px 6px;
+      margin-top: 4px;
+    }
+
+    /* ── 우: 채팅 영역 ── */
+    .chat-area {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .chat-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-400);
+      gap: 10px;
+    }
+
+    .chat-empty svg {
+      opacity: 0.2;
+    }
+
+    .chat-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    /* 채팅 헤더 */
+    .chat-dh {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--gray-100);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .chat-dh-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+
+    .chat-dh-sub {
+      font-size: 12px;
+      color: var(--gray-400);
+      margin-top: 2px;
+    }
+
+    /* 메시지 영역 */
+    .chat-msgs {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      background: #F9FAFB;
+    }
+
+    /* 날짜 구분선 */
+    .chat-date-divider {
+      text-align: center;
+      font-size: 11px;
+      color: var(--gray-400);
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-date-divider::before,
+    .chat-date-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--gray-200);
+    }
+
+    /* 메시지 버블 */
+    .msg-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .msg-row.mine {
+      justify-content: flex-end;
+    }
+
+    .msg-avatar {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .msg-bubble {
+      max-width: 260px;
+      padding: 10px 13px;
+      border-radius: 0 12px 12px 12px;
+      font-size: 13px;
+      line-height: 1.6;
+      position: relative;
+    }
+
+    .msg-row.mine .msg-bubble {
+      background: #6366F1;
+      color: #fff;
+      border-radius: 12px 0 12px 12px;
+    }
+
+    .msg-row:not(.mine) .msg-bubble {
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      color: var(--gray-700);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .msg-time {
+      font-size: 10px;
+      color: var(--gray-400);
+      margin-top: 4px;
+    }
+
+    .msg-row.mine .msg-time {
+      text-align: right;
+    }
+
+    .msg-unread-mark {
+      font-size: 10px;
+      color: #E11D48;
+      font-weight: 700;
+    }
+
+    /* 입력 */
+    .chat-input-wrap {
+      padding: 10px 16px 14px;
+      border-top: 1px solid var(--gray-100);
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+    }
+
+    .chat-input-row textarea {
+      flex: 1;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 10px;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      line-height: 1.5;
+      transition: border-color 0.15s;
+    }
+
+    .chat-input-row textarea:focus {
+      border-color: #6366F1;
+    }
+
+    .chat-send-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: none;
+      background: #6366F1;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background 0.15s;
+    }
+
+    .chat-send-btn:hover {
+      background: #4F46E5;
+    }
+
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .chip-waiting {
+      background: #FEF3C7;
+      color: #B45309;
+    }
+
+    .chip-replied {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .chip-closed {
+      background: var(--gray-100);
+      color: var(--gray-500);
+    }
+
+    /* ── 우: 고객 정보 + 메모 패널 ── */
+    .info-panel {
+      border-left: 1px solid var(--gray-200);
+      display: flex;
+      flex-direction: column;
+      background: #FAFAFA;
+      overflow-y: auto;
+    }
+
+    .info-panel-empty {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      color: var(--gray-300);
+      padding: 20px;
+      text-align: center;
+    }
+
+    .info-section {
+      padding: 18px 16px 14px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .info-section:last-child {
+      border-bottom: none;
+    }
+
+    .info-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gray-400);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    /* 고객 아이덴티티 */
+    .info-avatar-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .info-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 800;
+      flex-shrink: 0;
+    }
+
+    .info-name {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-800);
+    }
+
+    .info-status {
+      margin-top: 2px;
+    }
+
+    /* 정보 행 */
+    .info-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 12px;
+    }
+
+    .info-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .info-key {
+      color: var(--gray-400);
+      flex-shrink: 0;
+      width: 52px;
+      padding-top: 1px;
+    }
+
+    .info-val {
+      color: var(--gray-700);
+      font-weight: 500;
+    }
+
+    /* 메모 영역 */
+    .memo-section {
+      padding: 14px 16px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .memo-section-title {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--gray-400);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .memo-autosave-tag {
+      font-size: 9px;
+      font-weight: 400;
+      color: var(--gray-300);
+      letter-spacing: 0;
+      text-transform: none;
+    }
+
+    .memo-textarea {
+      flex: 1;
+      width: 100%;
+      box-sizing: border-box;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 8px;
+      padding: 10px 11px;
+      font-size: 12px;
+      font-family: inherit;
+      resize: none;
+      outline: none;
+      line-height: 1.7;
+      max-height: 140px;
+      background: #fff;
+      transition: border-color 0.15s;
+      color: var(--gray-700);
+    }
+
+    .memo-textarea:focus {
+      border-color: #6366F1;
+    }
+
+    .memo-savedAt {
+      margin-top: 6px;
+      font-size: 10px;
+      color: var(--gray-300);
+      text-align: right;
+    }
+
+    .memo-save-btn {
+      margin-top: 8px;
+      padding: 6px 16px;
+      border: none;
+      border-radius: 7px;
+      background: #6366F1;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s;
+      align-self: flex-end;
+    }
+
+    .memo-save-btn:hover {
+      background: #4F46E5;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout">
+    <div class="main">
+      <header class="header">
+        <div class="header-left">
+          <div class="header-title">채팅 문의</div>
+        </div>
+        <div class="header-right">
+          <div class="header-date" id="headerDate"></div>
+          <button class="btn-icon">🔔<span class="notification-dot"></span></button>
+          <div class="avatar">P</div>
+        </div>
+      </header>
+
+      <div class="page" style="padding-bottom:0;">
+        <div class="page-header" style="margin-bottom:14px;">
+          <div>
+            <div style="font-size:18px;font-weight:700;color:var(--gray-900);">채팅 문의</div>
+            <div style="font-size:12px;color:var(--gray-400);margin-top:3px;">고객이 보낸 문의를 확인하고 답변합니다</div>
+          </div>
+        </div>
+
+        <div class="chat-wrap">
+
+          <!-- ── 좌: 대화 목록 ── -->
+          <div class="cl-list">
+            <div class="cl-header">
+              <div class="cl-header-title">문의 목록 <span style="color:#E11D48;">3</span></div>
+              <select
+                style="font-size:11px;border:1px solid var(--gray-200);border-radius:var(--radius);padding:3px 6px;color:var(--gray-600);outline:none;">
+                <option>전체</option>
+                <option>미답변</option>
+                <option>답변 완료</option>
+              </select>
+            </div>
+            <div class="cl-search">
+              <input type="text" placeholder="고객명· 내용 검색..." oninput="filterChats(this.value)">
+            </div>
+            <div class="cl-body" id="chatList"></div>
+          </div>
+
+          <!-- ── 우: 채팅 영역 ── -->
+          <div class="chat-area" id="chatArea">
+            <div class="chat-empty" id="chatEmpty">
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              <p>문의를 선택하세요</p>
+            </div>
+            <div class="chat-content" id="chatContent" style="display:none;"></div>
+          </div>
+
+          <!-- ── 우: 고객 정보 + 메모 ── -->
+          <div class="info-panel" id="infoPanel">
+            <div class="info-panel-empty" id="infoPanelEmpty">문의를<br>선택하세요</div>
+            <div id="infoPanelContent" style="display:none; flex-direction:column; flex:1;"></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="shared.js"></script>
+  <script>
+    initPage('partner', 'chat', '채팅 문의');
+
+    const CHATS = [
+      {
+        id: 1, name: '김민준', room: '305호', sub: 'Deluxe · 체크인 03/20',
+        status: 'waiting', unread: 2,
+        messages: [
+          { from: 'guest', text: '안녕하세요, 오늘 체크인 예약자인데요. 도착이 조금 늦어질 것 같습니다. 자정 넘어서 가도 될까요?', time: '오후 10:32' },
+          { from: 'partner', text: '네, 자정 이후에도 체크인 가능합니다. 도착 30분 전에 한 번 더 연락 주시면 대기하겠습니다 😊', time: '오후 10:45' },
+          { from: 'guest', text: '감사합니다! 12시 30분쯤 도착할 것 같아요.', time: '오후 11:10', unread: true },
+          { from: 'guest', text: '혹시 주차 공간은 넉넉한가요?', time: '오후 11:12', unread: true },
+        ]
+      },
+      {
+        id: 2, name: '박재현', room: '미배정', sub: 'Standard · 체크인 03/22',
+        status: 'waiting', unread: 1,
+        messages: [
+          { from: 'guest', text: '반려견 소형견 동반 가능한가요?', time: '오전 9:14', unread: true },
+        ]
+      },
+      {
+        id: 3, name: '이수진', room: '410호', sub: 'Suite · 체크인 03/21',
+        status: 'replied', unread: 0,
+        messages: [
+          { from: 'guest', text: '생일 기념 방문인데요, 케이크 준비 가능할까요?', time: '어제 오후 3:22' },
+          { from: 'partner', text: '고객님, 별도 케이크 준비는 어렵지만 근처 제과점 정보를 안내해드릴 수 있습니다. 추가로 방에 간단한 풍선 장식 정도는 가능합니다 🎉', time: '어제 오후 4:05' },
+          { from: 'guest', text: '감사합니다! 풍선 장식 부탁드려도 될까요?', time: '어제 오후 4:10' },
+          { from: 'partner', text: '네, 물론이죠! 체크인 전 미리 준비해두겠습니다 😊', time: '어제 오후 4:15' },
+        ]
+      },
+      {
+        id: 4, name: '최유정', room: '미배정', sub: 'Deluxe · 체크인 03/23',
+        status: 'replied', unread: 0,
+        messages: [
+          { from: 'guest', text: '체크인 시간이 오후 4시인데 조금 일찍 가도 되나요?', time: '03/17 오후 2:00' },
+          { from: 'partner', text: '당일 청소 상황에 따라 다르지만, 오후 2시 이후 가능한 경우가 많습니다. 당일 오전에 확인 후 연락드리겠습니다.', time: '03/17 오후 2:30' },
+        ]
+      },
+      {
+        id: 5, name: '송혜교', room: '702호', sub: 'Suite · 퇴실 03/19',
+        status: 'closed', unread: 0,
+        messages: [
+          { from: 'guest', text: '체크아웃을 오후 1시로 늦출 수 있을까요?', time: '03/16 오전 10:00' },
+          { from: 'partner', text: '확인 후 가능하면 안내드리겠습니다.', time: '03/16 오전 10:30' },
+          { from: 'partner', text: '오후 1시 레이트 체크아웃 확정되었습니다!', time: '03/16 오전 11:00' },
+          { from: 'guest', text: '감사합니다!', time: '03/16 오전 11:02' },
+        ]
+      },
+    ];
+
+    const statusLabel = { waiting: '미답변', replied: '답변 완료', closed: '종료' };
+    const statusChip = { waiting: 'chip-waiting', replied: 'chip-replied', closed: 'chip-closed' };
+    const avatarColors = ['#E0E7FF:#4338CA', '#FEF3C7:#B45309', '#EDE9FE:#5B21B6', '#D1FAE5:#065F46', '#FFE4E6:#E11D48'];
+    function avatarStyle(i) { const [bg, c] = avatarColors[i % avatarColors.length].split(':'); return `background:${bg};color:${c};`; }
+
+    let selectedId = null;
+    const MEMOS = {}; // { chatId: { text, savedAt } }
+
+    function saveMemo() {
+      const ta = document.getElementById('infoMemoTextarea');
+      if (!ta || !selectedId) return;
+      const text = ta.value;
+      const now = new Date();
+      const pad = n => String(n).padStart(2, '0');
+      const savedAt = `${now.getMonth() + 1}/${now.getDate()} ${now.getHours() < 12 ? '오전' : '오후'} ${now.getHours() % 12 || 12}:${pad(now.getMinutes())}`;
+      MEMOS[selectedId] = { text, savedAt };
+      const el = document.getElementById('infoMemoSavedAt');
+      if (el) el.textContent = text ? `저장됨 · ${savedAt}` : '';
+    }
+
+    function renderInfoPanel(c) {
+      const empty = document.getElementById('infoPanelEmpty');
+      const content = document.getElementById('infoPanelContent');
+      empty.style.display = 'none';
+      content.style.display = 'flex';
+      const memo = MEMOS[c.id] || { text: '', savedAt: '' };
+      const typePart = c.sub.split(' · ')[0];
+      const datePart = c.sub.split(' · ')[1] || '';
+      content.innerHTML = `
+      <div class="info-section">
+        <div class="info-avatar-row">
+          <div class="info-avatar" style="${avatarStyle(c.id)}">${c.name.charAt(0)}</div>
+          <div>
+            <div class="info-name">${c.name} 님</div>
+            <div class="info-status"><span class="status-chip ${statusChip[c.status]}">${statusLabel[c.status]}</span></div>
+          </div>
+        </div>
+        <div class="info-row"><span class="info-key">객실</span><span class="info-val">${c.room}</span></div>
+        <div class="info-row"><span class="info-key">유형</span><span class="info-val">${typePart}</span></div>
+        <div class="info-row"><span class="info-key">일정</span><span class="info-val">${datePart}</span></div>
+      </div>
+      <div class="memo-section">
+        <div class="memo-section-title">
+          협의 메모
+          <span class="memo-autosave-tag" id="infoMemoSavedAt">${memo.savedAt ? '자동 저장됨 · ' + memo.savedAt : ''}</span>
+        </div>
+        <textarea class="memo-textarea" id="infoMemoTextarea"
+          placeholder="이 고객과의 협의 내용을 메모하세요...">${memo.text}</textarea>
+        <button class="memo-save-btn" onclick="saveMemo()">저장하기</button>
+      </div>`;
+    }
+
+    function renderList(filter = '') {
+      const wrap = document.getElementById('chatList');
+      const items = CHATS.filter(c => !filter || c.name.includes(filter) || c.messages.at(-1).text.includes(filter));
+      wrap.innerHTML = items.map(c => {
+        const last = c.messages.at(-1);
+        return `<div class="cl-item${c.id === selectedId ? ' active' : ''}${c.unread ? ' unread' : ''}" id="ci-${c.id}" onclick="selectChat(${c.id})">
+        <div class="cl-avatar" style="${avatarStyle(c.id)}">
+          ${c.name.charAt(0)}
+          ${c.unread ? '<div class="cl-unread-dot"></div>' : ''}
+        </div>
+        <div class="cl-item-body">
+          <div class="cl-name">${c.name}</div>
+          <div class="cl-preview">${last.text}</div>
+        </div>
+        <div class="cl-meta">
+          <div>${last.time}</div>
+          ${c.unread ? `<div class="cl-badge">${c.unread}</div>` : ''}
+        </div>
+      </div>`;
+      }).join('');
+    }
+
+    function selectChat(id) {
+      selectedId = id;
+      const c = CHATS.find(x => x.id === id);
+      document.querySelectorAll('.cl-item').forEach(el => el.classList.remove('active'));
+      const row = document.getElementById('ci-' + id);
+      if (row) row.classList.add('active');
+
+      document.getElementById('chatEmpty').style.display = 'none';
+      const content = document.getElementById('chatContent');
+      content.style.display = 'flex';
+
+      const msgsHtml = c.messages.map(m => {
+        const isMine = m.from === 'partner';
+        const avatarHtml = !isMine
+          ? `<div class="msg-avatar" style="${avatarStyle(id)}">${c.name.charAt(0)}</div>` : '';
+        const unreadTag = m.unread ? `<span class="msg-unread-mark">·미확인</span>` : '';
+        return `<div class="msg-row${isMine ? ' mine' : ''}">
+        ${avatarHtml}
+        <div>
+          <div class="msg-bubble">${m.text}</div>
+          <div class="msg-time">${m.time} ${unreadTag}</div>
+        </div>
+      </div>`;
+      }).join('');
+
+      content.innerHTML = `
+      <div class="chat-dh">
+        <div>
+          <div class="chat-dh-name">${c.name} 님</div>
+          <div class="chat-dh-sub">${c.room} · ${c.sub}</div>
+        </div>
+      </div>
+      <div class="chat-msgs" id="msgArea">
+        <div class="chat-date-divider">오늘</div>
+        ${msgsHtml}
+      </div>
+      <div class="chat-input-wrap">
+        <div class="chat-input-row">
+          <textarea id="chatInputText" rows="2" placeholder="답변 입력... (Enter 전송)"
+            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg();}"></textarea>
+          <button class="chat-send-btn" onclick="sendMsg()">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+            </svg>
+          </button>
+        </div>
+      </div>`;
+
+      renderInfoPanel(c);
+
+      // 스크롤 맨 아래
+      setTimeout(() => { const ma = document.getElementById('msgArea'); if (ma) ma.scrollTop = ma.scrollHeight; }, 30);
+
+      // 미확인 초기화
+      c.unread = 0;
+      c.messages.forEach(m => m.unread = false);
+      renderList();
+    }
+
+    function sendMsg() {
+      const input = document.getElementById('chatInputText');
+      const text = input.value.trim();
+      if (!text) return;
+      const c = CHATS.find(x => x.id === selectedId);
+      const now = new Date();
+      const timeStr = `${now.getHours() < 12 ? '오전' : '오후'} ${now.getHours() % 12 || 12}:${String(now.getMinutes()).padStart(2, '0')}`;
+      c.messages.push({ from: 'partner', text, time: timeStr });
+      c.status = 'replied';
+      input.value = '';
+      selectChat(selectedId);
+    }
+
+    function filterChats(q) { renderList(q); }
+
+    renderList();
+  </script>
+</body>
+
+</html>

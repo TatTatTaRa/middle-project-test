@@ -95,80 +95,150 @@
   <!-- 상세 보기 모달 -->
   <div class="modal-overlay hidden" id="modalDetail">
     <div class="modal modal-lg">
-      <div class="modal-header">
-        <div class="modal-title">📅 예약 상세 정보</div>
+      <div class="modal-header" style="border-bottom:1px solid var(--gray-100);">
+        <div>
+          <div class="modal-title">예약 상세 정보</div>
+          <div id="detailModeLabel" style="font-size:11px;color:var(--gray-400);margin-top:2px;">조회 모드</div>
+        </div>
         <button class="modal-close">×</button>
       </div>
       <div class="modal-body">
 
         <!-- 예약번호 + 상태 -->
-        <div class="form-group">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-            <div>
-              <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">예약번호</div>
-              <div style="font-size:14px;font-weight:700;color:var(--gray-700)" id="detailId"></div>
+        <div
+          style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 16px;border-bottom:1px solid var(--gray-100);margin-bottom:16px;">
+          <div>
+            <div style="font-size:10px;color:var(--gray-400);letter-spacing:0.06em;margin-bottom:4px;">예약번호</div>
+            <div style="font-size:14px;font-weight:700;color:var(--gray-700);" id="detailId"></div>
+          </div>
+          <div id="detailStatusBadge"></div>
+        </div>
+
+        <!-- 조회 모드: 텍스트 -->
+        <div id="viewMode">
+          <div class="form-group">
+            <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">👤 예약자 정보</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+              <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
+                <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">예약자명</div>
+                <div style="font-size:14px;font-weight:600;color:var(--gray-800);" id="viewName"></div>
+              </div>
+              <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
+                <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">연락처</div>
+                <div style="font-size:14px;font-weight:600;color:var(--gray-800);" id="viewPhone"></div>
+              </div>
             </div>
-            <div id="detailStatusBadge"></div>
           </div>
-        </div>
-
-        <!-- 예약자 정보 -->
-        <div class="form-group">
-          <div class="form-label" style="display:flex;align-items:center;gap:6px">👤 예약자 정보</div>
-          <div class="form-row">
-            <div><label class="form-label">예약자명</label><input class="form-control" id="detailName"></div>
-            <div><label class="form-label">연락처</label><input class="form-control" id="detailPhone"></div>
-          </div>
-        </div>
-
-        <!-- 객실 정보 -->
-        <div class="form-group">
-          <div class="form-label" style="display:flex;align-items:center;gap:6px">🛏️ 객실 정보</div>
-          <div
-            style="background:var(--gray-50);border-radius:var(--radius);padding:14px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
-            <div>
-              <div style="font-weight:600;margin-bottom:6px" id="detailRoom"></div>
-              <div style="font-size:13px;color:var(--gray-700)" id="detailAssignedRoom"></div>
+          <div class="form-group">
+            <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">🛏️ 객실 정보</div>
+            <div
+              style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-weight:600;margin-bottom:4px;" id="viewRoom"></div>
+                <div id="viewAssignedRoom" style="font-size:13px;color:var(--gray-500);"></div>
+              </div>
+              <a href="partner-reservations-calendar.html" class="btn btn-primary btn-sm"
+                style="text-decoration:none;white-space:nowrap;box-shadow:none;">객실 배정 확인 👉</a>
             </div>
-            <a href="partner-reservations-calendar.html" class="btn btn-primary btn-sm"
-              style="text-decoration:none;white-space:nowrap;box-shadow:none">객실 배정 보드 👉</a>
           </div>
-        </div>
-
-        <!-- 일정 + 인원 -->
-        <div class="form-group">
-          <div class="form-label">📆 일정 및 인원</div>
-          <div class="form-row" style="margin-bottom:12px">
-            <div><label class="form-label">입실 일시</label><input class="form-control" type="datetime-local"
-                id="detailCheckin"></div>
-            <div><label class="form-label">퇴실 일시</label><input class="form-control" type="datetime-local"
-                id="detailCheckout"></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:8px">
-            <div style="flex:0 0 100px">
-              <label class="form-label">인원</label>
-              <input class="form-control" type="number" min="1" max="10" id="detailGuests">
+          <div class="form-group">
+            <div class="form-label" style="margin-bottom:10px;">📆 일정 및 인원</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:start;">
+              <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
+                <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">입실 일시</div>
+                <div style="font-size:13px;font-weight:600;color:var(--gray-800);" id="viewCheckin"></div>
+              </div>
+              <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
+                <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">퇴실 일시</div>
+                <div style="font-size:13px;font-weight:600;color:var(--gray-800);" id="viewCheckout"></div>
+              </div>
+              <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;min-width:70px;">
+                <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">인원</div>
+                <div style="font-size:13px;font-weight:600;color:var(--gray-800);" id="viewGuests"></div>
+              </div>
             </div>
-            <span style="font-size:12px;color:var(--gray-400);margin-top:18px">인</span>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <div class="form-label" style="margin-bottom:10px;">💬 요청사항</div>
+            <div
+              style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;font-size:13px;color:var(--gray-700);line-height:1.6;min-height:60px;"
+              id="viewRequest"></div>
           </div>
         </div>
 
-        <!-- 요청사항 -->
-        <div class="form-group">
-          <label class="form-label">💬 요청사항</label>
-          <textarea class="form-control" id="detailRequest" rows="3" style="resize:vertical"></textarea>
+        <!-- 편집 모드: 폼 -->
+        <div id="editMode" style="display:none;">
+          <div class="form-group">
+            <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">👤 예약자 정보</div>
+            <div class="form-row">
+              <div><label class="form-label">예약자명</label><input class="form-control" id="detailName"></div>
+              <div><label class="form-label">연락처</label><input class="form-control" id="detailPhone"></div>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">🛏️ 객실 정보</div>
+            <div
+              style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+              <div>
+                <div style="font-weight:600;margin-bottom:4px;" id="detailRoom"></div>
+                <div id="detailAssignedRoom" style="font-size:13px;color:var(--gray-500);"></div>
+              </div>
+              <a href="partner-reservations-calendar.html" class="btn btn-primary btn-sm"
+                style="text-decoration:none;white-space:nowrap;box-shadow:none;">객실 배정 보드 👉</a>
+            </div>
+          </div>
+          <div class="form-group">
+            <div class="form-label">📆 일정 및 인원</div>
+            <div class="form-row" style="margin-bottom:12px;">
+              <div><label class="form-label">입실 일시</label><input class="form-control" type="datetime-local"
+                  id="detailCheckin"></div>
+              <div><label class="form-label">퇴실 일시</label><input class="form-control" type="datetime-local"
+                  id="detailCheckout"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <div style="flex:0 0 100px;"><label class="form-label">인원</label><input class="form-control" type="number"
+                  min="1" max="10" id="detailGuests"></div>
+              <span style="font-size:12px;color:var(--gray-400);margin-top:18px;">인</span>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:0;">
+            <label class="form-label">💬 요청사항</label>
+            <textarea class="form-control" id="detailRequest" rows="3" style="resize:vertical;"></textarea>
+          </div>
         </div>
 
       </div>
-      <div class="modal-footer" style="justify-content:space-between" id="detailFooter">
-        <button class="btn btn-sm" id="btnCancelResv"
-          style="color:var(--danger);border:1.5px solid var(--danger);background:transparent"
-          onclick="cancelFromModal()">예약 취소</button>
-        <div style="display:flex;gap:8px">
+      <div class="modal-footer" style="flex-direction:column;gap:0;padding:0;" id="detailFooter">
+        <!-- 기본 액션: 중앙 정렬 -->
+        <div style="display:flex;justify-content:center;align-items:center;gap:8px;padding:14px 20px;">
           <button class="btn btn-ghost" data-modal-close>닫기</button>
-          <button class="btn btn-primary" id="btnSave" onclick="saveDetail()">변경사항 저장</button>
+          <button class="btn btn-outline btn-sm" id="btnEdit" onclick="enterEditMode()">✏️ 수정</button>
+          <button class="btn btn-primary" id="btnSave" style="display:none;" onclick="saveDetail()">변경사항 저장</button>
+        </div>
+        <!-- 추가 옵션 토글 헤더 -->
+        <div id="btnMoreOpts" onclick="toggleExtraOpts()" style="display:flex;align-items:center;justify-content:center;gap:6px;
+                 padding:8px;border-top:1px solid var(--gray-100);cursor:pointer;
+                 font-size:11px;color:var(--gray-400);user-select:none;
+                 background:transparent;transition:background 0.12s;"
+          onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='transparent'">
+          <svg id="extraArrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;">
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+          추가 옵션
+        </div>
+        <!-- 추가 옵션 패널 (기본 숨김) -->
+        <div id="extraOptsPanel"
+          style="display:none;border-top:1px solid var(--gray-100);padding:12px 20px;background:var(--gray-50);">
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:10px;font-weight:600;">⚠️ 주의가 필요한 작업</div>
+          <button class="btn btn-sm" id="btnCancelResv"
+            style="color:var(--danger);border:1.5px solid var(--danger);background:#fff;width:100%;justify-content:center;"
+            onclick="cancelFromModal()">
+            예약 취소 — 취소 시 환불 절차가 진행됩니다
+          </button>
         </div>
       </div>
+
     </div>
   </div>
 
@@ -263,10 +333,22 @@
     function openDetail(idx) {
       const r = window._filteredManage[idx];
       currentDetailIdx = idx;
-      const readonly = !isActive(r);
+      // 제일 먼저 조회 모드로
+      exitEditMode();
 
-      document.getElementById('detailId').textContent = r.id;
-      document.getElementById('detailStatusBadge').innerHTML = assignBadge(r);
+      // 뷰 업데이트
+      document.getElementById('viewName').textContent = r.name;
+      document.getElementById('viewPhone').textContent = r.phone;
+      document.getElementById('viewRoom').textContent = r.room;
+      document.getElementById('viewCheckin').textContent = r.checkin.replace('T', ' ');
+      document.getElementById('viewCheckout').textContent = r.checkout.replace('T', ' ');
+      document.getElementById('viewGuests').textContent = r.guests + '인';
+      document.getElementById('viewRequest').textContent = r.request || '(요청사항 없음)';
+      document.getElementById('viewAssignedRoom').innerHTML = r.assignedRoom
+        ? `배정 호실: <span style="font-weight:700;color:var(--primary);background:var(--primary-light);padding:2px 8px;border-radius:4px;margin-left:4px;">${r.assignedRoom}</span>`
+        : `<span style="color:var(--gray-400);font-size:13px;">미배정</span>`;
+
+      // 편집 폼 기본값 세팅
       document.getElementById('detailName').value = r.name;
       document.getElementById('detailPhone').value = r.phone;
       document.getElementById('detailRoom').textContent = r.room;
@@ -274,36 +356,51 @@
       document.getElementById('detailCheckout').value = r.checkout;
       document.getElementById('detailGuests').value = r.guests;
       document.getElementById('detailRequest').value = r.request;
+      const assignEl2 = document.getElementById('detailAssignedRoom');
+      assignEl2.innerHTML = r.assignedRoom
+        ? `배정 호실: <span style="font-weight:700;color:var(--primary);background:var(--primary-light);padding:2px 8px;border-radius:4px;margin-left:4px;">${r.assignedRoom}</span>`
+        : `<span style="color:var(--gray-400);font-size:13px;">미배정</span>`;
 
-      // 배정 호실 표시
-      const assignEl = document.getElementById('detailAssignedRoom');
-      assignEl.innerHTML = r.assignedRoom
-        ? `배정 호실: <span style="font-weight:700;color:var(--primary);background:var(--primary-light);padding:2px 8px;border-radius:4px;margin-left:4px">${r.assignedRoom}</span>`
-        : `<span style="color:var(--gray-400);font-size:13px">배정 호실 없음 (미배정)</span>`;
-
-      // 수정 불가 필드 처리
-      ['detailName', 'detailPhone', 'detailCheckin', 'detailCheckout', 'detailGuests', 'detailRequest'].forEach(id => {
-        document.getElementById(id).readOnly = readonly;
-        document.getElementById(id).style.background = readonly ? 'var(--gray-100)' : '';
-      });
-
-      // 하단 버튼 처리
-      const btnCancel = document.getElementById('btnCancelResv');
-      const btnSave = document.getElementById('btnSave');
-      btnCancel.disabled = readonly;
-      btnSave.disabled = readonly;
-      if (readonly) {
-        btnCancel.style.opacity = '.4';
-        btnSave.style.opacity = '.4';
-      } else {
-        btnCancel.style.opacity = '';
-        btnSave.style.opacity = '';
-      }
+      // 취소 버튼: 종료처리된 예약은 비활성화
+      const readonly = !isActive(r);
+      const btnCancelR = document.getElementById('btnCancelResv');
+      btnCancelR.disabled = readonly;
+      btnCancelR.style.opacity = readonly ? '.4' : '';
+      document.getElementById('btnEdit').style.display = readonly ? 'none' : '';
 
       document.getElementById('modalDetail').classList.remove('hidden');
     }
 
+    function enterEditMode() {
+      document.getElementById('viewMode').style.display = 'none';
+      document.getElementById('editMode').style.display = 'block';
+      document.getElementById('btnEdit').style.display = 'none';
+      document.getElementById('btnSave').style.display = '';
+      document.getElementById('detailModeLabel').textContent = '수정 모드';
+      // 수정 모드 에서는 추가 옵션 숨김
+      document.getElementById('extraOptsPanel').style.display = 'none';
+      document.getElementById('btnMoreOpts').style.display = 'none';
+    }
+
+    function exitEditMode() {
+      document.getElementById('viewMode').style.display = 'block';
+      document.getElementById('editMode').style.display = 'none';
+      document.getElementById('btnEdit').style.display = '';
+      document.getElementById('btnSave').style.display = 'none';
+      document.getElementById('btnMoreOpts').style.display = '';
+      document.getElementById('detailModeLabel').textContent = '조회 모드';
+    }
+
+    function toggleExtraOpts() {
+      const panel = document.getElementById('extraOptsPanel');
+      const arrow = document.getElementById('extraArrow');
+      const showing = panel.style.display !== 'none';
+      panel.style.display = showing ? 'none' : 'block';
+      arrow.style.transform = showing ? '' : 'rotate(180deg)';
+    }
+
     function saveDetail() {
+
       showAlert('변경사항이 저장되었습니다.', { icon: '✅', title: '저장 완료' });
       document.getElementById('modalDetail').classList.add('hidden');
     }

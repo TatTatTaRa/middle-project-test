@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>일정 협의 메모 — 파트너센터</title>
+  <title>협의 메모 — 파트너센터</title>
   <link rel="stylesheet" href="shared.css">
   <style>
     /* ── 전체 ── */
@@ -146,7 +146,7 @@
 <div class="layout">
   <div class="main">
     <header class="header">
-      <div class="header-left"><div class="header-title">일정 협의 메모</div></div>
+      <div class="header-left"><div class="header-title">협의 메모</div></div>
       <div class="header-right">
         <div class="header-date" id="headerDate"></div>
         <button class="btn-icon">🔔<span class="notification-dot"></span></button>
@@ -157,7 +157,7 @@
     <div class="page" style="padding-bottom:0;">
       <div class="page-header" style="margin-bottom:14px;">
         <div>
-          <div style="font-size:18px;font-weight:700;color:var(--gray-900);">일정 협의 메모</div>
+          <div style="font-size:18px;font-weight:700;color:var(--gray-900);">협의 메모</div>
           <div style="font-size:12px;color:var(--gray-400);margin-top:3px;">고객과 협의 중인 일정·객실 변경 메모 목록</div>
         </div>
       </div>
@@ -378,7 +378,7 @@
 
 <script src="shared.js"></script>
 <script>
-  initPage('partner', 'schedulememo', '일정 협의 메모');
+  initPage('partner', 'schedulememo', '협의 메모');
 
   const DATA = [
     { id:1, name:'송혜교', room:'702호', sub:'Suite · 2인 · 퇴실 03/19', status:'staying', type:'Suite',
@@ -465,7 +465,7 @@
 
     content.innerHTML = `
       <div class="sm-dh" style="background:${headerBg}">
-        <div class="sm-dh-label">일정 협의 메모</div>
+        <div class="sm-dh-label">협의 메모</div>
         <div class="sm-dh-top">
           <div>
             <div class="sm-dh-name">${d.name} 님</div>
