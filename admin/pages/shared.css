@@ -174,7 +174,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 /* Modal */
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-.modal { background: #fff; border-radius: var(--radius-xl); width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; box-shadow: var(--shadow-lg); }
+.modal { background: #fff; border-radius: var(--radius-xl); width: 100%; max-width: 520px; box-shadow: var(--shadow-lg); }
 .modal-lg { max-width: 680px; }
 .modal-sm { max-width: 380px; }
 .modal-header { display: flex; align-items: center; justify-content: space-between; padding: 20px 24px 16px; border-bottom: 1px solid var(--gray-200); }

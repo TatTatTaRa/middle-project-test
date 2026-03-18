@@ -1,10 +1,231 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>체크인 관리 — 파트너센터</title>
-<link rel="stylesheet" href="shared.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>체크인 관리 — 파트너센터</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    /* ── 입실 마감 설정 드롭다운 ── */
+    .deadline-wrapper {
+      position: relative;
+    }
+    .deadline-panel {
+      display: none;
+      position: absolute;
+      top: calc(100% + 8px);
+      right: 0;
+      background: white;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      padding: 16px 18px;
+      min-width: 240px;
+      z-index: 200;
+    }
+    .deadline-panel.open { display: block; }
+    .deadline-panel-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--gray-500);
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+    .deadline-time-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .deadline-time-row input[type="time"] {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--gray-800);
+      outline: none;
+      cursor: pointer;
+    }
+    .deadline-time-row input[type="time"]:focus {
+      border-color: var(--primary);
+    }
+    .deadline-apply-btn {
+      padding: 8px 14px;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .deadline-hint {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    /* ── 통계 카드 ── */
+    .checkin-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 20px;
+    }
+    .ci-stat {
+      background: white;
+      border: 1.5px solid var(--gray-200);
+      border-radius: 14px;
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    /* ── 체크인 취소 버튼 ── */
+    .btn-ci-cancel {
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-500);
+      background: white;
+      border: 1px solid var(--gray-300);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-ci-cancel:hover {
+      color: #E11D48;
+      border-color: #FECDD3;
+      background: #FFF1F2;
+    }
+    .ci-stat-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-500);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .ci-stat-label .dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+    .ci-stat-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--gray-800);
+      line-height: 1;
+    }
+    .ci-stat-sub {
+      font-size: 12px;
+      color: var(--gray-400);
+    }
+    .ci-stat.danger { border-color: #FFE4E6; background: #FFF1F2; }
+    .ci-stat.danger .ci-stat-label { color: #E11D48; }
+    .ci-stat.danger .ci-stat-value { color: #E11D48; }
+
+    /* ── 탭 ── */
+    .ci-tabs {
+      display: flex;
+      gap: 4px;
+      border-bottom: 1.5px solid var(--gray-200);
+      padding: 0 20px;
+    }
+    .ci-tab {
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--gray-500);
+      border: none;
+      border-bottom: 3px solid transparent;
+      background: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.15s;
+      white-space: nowrap;
+      margin-bottom: -1.5px;
+    }
+    .ci-tab.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+      font-weight: 700;
+    }
+    .ci-tab .tab-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 20px;
+      height: 20px;
+      padding: 0 5px;
+      border-radius: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      background: var(--gray-100);
+      color: var(--gray-500);
+    }
+    .ci-tab.active .tab-badge {
+      background: #FFF1F2;
+      color: var(--primary);
+    }
+    .ci-tab.tab-danger .tab-badge {
+      background: #FFF1F2;
+      color: #E11D48;
+    }
+    .ci-tab.tab-danger.active {
+      color: #E11D48;
+      border-bottom-color: #E11D48;
+    }
+
+    /* ── 탭 패널 ── */
+    .ci-panel { display: none; }
+    .ci-panel.active { display: block; }
+
+    /* ── 검색바 ── */
+    .ci-searchbar {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--gray-100);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    /* ── 미처리 행 강조 ── */
+    .row-overdue td { background: #FFF9F9; }
+    .row-overdue td:first-child { border-left: 3px solid #F43F5E; }
+
+    /* ── 빈 상태 ── */
+    .ci-empty {
+      text-align: center;
+      padding: 48px 20px;
+      color: var(--gray-400);
+    }
+    .ci-empty-icon { font-size: 32px; margin-bottom: 10px; }
+    .ci-empty-title { font-size: 14px; font-weight: 600; color: var(--gray-500); margin-bottom: 4px; }
+    .ci-empty-sub { font-size: 12px; }
+
+    /* ── 마감 시간 배지 ── */
+    .deadline-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      background: #F1F5F9;
+      border: 1px solid var(--gray-200);
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-600);
+      cursor: pointer;
+    }
+    .deadline-badge:hover { background: var(--gray-100); }
+    .deadline-badge.passed { background: #FFF1F2; border-color: #FFE4E6; color: #E11D48; }
+  </style>
 </head>
 <body>
 <div class="layout">
@@ -19,119 +240,326 @@
     </header>
     <div class="page">
 
-      <div class="page-header">
-        <div class="page-header-left">
-          <!-- 날짜 선택 위젯형 UI로 변경 (향후 확장성 고려) -->
-          <div class="page-title" style="display:flex; align-items:center; gap:8px; cursor:pointer;" onclick="document.getElementById('datePickerInput').showPicker()">
-            2026-03-14 (토) 
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color:var(--gray-500);"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-            <input type="date" id="datePickerInput" style="width:0; height:0; border:none; padding:0; visibility:hidden; position:absolute;" value="2026-03-14" onchange="alert('해당 날짜의 데이터로 갱신될 예정입니다: ' + this.value)">
-          </div>
+      <!-- 페이지 헤더 -->
+      <div class="page-header" style="justify-content:space-between; align-items:center; padding:0; margin-bottom:20px;">
+        <!-- 좌: 날짜 -->
+        <div class="page-title" style="display:flex; align-items:center; gap:8px; cursor:pointer;"
+          onclick="document.getElementById('datePickerInput').showPicker()">
+          <span id="displayDate">2026-03-18 (수)</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round" style="color:var(--gray-400);">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          <input type="date" id="datePickerInput"
+            style="width:0;height:0;border:none;padding:0;visibility:hidden;position:absolute;"
+            value="2026-03-18"
+            onchange="onDateChange(this.value)">
         </div>
-        <button class="btn btn-primary" onclick="document.getElementById('modalWalkin').classList.remove('hidden')">+ 신규 워크인 체크인</button>
+
+        <!-- 우: 버튼 그룹 -->
+        <div style="display:flex; align-items:center; gap:10px;">
+          <!-- 마감 시간 배지 + 드롭다운 -->
+          <div class="deadline-wrapper">
+            <button class="deadline-badge" id="deadlineBadge" onclick="toggleDeadlinePanel()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>입실 마감 <strong id="deadlineDisplay">22:00</strong></span>
+            </button>
+            <div class="deadline-panel" id="deadlinePanel">
+              <div class="deadline-panel-title">입실 마감 시간 설정</div>
+              <div class="deadline-time-row">
+                <input type="time" id="deadlineInput" value="09:00">
+                <button class="deadline-apply-btn" onclick="applyDeadline()">적용</button>
+              </div>
+              <div class="deadline-hint">
+                마감 시간이 지난 후에도 체크인 처리가<br>되지 않은 예약은 '미처리' 탭에 표시됩니다.
+              </div>
+            </div>
+          </div>
+
+          <button class="btn btn-primary" onclick="document.getElementById('modalWalkin').classList.remove('hidden')">
+            + 현장 체크인
+          </button>
+        </div>
       </div>
 
-      <!-- Stats -->
-      <!-- 75차 개편: '잔여 객실' 지표가 당일 관리 페이지 화면 목적과 맞지 않아 제거, 3단(전체 예약/완료/대기)으로 집중도 향상 -->
-      <div class="stat-grid" style="grid-template-columns: repeat(3, 1fr);">
-        <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:#374151"></span>선택일 전체 예약</div><div class="stat-value">5</div><div class="stat-sub">건</div></div>
-        <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:#10B981"></span>체크인 완료</div><div class="stat-value success">2</div><div class="stat-sub">건</div></div>
-        <div class="stat-card"><div class="stat-label"><span class="stat-dot" style="background:#F59E0B"></span>체크인 대기</div><div class="stat-value warning">3</div><div class="stat-sub">건</div></div>
+      <!-- 통계 카드 -->
+      <div class="checkin-stats">
+        <div class="ci-stat">
+          <div class="ci-stat-label"><span class="dot" style="background:#374151"></span>오늘 입실</div>
+          <div class="ci-stat-value" id="statTotal">5</div>
+          <div class="ci-stat-sub">건</div>
+        </div>
+        <div class="ci-stat">
+          <div class="ci-stat-label"><span class="dot" style="background:#10B981"></span>체크인 완료</div>
+          <div class="ci-stat-value" id="statDone" style="color:#10B981">2</div>
+          <div class="ci-stat-sub">건</div>
+        </div>
+        <div class="ci-stat">
+          <div class="ci-stat-label"><span class="dot" style="background:#F59E0B"></span>체크인 대기</div>
+          <div class="ci-stat-value" id="statPending" style="color:#F59E0B">3</div>
+          <div class="ci-stat-sub">건</div>
+        </div>
+        <div class="ci-stat" id="statOverdueCard">
+          <div class="ci-stat-label"><span class="dot" style="background:#E11D48"></span>마감 후 미처리</div>
+          <div class="ci-stat-value" id="statOverdue" style="color:#E11D48">0</div>
+          <div class="ci-stat-sub">건</div>
+        </div>
       </div>
 
-      <!-- Table -->
-      <div class="card" style="padding:0">
-        <!-- 탭 네비게이션 추가 -->
-        <div style="display:flex; border-bottom:1px solid var(--gray-200); padding:0 20px;">
-          <button id="tabCheckin" class="tab-btn active" style="padding:16px 20px; font-size:14px; font-weight:700; color:var(--primary); border-bottom:3px solid var(--primary); background:none; cursor:pointer;" onclick="switchTab('checkin')">오늘 입실자 (예약/완료)</button>
-          <button id="tabInUse" class="tab-btn" style="padding:16px 20px; font-size:14px; font-weight:600; color:var(--gray-500); border-bottom:3px solid transparent; background:none; cursor:pointer;" onclick="switchTab('inUse')">현재 투숙객 (이용 중)</button>
+      <!-- 메인 카드 -->
+      <div class="card" style="padding:0;">
+        <!-- 탭 -->
+        <div class="ci-tabs" style="justify-content:space-between; align-items:center;">
+          <div style="display:flex;">
+            <button class="ci-tab active" id="tab-today" onclick="switchCiTab('today')">
+              오늘 입실자
+              <span class="tab-badge" id="badgeToday">5</span>
+            </button>
+            <button class="ci-tab tab-danger" id="tab-overdue" onclick="switchCiTab('overdue')">
+              마감 후 미처리
+              <span class="tab-badge" id="badgeOverdue">0</span>
+            </button>
+          </div>
+          <a href="partner-staying.html"
+            style="display:flex;align-items:center;gap:5px;margin-right:16px;font-size:12px;font-weight:600;color:var(--gray-500);text-decoration:none;padding:6px 12px;border:1px solid var(--gray-200);border-radius:8px;background:white;transition:all 0.15s;"
+            onmouseover="this.style.background='var(--gray-50)';this.style.borderColor='var(--gray-300)'"
+            onmouseout="this.style.background='white';this.style.borderColor='var(--gray-200)'">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"></path></svg>
+            투숙 현황
+          </a>
         </div>
-        
-        <div style="padding:16px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--gray-200)">
-          <div class="search-box" style="flex:1;max-width:300px">
-            <input type="text" placeholder="고객명 또는 예약번호 검색">
+
+        <!-- ── 탭 1: 오늘 입실자 ── -->
+        <div class="ci-panel active" id="panel-today">
+          <div class="ci-searchbar">
+            <div class="search-box" style="flex:1; max-width:300px;">
+              <input type="text" placeholder="고객명 또는 예약번호 검색" oninput="filterTable(this.value, 'panel-today')">
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>상태</th>
+                  <th>고객 정보</th>
+                  <th>객실 타입</th>
+                  <th>배정 호수</th>
+                  <th>인원</th>
+                  <th>체크인 예정</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyToday">
+                <tr data-name="김철수" data-status="pending">
+                  <td><span class="badge badge-pending">입실 대기</span></td>
+                  <td><div style="font-weight:600">김철수</div><div style="font-size:11px;color:var(--gray-500)">010-1234-5678</div></td>
+                  <td>Deluxe</td>
+                  <td style="color:var(--info);font-weight:600">305호</td>
+                  <td>2인</td>
+                  <td style="font-size:12px;color:var(--gray-500)">14:00 이후</td>
+                  <td><button class="btn btn-primary btn-sm" onclick="openCheckinModal('김철수','305호','Deluxe','010-1234-5678','2인')">체크인 처리</button></td>
+                </tr>
+                <tr data-name="이지영" data-status="completed">
+                  <td><span class="badge badge-completed">체크인 완료</span></td>
+                  <td><div style="font-weight:600">이지영</div><div style="font-size:11px;color:var(--gray-500)">010-2345-6789</div></td>
+                  <td>Standard</td>
+                  <td style="color:var(--info);font-weight:600">204호</td>
+                  <td>1인</td>
+                  <td style="font-size:12px;color:var(--gray-500)">14:00 이후</td>
+                  <td><button class="btn-ci-cancel" onclick="openCancelModal(this)">취소</button></td>
+                </tr>
+                <tr data-name="박지성" data-status="pending">
+                  <td><span class="badge badge-pending">입실 대기</span></td>
+                  <td><div style="font-weight:600">박지성</div><div style="font-size:11px;color:var(--gray-500)">010-3456-7890</div></td>
+                  <td>Suite</td>
+                  <td style="color:var(--info);font-weight:600">701호</td>
+                  <td>3인</td>
+                  <td style="font-size:12px;color:var(--gray-500)">14:00 이후</td>
+                  <td><button class="btn btn-primary btn-sm" onclick="openCheckinModal('박지성','701호','Suite','010-3456-7890','3인')">체크인 처리</button></td>
+                </tr>
+                <tr data-name="최유진" data-status="completed">
+                  <td><span class="badge badge-completed">체크인 완료</span></td>
+                  <td><div style="font-weight:600">최유진</div><div style="font-size:11px;color:var(--gray-500)">010-4567-8901</div></td>
+                  <td>Twin</td>
+                  <td style="color:var(--info);font-weight:600">501호</td>
+                  <td>2인</td>
+                  <td style="font-size:12px;color:var(--gray-500)">14:00 이후</td>
+                  <td><button class="btn-ci-cancel" onclick="openCancelModal(this)">취소</button></td>
+                </tr>
+                <tr data-name="나도현" data-status="pending">
+                  <td><span class="badge badge-pending">입실 대기</span></td>
+                  <td><div style="font-weight:600">나도현</div><div style="font-size:11px;color:var(--gray-500)">010-9988-7766</div></td>
+                  <td>Deluxe</td>
+                  <td style="color:var(--info);font-weight:600">412호</td>
+                  <td>2인</td>
+                  <td style="font-size:12px;color:var(--gray-500)">14:00 이후</td>
+                  <td><button class="btn btn-primary btn-sm" onclick="openCheckinModal('나도현','412호','Deluxe','010-9988-7766','2인')">체크인 처리</button></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>상태</th>
-                <th>고객 정보</th>
-                <th>객실 타입</th>
-                <th>배정 호수</th>
-                <th>인원</th>
-                <th>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr data-status="pending" class="row-checkin">
-                <td><span class="badge badge-pending">입실 대기</span></td>
-                <td><div style="font-weight:600">김철수</div><div style="font-size:11px;color:var(--gray-500)">010-1234-5678</div></td>
-                <td>Deluxe</td>
-                <td style="color:var(--info);font-weight:600">305호</td>
-                <td>2인</td>
-                <td><button class="btn btn-primary btn-sm" data-modal="modalCheckin">체크인 처리</button></td>
-              </tr>
-              <tr data-status="completed" class="row-checkin">
-                <td><span class="badge badge-completed">체크인 완료</span></td>
-                <td><div style="font-weight:600">이지영</div><div style="font-size:11px;color:var(--gray-500)">010-2345-6789</div></td>
-                <td>Standard</td>
-                <td style="color:var(--info);font-weight:600">204호</td>
-                <td>1인</td>
-                <td><span style="font-size:12px;color:var(--gray-400)">키 분실/재발급</span></td>
-              </tr>
-              <tr data-status="pending" class="row-checkin">
-                <td><span class="badge badge-pending">입실 대기</span></td>
-                <td><div style="font-weight:600">박지성</div><div style="font-size:11px;color:var(--gray-500)">010-3456-7890</div></td>
-                <td>Suite</td>
-                <td style="color:var(--info);font-weight:600">701호</td>
-                <td>3인</td>
-                <td><button class="btn btn-primary btn-sm" data-modal="modalCheckin">체크인 처리</button></td>
-              </tr>
-              <tr data-status="completed" class="row-checkin">
-                <td><span class="badge badge-completed">체크인 완료</span></td>
-                <td><div style="font-weight:600">최유진</div><div style="font-size:11px;color:var(--gray-500)">010-4567-8901</div></td>
-                <td>Twin</td>
-                <td style="color:var(--info);font-weight:600">501호</td>
-                <td>2인</td>
-                <td><span style="font-size:12px;color:var(--gray-400)">키 분실/재발급</span></td>
-              </tr>
-              <tr data-status="pending" class="row-checkin">
-                <td><span class="badge badge-pending">입실 대기</span></td>
-                <td><div style="font-weight:600">나도현</div><div style="font-size:11px;color:var(--gray-500)">010-9988-7766</div></td>
-                <td>Deluxe</td>
-                <td style="color:var(--info);font-weight:600">412호</td>
-                <td>2인</td>
-                <td><button class="btn btn-primary btn-sm" data-modal="modalCheckin">체크인 처리</button></td>
-              </tr>
-              
-              <!-- 이용 중(In Use) 데이터 (초기 로딩 시 숨김) -->
-              <tr data-status="using" class="row-inuse" style="display:none;">
-                <td><span class="badge badge-using" style="background:#EDE9FE;color:#5B21B6;border:none;">이용 중 (연박 포함)</span></td>
-                <td><div style="font-weight:600">송혜교</div><div style="font-size:11px;color:var(--gray-500)">010-5555-6666</div></td>
-                <td>Suite</td>
-                <td style="color:var(--info);font-weight:600">702호</td>
-                <td>2인</td>
-                <td><button class="btn btn-outline btn-sm">조기 퇴실 처리</button></td>
-              </tr>
-              <tr data-status="using" class="row-inuse" style="display:none;">
-                <td><span class="badge badge-using" style="background:#EDE9FE;color:#5B21B6;border:none;">이용 중 (오늘 퇴실 예정)</span></td>
-                <td><div style="font-weight:600">공유</div><div style="font-size:11px;color:var(--gray-500)">010-7777-8888</div></td>
-                <td>Deluxe</td>
-                <td style="color:var(--info);font-weight:600">308호</td>
-                <td>1인</td>
-                <td><button class="btn btn-outline btn-sm">체크아웃 처리</button></td>
-              </tr>
-            </tbody>
-          </table>
+
+        <!-- ── 탭 3: 마감 후 미처리 ── -->
+        <div class="ci-panel" id="panel-overdue">
+          <div style="padding:14px 20px; border-bottom:1px solid var(--gray-100); display:flex; align-items:center; gap:8px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"></circle>
+              <polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+            <span style="font-size:12px; color:#E11D48; font-weight:600;">
+              입실 마감 시간(<span id="overdueDeadlineLabel">22:00</span>) 이후 체크인이 완료되지 않은 예약입니다.
+            </span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>고객 정보</th>
+                  <th>객실 타입</th>
+                  <th>배정 호수</th>
+                  <th>인원</th>
+                  <th>경과 시간</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="tbodyOverdue">
+                <!-- JS로 동적 렌더 -->
+              </tbody>
+            </table>
+          </div>
+          <div class="ci-empty" id="emptyOverdue">
+            <div class="ci-empty-icon">✅</div>
+            <div class="ci-empty-title">마감 후 미처리 항목이 없습니다</div>
+            <div class="ci-empty-sub">마감 시간이 지나지 않았거나 모두 체크인 완료된 상태입니다.</div>
+          </div>
         </div>
-      </div>
-    </div>
+
+      </div><!-- /.card -->
+    </div><!-- /.page -->
   </div>
 </div>
 
-<!-- Checkin Modal -->
+<!-- ── 채팅 문의 모달 ── -->
+<div class="modal-overlay hidden" id="modalChat" style="z-index:1200;">
+  <div class="modal" style="max-width:440px;display:flex;flex-direction:column;overflow:hidden;max-height:80vh;">
+
+    <!-- 헤더 -->
+    <div style="background:linear-gradient(135deg,#4F46E5,#6366F1);padding:16px 20px;flex-shrink:0;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:10px;color:rgba(255,255,255,0.6);font-weight:600;letter-spacing:0.08em;margin-bottom:4px;">채팅 문의</div>
+        <div style="font-size:15px;font-weight:800;color:#fff;" id="cpGuestName"></div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.6);" id="cpGuestRoom"></div>
+      </div>
+      <button onclick="closeChatPanel()"
+        style="width:32px;height:32px;border-radius:50%;border:none;background:rgba(255,255,255,0.15);cursor:pointer;font-size:18px;color:#fff;display:flex;align-items:center;justify-content:center;">×</button>
+    </div>
+
+    <!-- 채팅 내역 -->
+    <div id="cpMessages" style="flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:12px;background:#F9FAFB;min-height:0;">
+
+      <!-- 고객 메시지 1 -->
+      <div style="display:flex;gap:8px;align-items:flex-end;">
+        <div style="width:26px;height:26px;border-radius:50%;background:#C7D2FE;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#4338CA;flex-shrink:0;" id="cpAvatar"></div>
+        <div>
+          <div style="background:#fff;border:1px solid var(--gray-200);border-radius:0 12px 12px 12px;padding:10px 13px;font-size:13px;color:var(--gray-700);line-height:1.6;max-width:240px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+            안녕하세요, 오늘 체크인 예약자인데요. 도착이 조금 늦어질 것 같습니다. 자정 넘어서 가도 될까요?
+          </div>
+          <div style="font-size:10px;color:var(--gray-400);margin-top:4px;padding-left:4px;">오후 10:32</div>
+        </div>
+      </div>
+
+      <!-- 파트너 응답 -->
+      <div style="display:flex;justify-content:flex-end;">
+        <div>
+          <div style="background:#6366F1;border-radius:12px 0 12px 12px;padding:10px 13px;font-size:13px;color:#fff;line-height:1.6;max-width:240px;">
+            네, 자정 이후에도 체크인 가능합니다. 도착 30분 전에 한 번 더 연락 주시면 대기하겠습니다 😊
+          </div>
+          <div style="font-size:10px;color:var(--gray-400);margin-top:4px;padding-right:4px;text-align:right;">오후 10:45</div>
+        </div>
+      </div>
+
+      <!-- 고객 메시지 2 (미확인) -->
+      <div style="display:flex;gap:8px;align-items:flex-end;">
+        <div style="width:26px;height:26px;border-radius:50%;background:#C7D2FE;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#4338CA;flex-shrink:0;" id="cpAvatar2"></div>
+        <div>
+          <div style="background:#fff;border:1px solid #FECDD3;border-radius:0 12px 12px 12px;padding:10px 13px;font-size:13px;color:var(--gray-700);line-height:1.6;max-width:240px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+            감사합니다! 12시 30분쯤 도착할 것 같아요.
+          </div>
+          <div style="font-size:10px;color:var(--gray-400);margin-top:4px;padding-left:4px;">오후 11:10 · <span style="color:#E11D48;font-weight:700;">미확인</span></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 입력창 -->
+    <div style="padding:10px 14px;border-top:1px solid var(--gray-100);background:#fff;flex-shrink:0;">
+      <div style="display:flex;gap:8px;align-items:flex-end;">
+        <textarea id="cpInput" placeholder="답장 입력... (Enter 전송)" rows="2"
+          style="flex:1;border:1.5px solid var(--gray-200);border-radius:10px;padding:8px 12px;font-size:13px;resize:none;font-family:inherit;outline:none;transition:border-color 0.15s;line-height:1.5;"
+          onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='var(--gray-200)'"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendChatMsg();}"></textarea>
+        <button onclick="sendChatMsg()"
+          style="width:36px;height:36px;border-radius:10px;border:none;background:#6366F1;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- 닫기 -->
+    <div style="padding:8px 14px 12px;background:#fff;flex-shrink:0;">
+      <button onclick="closeChatPanel()"
+        style="width:100%;padding:9px;background:none;border:1.5px solid var(--gray-100);border-radius:10px;font-size:13px;font-weight:600;color:var(--gray-400);cursor:pointer;">닫기</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  function openChatPanel(name, room) {
+    document.getElementById('cpGuestName').textContent = name + ' 님';
+    document.getElementById('cpGuestRoom').textContent = room + ' · 문의 2건';
+    const initial = name.charAt(0);
+    document.querySelectorAll('#cpAvatar,#cpAvatar2').forEach(el => el.textContent = initial);
+    document.getElementById('modalChat').classList.remove('hidden');
+    setTimeout(() => {
+      const msgs = document.getElementById('cpMessages');
+      msgs.scrollTop = msgs.scrollHeight;
+    }, 50);
+  }
+
+  function closeChatPanel() {
+    document.getElementById('modalChat').classList.add('hidden');
+  }
+
+  function sendChatMsg() {
+    const input = document.getElementById('cpInput');
+    const text = input.value.trim();
+    if (!text) return;
+    const msgs = document.getElementById('cpMessages');
+    const now = new Date();
+    const timeStr = `${now.getHours() < 12 ? '오전' : '오후'} ${now.getHours() % 12 || 12}:${String(now.getMinutes()).padStart(2,'0')}`;
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;justify-content:flex-end;';
+    div.innerHTML = `<div>
+      <div style="background:#6366F1;border-radius:12px 0 12px 12px;padding:10px 13px;font-size:13px;color:#fff;line-height:1.6;max-width:240px;">${text.replace(/</g,'&lt;')}</div>
+      <div style="font-size:10px;color:var(--gray-400);margin-top:4px;padding-right:4px;text-align:right;">${timeStr}</div>
+    </div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    input.value = '';
+  }
+</script>
+
+<!-- ── 체크인 처리 모달 ── -->
 <div class="modal-overlay hidden" id="modalCheckin">
   <div class="modal modal-sm">
     <div class="modal-header" style="background:var(--secondary);border-radius:var(--radius-xl) var(--radius-xl) 0 0;padding:16px 20px">
@@ -146,38 +574,331 @@
       <div style="display:grid;gap:10px;font-size:13px">
         <div class="flex justify-between" style="padding:10px 0;border-bottom:1px solid var(--gray-100)">
           <span style="color:var(--gray-500)">배정 호수</span>
-          <span style="font-weight:700;color:var(--info);font-size:16px">305호</span>
+          <span style="font-weight:700;color:var(--info);font-size:16px" id="ciRoom">305호</span>
         </div>
         <div class="flex justify-between" style="padding:10px 0;border-bottom:1px solid var(--gray-100)">
           <span style="color:var(--gray-500)">객실 타입</span>
-          <span>Deluxe</span>
+          <span id="ciType">Deluxe</span>
         </div>
         <div class="flex justify-between" style="padding:10px 0;border-bottom:1px solid var(--gray-100)">
           <span style="color:var(--gray-500)">예약 고객명</span>
-          <span style="font-weight:600">김철수</span>
+          <span style="font-weight:600" id="ciName">김철수</span>
         </div>
         <div class="flex justify-between" style="padding:10px 0;border-bottom:1px solid var(--gray-100)">
           <span style="color:var(--gray-500)">연락처</span>
-          <span>010-1111-2222</span>
+          <span id="ciPhone">010-1234-5678</span>
         </div>
         <div class="flex justify-between" style="padding:10px 0">
           <span style="color:var(--gray-500)">투숙 인원</span>
-          <span>2인</span>
+          <span id="ciPax">2인</span>
         </div>
       </div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" style="justify-content:center;">
       <button class="btn btn-ghost" data-modal-close>취소</button>
-      <button class="btn btn-primary" onclick="this.closest('.modal-overlay').classList.add('hidden');showAlert('체크인 처리가 완료되었습니다.', {icon:'✅', title:'체크인 완료'})">최종 체크인 완료</button>
+      <button class="btn btn-primary"
+        onclick="this.closest('.modal-overlay').classList.add('hidden'); showAlert('체크인 처리가 완료되었습니다.', {icon:'✅', title:'체크인 완료'})">
+        최종 체크인 완료
+      </button>
     </div>
   </div>
 </div>
 
-<!-- Walk-in Modal -->
+<!-- ── 투숙객 상세 정보 모달 (리디자인) ── -->
+<div class="modal-overlay hidden" id="modalStayingDetail">
+  <div class="modal modal-sm">
+    <!-- 헤더: 호수 + 이름 크게 -->
+    <div class="modal-header" style="background: linear-gradient(135deg, #6366F1, #8B5CF6); padding:20px 24px; position:relative;">
+      <div style="flex:1;">
+        <div style="font-size:11px; color:rgba(255,255,255,0.65); letter-spacing:0.08em; margin-bottom:4px;">GUEST DETAIL</div>
+        <div style="display:flex; align-items:baseline; gap:10px; margin-bottom:2px;">
+          <span id="sdRoom" style="font-size:26px; font-weight:800; color:#fff;"></span>
+          <span id="sdStatusBadge" style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.75); background:rgba(255,255,255,0.15); padding:2px 8px; border-radius:20px;"></span>
+        </div>
+        <div id="sdName" style="font-size:15px; font-weight:700; color:#fff; opacity:0.9;"></div>
+      </div>
+      <button class="modal-close" style="color:rgba(255,255,255,0.7); position:absolute; top:16px; right:16px;">×</button>
+    </div>
+
+    <!-- 바디: 2열 그리드 정보 -->
+    <div class="modal-body" style="padding:20px 24px;">
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+        <div style="background:var(--gray-50); border-radius:10px; padding:12px 14px;">
+          <div style="font-size:11px; color:var(--gray-400); font-weight:600; margin-bottom:4px;">객실 타입</div>
+          <div id="sdType" style="font-size:14px; font-weight:700; color:var(--gray-800);"></div>
+        </div>
+        <div style="background:var(--gray-50); border-radius:10px; padding:12px 14px;">
+          <div style="font-size:11px; color:var(--gray-400); font-weight:600; margin-bottom:4px;">투숙 인원</div>
+          <div id="sdPax" style="font-size:14px; font-weight:700; color:var(--gray-800);"></div>
+        </div>
+        <div style="background:var(--gray-50); border-radius:10px; padding:12px 14px;">
+          <div style="font-size:11px; color:var(--gray-400); font-weight:600; margin-bottom:4px;">연락처</div>
+          <div id="sdPhone" style="font-size:13px; font-weight:600; color:var(--gray-700);"></div>
+        </div>
+        <div style="background:var(--gray-50); border-radius:10px; padding:12px 14px;">
+          <div style="font-size:11px; color:var(--gray-400); font-weight:600; margin-bottom:4px;">체크인 일시</div>
+          <div id="sdCheckin" style="font-size:13px; font-weight:600; color:var(--gray-700);"></div>
+        </div>
+        <div style="background:#EFF6FF; border-radius:10px; padding:12px 14px; grid-column:1/-1;">
+          <div style="font-size:11px; color:#3B82F6; font-weight:600; margin-bottom:4px;">체크아웃 예정</div>
+          <div id="sdCheckout" style="font-size:16px; font-weight:800; color:#1D4ED8;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 푸터: 닫기 + 추가 옵션 아코디언 -->
+    <div style="padding:0 24px 20px; display:flex; flex-direction:column; gap:10px;">
+      <button class="btn btn-ghost" data-modal-close style="width:100%; justify-content:center;">닫기</button>
+
+      <!-- 추가 옵션 토글 -->
+      <button
+        style="display:flex; align-items:center; justify-content:center; gap:6px; width:100%; padding:8px; background:none; border:none; cursor:pointer; font-size:12px; font-weight:600; color:var(--gray-400); transition:color 0.15s;"
+        onclick="toggleExtraOptions(this)"
+        id="btnExtraOptions">
+        <span>추가 옵션</span>
+        <svg id="extraOptionsArrow" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;">
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </button>
+
+      <!-- 옵션 목록 (접혀있음) -->
+      <div id="extraOptionsPanel" style="display:none; grid-template-columns:1fr 1fr 1fr; gap:8px; overflow:hidden; max-height:0; transition:max-height 0.25s ease;">
+        <button onclick="confirmEarlyCheckout()"
+          style="display:flex; flex-direction:column; align-items:center; gap:6px; padding:12px 8px; background:#FFF7ED; border:1.5px solid #FED7AA; border-radius:10px; cursor:pointer; transition:all 0.15s;">
+          <span style="font-size:20px;">🏃</span>
+          <span style="font-size:11px; font-weight:700; color:#B45309;">조기 퇴실</span>
+        </button>
+        <button onclick="openRoomChange()"
+          style="display:flex; flex-direction:column; align-items:center; gap:6px; padding:12px 8px; background:#EFF6FF; border:1.5px solid #BFDBFE; border-radius:10px; cursor:pointer; transition:all 0.15s;">
+          <span style="font-size:20px;">🔄</span>
+          <span style="font-size:11px; font-weight:700; color:#1D4ED8;">호실 변경</span>
+        </button>
+        <button onclick="openStayExtend()"
+          style="display:flex; flex-direction:column; align-items:center; gap:6px; padding:12px 8px; background:#F0FDF4; border:1.5px solid #BBF7D0; border-radius:10px; cursor:pointer; transition:all 0.15s;">
+          <span style="font-size:20px;">📅</span>
+          <span style="font-size:11px; font-weight:700; color:#15803D;">숙박 연장</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── 조기 퇴실 확인 모달 ── -->
+<div class="modal-overlay hidden" id="modalEarlyCheckout">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">조기 퇴실 처리</div>
+      <button class="modal-close">×</button>
+    </div>
+    <div class="modal-body" style="text-align:center; padding:8px 0;">
+      <div style="font-size:32px; margin-bottom:12px;">🏃</div>
+      <div style="font-size:15px;font-weight:700;color:var(--gray-800);margin-bottom:8px;">
+        <span id="ecName"></span> 님의 조기 퇴실을 처리하시겠습니까?
+      </div>
+      <div style="font-size:13px;color:var(--gray-500);line-height:1.6;">
+        체크아웃 예정일 이전에 퇴실 처리됩니다.<br>정산 및 객실 상태가 업데이트됩니다.
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-ghost" data-modal-close>취소</button>
+      <button class="btn"
+        style="background:#FFF7ED;color:#B45309;border:1px solid #FED7AA;font-weight:600;"
+        onclick="document.getElementById('modalEarlyCheckout').classList.add('hidden'); document.getElementById('modalStayingDetail').classList.add('hidden'); showAlert('조기 퇴실 처리가 완료되었습니다.', {icon:'✅', title:'퇴실 완료'})">
+        조기 퇴실 확정
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 호실 변경 모달 ── -->
+<div class="modal-overlay hidden" id="modalRoomChange">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">호실 변경</div>
+      <button class="modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:13px;color:var(--gray-500);margin-bottom:16px;">
+        현재 호실: <strong style="color:var(--info)" id="rcCurrentRoom"></strong>
+      </div>
+      <div class="form-group">
+        <label class="form-label">변경할 호실 선택 *</label>
+        <select class="form-control" id="rcNewRoom">
+          <option>-- 선택 --</option>
+          <option>305호 (Deluxe) - 공실</option>
+          <option>307호 (Standard) - 공실</option>
+          <option>409호 (Twin) - 공실</option>
+          <option>603호 (Suite) - 공실</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">변경 사유</label>
+        <input class="form-control" placeholder="예: 고객 요청, 시설 문제 등">
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-ghost" data-modal-close>취소</button>
+      <button class="btn btn-primary"
+        onclick="document.getElementById('modalRoomChange').classList.add('hidden'); document.getElementById('modalStayingDetail').classList.add('hidden'); showAlert('호실 변경이 완료되었습니다.', {icon:'✅', title:'호실 변경 완료'})">
+        변경 확정
+      </button>
+    </div>
+  </div>
+</div>
+<!-- ── 미처리 처리 선택 모달 ── -->
+<div class="modal-overlay hidden" id="modalOverdueAction">
+  <div class="modal modal-sm" style="overflow:hidden;">
+
+    <!-- 헤더: 다크 그래디언트 -->
+    <div style="background:linear-gradient(135deg,#1E1B4B,#312E81); padding:22px 22px 18px; position:relative;">
+      <button class="modal-close" style="position:absolute;top:14px;right:14px;color:rgba(255,255,255,0.5);">×</button>
+
+      <div style="font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:0.1em;font-weight:600;margin-bottom:10px;">미처리 예약 · 처리 방법 선택</div>
+
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <!-- 호실 배지 -->
+          <div style="background:rgba(255,255,255,0.12);border-radius:10px;padding:8px 14px;text-align:center;">
+            <div style="font-size:20px;font-weight:900;color:#fff;letter-spacing:-0.5px;" id="oaRoom"></div>
+          </div>
+          <div>
+            <div style="font-size:16px;font-weight:800;color:#fff;margin-bottom:2px;" id="oaName"></div>
+            <div style="font-size:12px;color:rgba(255,255,255,0.5);" id="oaTypeAndPax"></div>
+          </div>
+        </div>
+        <!-- 문의 뱃지 -->
+        <button id="oaChatBtn"
+          onclick="openChatPanel(document.getElementById('oaName').textContent,document.getElementById('oaRoom').textContent)"
+          title="문의 보기"
+          style="position:relative;width:36px;height:36px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.2);background:rgba(255,255,255,0.1);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all 0.15s;"
+          onmouseover="this.style.background='rgba(255,255,255,0.2)'"
+          onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <span style="position:absolute;top:-4px;right:-4px;background:#E11D48;color:#fff;font-size:9px;font-weight:700;padding:0 4px;border-radius:999px;min-width:14px;text-align:center;line-height:14px;border:2px solid #312E81;">2</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- 액션 목록 -->
+    <div style="padding:14px 16px 8px;display:flex;flex-direction:column;gap:6px;">
+
+      <!-- 뒤늦은 체크인 -->
+      <button onclick="confirmOverdueCheckin()"
+        style="display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;background:#F0FDF4;border:1.5px solid #BBF7D0;border-radius:12px;cursor:pointer;transition:all 0.15s;text-align:left;"
+        onmouseover="this.style.background='#DCFCE7';this.style.borderColor='#4ADE80';this.style.transform='translateX(2px)'"
+        onmouseout="this.style.background='#F0FDF4';this.style.borderColor='#BBF7D0';this.style.transform='translateX(0)'">
+        <div style="width:36px;height:36px;border-radius:10px;background:#D1FAE5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#15803D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;color:#15803D;margin-bottom:2px;">뒤늦은 체크인</div>
+          <div style="font-size:11px;color:#16A34A;">마감 후 도착 — 체크인 처리를 진행합니다</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4ADE80" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+      <!-- 노쇼 -->
+      <button onclick="confirmNoShow()"
+        style="display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;background:#FFF1F2;border:1.5px solid #FECDD3;border-radius:12px;cursor:pointer;transition:all 0.15s;text-align:left;"
+        onmouseover="this.style.background='#FFE4E6';this.style.borderColor='#FDA4AF';this.style.transform='translateX(2px)'"
+        onmouseout="this.style.background='#FFF1F2';this.style.borderColor='#FECDD3';this.style.transform='translateX(0)'">
+        <div style="width:36px;height:36px;border-radius:10px;background:#FFE4E6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;color:#E11D48;margin-bottom:2px;">노쇼</div>
+          <div style="font-size:11px;color:#F43F5E;">연락 없이 미입실 — 노쇼 기록으로 남깁니다</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FDA4AF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+      <!-- 취소 -->
+      <button onclick="confirmCancelReservation()"
+        style="display:flex;align-items:center;gap:14px;width:100%;padding:14px 16px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;cursor:pointer;transition:all 0.15s;text-align:left;"
+        onmouseover="this.style.background='#F1F5F9';this.style.borderColor='#CBD5E1';this.style.transform='translateX(2px)'"
+        onmouseout="this.style.background='#F8FAFC';this.style.borderColor='#E2E8F0';this.style.transform='translateX(0)'">
+        <div style="width:36px;height:36px;border-radius:10px;background:#E2E8F0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;color:#475569;margin-bottom:2px;">취소</div>
+          <div style="font-size:11px;color:#64748B;">고객 연락 후 예약 해제 처리합니다</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+    </div>
+    <div style="padding:8px 16px 16px;">
+      <button class="btn btn-ghost" data-modal-close style="width:100%;justify-content:center;border-color:var(--gray-100);color:var(--gray-400);">닫기</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 숙박 연장 모달 ── -->
+<div class="modal-overlay hidden" id="modalStayExtend">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">숙박 연장</div>
+      <button class="modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- 현재 정보 요약 -->
+      <div style="background:var(--gray-50); border-radius:10px; padding:14px 16px; margin-bottom:18px; display:flex; align-items:center; gap:14px;">
+        <div style="font-size:22px; font-weight:800; color:var(--info);" id="seRoom"></div>
+        <div>
+          <div style="font-size:13px; font-weight:700; color:var(--gray-800);" id="seName"></div>
+          <div style="font-size:12px; color:var(--gray-400);" id="seType"></div>
+        </div>
+      </div>
+      <!-- 연장 날짜 선택 -->
+      <div class="form-group">
+        <label class="form-label" style="font-weight:700;">새 체크아웃 날짜 <span style="color:var(--primary)">*</span></label>
+        <input class="form-control" type="date" id="seNewCheckout" style="font-size:15px; font-weight:600;">
+        <div style="font-size:11px; color:var(--gray-400); margin-top:6px;">현재 체크아웃 예정일 이후 날짜만 선택 가능합니다.</div>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-ghost" data-modal-close>취소</button>
+      <button class="btn btn-primary"
+        onclick="confirmStayExtend()">
+        연장 확정
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 체크인 취소 확인 모달 ── -->
+<div class="modal-overlay hidden" id="modalCancelCheckin">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <div class="modal-title">체크인 취소 확인</div>
+      <button class="modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="text-align:center; padding: 8px 0;">
+        <div style="font-size:32px; margin-bottom:12px;">⚠️</div>
+        <div style="font-size:15px; font-weight:700; color:var(--gray-800); margin-bottom:8px;">
+          <span id="cancelGuestName">고객명</span> 님의 체크인을 취소하시겠습니까?
+        </div>
+        <div style="font-size:13px; color:var(--gray-500); line-height:1.6;">
+          체크인 상태가 <strong>입실 대기</strong>로 되돌아갑니다.<br>
+          실수로 처리한 경우에만 사용해 주세요.
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:center;">
+      <button class="btn btn-ghost" data-modal-close>닫기</button>
+      <button class="btn" style="background:#FFF1F2; color:#E11D48; border:1px solid #FECDD3; font-weight:600;"
+        onclick="confirmCancelCheckin()">체크인 취소 확정</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 워크인 체크인 모달 ── -->
 <div class="modal-overlay hidden" id="modalWalkin">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title">+ 신규 워크인 체크인</div>
+      <div class="modal-title">+ 현장 체크인 등록</div>
       <button class="modal-close">×</button>
     </div>
     <div class="modal-body">
@@ -187,20 +908,29 @@
       </div>
       <div class="form-row">
         <div class="form-group"><label class="form-label">객실 선택 *</label>
-          <select class="form-control"><option>-- 선택 --</option><option>305호 (Deluxe) - 공실</option><option>307호 (Standard) - 공실</option><option>409호 (Twin) - 공실</option></select>
+          <select class="form-control">
+            <option>-- 선택 --</option>
+            <option>305호 (Deluxe) - 공실</option>
+            <option>307호 (Standard) - 공실</option>
+            <option>409호 (Twin) - 공실</option>
+          </select>
         </div>
         <div class="form-group"><label class="form-label">인원 수</label><input class="form-control" type="number" value="2" min="1"></div>
       </div>
       <div class="form-row">
-        <div class="form-group"><label class="form-label">체크인 날짜</label><input class="form-control" type="date" value="2026-03-14"></div>
-        <div class="form-group"><label class="form-label">체크아웃 날짜</label><input class="form-control" type="date" value="2026-03-15"></div>
+        <div class="form-group"><label class="form-label">체크인 날짜</label><input class="form-control" type="date" value="2026-03-18"></div>
+        <div class="form-group"><label class="form-label">체크아웃 날짜</label><input class="form-control" type="date" value="2026-03-19"></div>
       </div>
       <div class="form-group">
         <label class="form-label">결제 방법</label>
-        <select class="form-control"><option>현장 카드</option><option>현장 현금</option><option>선결제 완료</option></select>
+        <select class="form-control">
+          <option>현장 카드</option>
+          <option>현장 현금</option>
+          <option>선결제 완료</option>
+        </select>
       </div>
     </div>
-    <div class="modal-footer">
+    <div class="modal-footer" style="justify-content:center;">
       <button class="btn btn-ghost" data-modal-close>취소</button>
       <button class="btn btn-primary">체크인 등록</button>
     </div>
@@ -209,43 +939,287 @@
 
 <script src="shared.js"></script>
 <script>
-initPage('partner', 'checkin', '체크인 관리');
+  initPage('partner', 'checkin', '체크인 관리');
 
-// 탭 전환 스크립트
-function switchTab(tabId) {
-  const tabCheckin = document.getElementById('tabCheckin');
-  const tabInUse = document.getElementById('tabInUse');
-  const rowsCheckin = document.querySelectorAll('.row-checkin');
-  const rowsInUse = document.querySelectorAll('.row-inuse');
+  // ── 마감 시간 상태 ──
+  let deadlineTime = localStorage.getItem('checkinDeadline') || '09:00';
+  document.getElementById('deadlineInput').value = deadlineTime;
+  updateDeadlineUI();
 
-  if (tabId === 'checkin') {
-    // 탭 스타일 활성화
-    tabCheckin.style.color = 'var(--primary)';
-    tabCheckin.style.fontWeight = '700';
-    tabCheckin.style.borderBottom = '3px solid var(--primary)';
-    
-    tabInUse.style.color = 'var(--gray-500)';
-    tabInUse.style.fontWeight = '600';
-    tabInUse.style.borderBottom = '3px solid transparent';
-
-    // 행 필터링
-    rowsCheckin.forEach(r => r.style.display = 'table-row');
-    rowsInUse.forEach(r => r.style.display = 'none');
-  } else {
-    // 탭 스타일 활성화
-    tabInUse.style.color = 'var(--primary)';
-    tabInUse.style.fontWeight = '700';
-    tabInUse.style.borderBottom = '3px solid var(--primary)';
-    
-    tabCheckin.style.color = 'var(--gray-500)';
-    tabCheckin.style.fontWeight = '600';
-    tabCheckin.style.borderBottom = '3px solid transparent';
-
-    // 행 필터링
-    rowsCheckin.forEach(r => r.style.display = 'none');
-    rowsInUse.forEach(r => r.style.display = 'table-row');
+  // ── 마감 시간 드롭다운 토글 ──
+  function toggleDeadlinePanel() {
+    const panel = document.getElementById('deadlinePanel');
+    panel.classList.toggle('open');
   }
-}
+  document.addEventListener('click', (e) => {
+    const wrapper = document.querySelector('.deadline-wrapper');
+    if (wrapper && !wrapper.contains(e.target)) {
+      document.getElementById('deadlinePanel').classList.remove('open');
+    }
+  });
+
+  // ── 마감 시간 적용 ──
+  function applyDeadline() {
+    deadlineTime = document.getElementById('deadlineInput').value;
+    localStorage.setItem('checkinDeadline', deadlineTime);
+    document.getElementById('deadlinePanel').classList.remove('open');
+    updateDeadlineUI();
+    updateOverdueTab();
+  }
+
+  // ── 마감 시간 UI 갱신 ──
+  function updateDeadlineUI() {
+    document.getElementById('deadlineDisplay').textContent = deadlineTime;
+    document.getElementById('overdueDeadlineLabel').textContent = deadlineTime;
+    const badge = document.getElementById('deadlineBadge');
+    const now = getCurrentTimeStr();
+    if (now >= deadlineTime) {
+      badge.classList.add('passed');
+    } else {
+      badge.classList.remove('passed');
+    }
+  }
+
+  function getCurrentTimeStr() {
+    const now = new Date();
+    return now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  }
+
+  // ── 미처리 항목 업데이트 ──
+  // 대기 중인 항목(pending)이 존재하고 현재 시각이 마감 시간 이후면 미처리 탭에 표시
+  function updateOverdueTab() {
+    const now = getCurrentTimeStr();
+    const isPassed = now >= deadlineTime;
+
+    const pendingRows = document.querySelectorAll('#tbodyToday tr[data-status="pending"]');
+    const tbody = document.getElementById('tbodyOverdue');
+    const empty = document.getElementById('emptyOverdue');
+    tbody.innerHTML = '';
+
+    let count = 0;
+    if (isPassed) {
+      pendingRows.forEach(row => {
+        const name = row.dataset.name;
+        const cells = row.querySelectorAll('td');
+        const type = cells[2].textContent;
+        const room = cells[3].textContent;
+        const pax = cells[4].textContent;
+
+        // 경과 시간 계산
+        const [dh, dm] = deadlineTime.split(':').map(Number);
+        const [nh, nm] = now.split(':').map(Number);
+        const elapsed = (nh * 60 + nm) - (dh * 60 + dm);
+        const elapsedStr = elapsed > 0 ? `${Math.floor(elapsed/60) > 0 ? Math.floor(elapsed/60)+'시간 ' : ''}${elapsed%60}분 경과` : '방금';
+
+        const tr = document.createElement('tr');
+        tr.className = 'row-overdue';
+        tr.innerHTML = `
+          <td>
+            <div style="font-weight:600">${name}</div>
+            <div style="font-size:11px;color:var(--gray-500)">${cells[1].querySelector('div:last-child').textContent}</div>
+          </td>
+          <td>${type}</td>
+          <td style="color:var(--info);font-weight:600">${room}</td>
+          <td>${pax}</td>
+          <td style="color:#E11D48;font-weight:600;font-size:12px">${elapsedStr}</td>
+          <td>
+            <button class="btn btn-sm"
+              style="background:white;border:1.5px solid var(--gray-300);color:var(--gray-700);font-weight:600;border-radius:6px;padding:5px 14px;"
+              onclick="openOverdueAction('${name}','${room}','${type}','${pax}')">처리</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+        count++;
+      });
+    }
+
+    document.getElementById('badgeOverdue').textContent = count;
+    document.getElementById('statOverdue').textContent = count;
+    empty.style.display = count === 0 ? 'block' : 'none';
+    tbody.style.display = count > 0 ? '' : 'none';
+
+    // 미처리 카드 강조
+    const statCard = document.getElementById('statOverdueCard');
+    if (count > 0) {
+      statCard.classList.add('danger');
+    } else {
+      statCard.classList.remove('danger');
+    }
+  }
+
+  // 초기 실행
+  updateOverdueTab();
+
+  // ── 탭 전환 ──
+  function switchCiTab(tabId) {
+    document.querySelectorAll('.ci-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.ci-panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + tabId).classList.add('active');
+    document.getElementById('panel-' + tabId).classList.add('active');
+    if (tabId === 'overdue') updateOverdueTab();
+  }
+
+  // ── 체크인 모달 열기 ──
+  function openCheckinModal(name, room, type, phone, pax) {
+    document.getElementById('ciName').textContent = name;
+    document.getElementById('ciRoom').textContent = room;
+    document.getElementById('ciType').textContent = type;
+    document.getElementById('ciPhone').textContent = phone;
+    document.getElementById('ciPax').textContent = pax;
+    document.getElementById('modalCheckin').classList.remove('hidden');
+  }
+
+  // ── 테이블 검색 필터 ──
+  function filterTable(query, panelId) {
+    const panel = document.getElementById(panelId);
+    const rows = panel.querySelectorAll('tbody tr');
+    const q = query.trim().toLowerCase();
+    rows.forEach(r => {
+      const text = r.textContent.toLowerCase();
+      r.style.display = (!q || text.includes(q)) ? '' : 'none';
+    });
+  }
+
+  // ── 미처리 처리 선택 ──
+  let _overdueGuest = null;
+  function openOverdueAction(name, room, type, pax) {
+    _overdueGuest = { name, room, type, pax };
+    document.getElementById('oaName').textContent = name;
+    document.getElementById('oaRoom').textContent = room;
+    document.getElementById('oaTypeAndPax').textContent = `${type} · ${pax}`;
+    document.getElementById('modalOverdueAction').classList.remove('hidden');
+  }
+  function confirmOverdueCheckin() {
+    if (!_overdueGuest) return;
+    document.getElementById('modalOverdueAction').classList.add('hidden');
+    openCheckinModal(_overdueGuest.name, _overdueGuest.room, _overdueGuest.type, '', _overdueGuest.pax);
+  }
+  function confirmNoShow() {
+    if (!_overdueGuest) return;
+    document.getElementById('modalOverdueAction').classList.add('hidden');
+    showAlert(`${_overdueGuest.name} 님을 노쇼 처리했습니다.`, { icon: '🚫', title: '노쇼 처리 완료' });
+    _overdueGuest = null;
+  }
+  function confirmCancelReservation() {
+    if (!_overdueGuest) return;
+    document.getElementById('modalOverdueAction').classList.add('hidden');
+    showAlert(`${_overdueGuest.name} 님의 예약이 취소 처리되었습니다.`, { icon: '❌', title: '예약 취소 완료' });
+    _overdueGuest = null;
+  }
+
+  // ── 투숙객 상세 정보 ──
+  let _currentStayGuest = null;
+  function openStayingDetail(guest) {
+    _currentStayGuest = guest;
+    document.getElementById('sdStatusBadge').textContent = guest.status;
+    document.getElementById('sdRoom').textContent = guest.room;
+    document.getElementById('sdType').textContent = guest.type;
+    document.getElementById('sdName').textContent = guest.name;
+    document.getElementById('sdPhone').textContent = guest.phone;
+    document.getElementById('sdPax').textContent = guest.pax;
+    document.getElementById('sdCheckin').textContent = guest.checkin;
+    document.getElementById('sdCheckout').textContent = guest.checkout;
+    // 추가 옵션 패널 닫힌 상태로 초기화
+    const panel = document.getElementById('extraOptionsPanel');
+    const arrow = document.getElementById('extraOptionsArrow');
+    panel.style.display = 'none';
+    panel.style.maxHeight = '0';
+    if (arrow) arrow.style.transform = '';
+    document.getElementById('modalStayingDetail').classList.remove('hidden');
+  }
+  function toggleExtraOptions(btn) {
+    const panel = document.getElementById('extraOptionsPanel');
+    const arrow = document.getElementById('extraOptionsArrow');
+    const isOpen = panel.style.display === 'grid';
+    if (isOpen) {
+      panel.style.display = 'none';
+      panel.style.maxHeight = '0';
+      if (arrow) arrow.style.transform = '';
+    } else {
+      panel.style.display = 'grid';
+      panel.style.maxHeight = '200px';
+      if (arrow) arrow.style.transform = 'rotate(180deg)';
+    }
+  }
+  function openStayExtend() {
+    if (!_currentStayGuest) return;
+    // 현재 객실 정보 채우기
+    document.getElementById('seRoom').textContent = _currentStayGuest.room;
+    document.getElementById('seType').textContent = _currentStayGuest.type;
+    document.getElementById('seName').textContent = _currentStayGuest.name;
+    // 연장 최소 날짜: 오늘
+    const today = new Date().toISOString().split('T')[0];
+    document.getElementById('seNewCheckout').min = today;
+    document.getElementById('seNewCheckout').value = '';
+    document.getElementById('modalStayExtend').classList.remove('hidden');
+  }
+  function confirmEarlyCheckout() {
+    if (!_currentStayGuest) return;
+    document.getElementById('ecName').textContent = _currentStayGuest.name;
+    document.getElementById('modalEarlyCheckout').classList.remove('hidden');
+  }
+  function openRoomChange() {
+    if (!_currentStayGuest) return;
+    document.getElementById('rcCurrentRoom').textContent = _currentStayGuest.room;
+    document.getElementById('modalRoomChange').classList.remove('hidden');
+  }
+  function confirmStayExtend() {
+    const newDate = document.getElementById('seNewCheckout').value;
+    if (!newDate) {
+      alert('새 체크아웃 날짜를 선택해 주세요.');
+      return;
+    }
+    const d = new Date(newDate);
+    const days = ['일','월','화','수','목','금','토'];
+    const formatted = `${newDate} (${days[d.getDay()]})`;
+    document.getElementById('modalStayExtend').classList.add('hidden');
+    document.getElementById('modalStayingDetail').classList.add('hidden');
+    showAlert(`체크아웃이 ${formatted}로 연장되었습니다.`, {icon:'📅', title:'숙박 연장 완료'});
+  }
+
+  // ── 체크인 취소 ──
+  let _cancelTargetRow = null;
+  function openCancelModal(btn) {
+    _cancelTargetRow = btn.closest('tr');
+    const name = _cancelTargetRow.dataset.name;
+    document.getElementById('cancelGuestName').textContent = name;
+    document.getElementById('modalCancelCheckin').classList.remove('hidden');
+  }
+  function confirmCancelCheckin() {
+    if (!_cancelTargetRow) return;
+    // 상태 배지 업데이트
+    _cancelTargetRow.dataset.status = 'pending';
+    const badge = _cancelTargetRow.querySelector('td:first-child span');
+    badge.className = 'badge badge-pending';
+    badge.textContent = '입실 대기';
+    // 체크인 예정 시간 복원
+    const timeCell = _cancelTargetRow.querySelector('td:nth-child(6)');
+    timeCell.textContent = '14:00 이후';
+    // 관리 쪸 취소 버튼 → 체크인 처리 버튼
+    const actionCell = _cancelTargetRow.querySelector('td:last-child');
+    const name = _cancelTargetRow.dataset.name;
+    const room = _cancelTargetRow.querySelector('td:nth-child(4)').textContent;
+    const type = _cancelTargetRow.querySelector('td:nth-child(3)').textContent;
+    actionCell.innerHTML = `<button class="btn btn-primary btn-sm" onclick="openCheckinModal('${name}','${room}','${type}','','')">\uccb4\ud06c\uc778 \ucc98\ub9ac</button>`;
+    // 통계 업데이트
+    const done = document.querySelectorAll('#tbodyToday tr[data-status="completed"]').length;
+    const pending = document.querySelectorAll('#tbodyToday tr[data-status="pending"]').length;
+    document.getElementById('statDone').textContent = done;
+    document.getElementById('statPending').textContent = pending;
+    document.getElementById('modalCancelCheckin').classList.add('hidden');
+    _cancelTargetRow = null;
+  }
+
+  // ── 날짜 변경 ──
+  function onDateChange(value) {
+    const d = new Date(value);
+    const days = ['일','월','화','수','목','금','토'];
+    document.getElementById('displayDate').textContent =
+      `${value} (${days[d.getDay()]})`;
+  }
 </script>
 </body>
 </html>
+
+
+
