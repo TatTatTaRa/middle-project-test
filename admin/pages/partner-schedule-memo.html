@@ -3,286 +3,609 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>일정 협의 안내 — 파트너센터</title>
+  <title>일정 협의 메모 — 파트너센터</title>
   <link rel="stylesheet" href="shared.css">
   <style>
-    /* 탭 */
-    .sm-tabs { display: flex; border-bottom: 2px solid var(--gray-200); margin-bottom: 20px; }
-    .sm-tab  { padding: 10px 20px; font-size: 13px; font-weight: 500; color: var(--gray-500); cursor: pointer;
-               border-bottom: 2px solid transparent; margin-bottom: -2px; transition: all 0.15s; }
-    .sm-tab:hover { color: var(--primary); }
-    .sm-tab.active { color: var(--primary); border-bottom-color: var(--primary); font-weight: 700; }
-    .sm-tab-badge { display:inline-block; background:var(--gray-200); color:var(--gray-600);
-                    border-radius:999px; font-size:10px; padding:0 6px; margin-left:5px; }
-    .sm-tab.active .sm-tab-badge { background:var(--primary-light); color:var(--primary); }
-    .sm-panel { display: none; }
-    .sm-panel.active { display: block; }
-
-    /* 메모 카드 */
-    .memo-card {
-      background: #fff;
+    /* ── 전체 ── */
+    .sm-wrap {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 0;
+      height: calc(100vh - 64px - 48px); /* header + page-header */
+      overflow: hidden;
       border: 1px solid var(--gray-200);
       border-radius: var(--radius-lg);
-      padding: 18px 20px;
-      margin-bottom: 12px;
-      transition: box-shadow 0.15s;
+      background: #fff;
     }
-    .memo-card:hover { box-shadow: var(--shadow-md); }
-    .memo-card-header { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 12px; }
-    .memo-guest-info { display: flex; align-items: center; gap: 12px; }
-    .memo-avatar { width: 38px; height: 38px; border-radius: 50%; background: var(--gray-200);
-                   display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: var(--gray-600); flex-shrink: 0; }
-    .memo-name { font-size: 14px; font-weight: 700; color: var(--gray-800); }
-    .memo-meta { font-size: 12px; color: var(--gray-400); margin-top: 2px; }
-    .memo-body {
-      background: #FFFBF0;
-      border: 1px solid #FDE68A;
-      border-left: 3px solid #F59E0B;
-      border-radius: var(--radius);
+
+    /* ── 좌측 목록 ── */
+    .sm-list {
+      border-right: 1px solid var(--gray-200);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sm-list-header {
       padding: 12px 14px;
-      font-size: 13px;
-      color: var(--gray-700);
-      line-height: 1.6;
-      white-space: pre-wrap;
+      border-bottom: 1px solid var(--gray-100);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
-    .memo-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 12px; }
-    .memo-date { font-size: 11px; color: var(--gray-400); }
-    .badge-upcoming { background: #EFF6FF; color: #1D4ED8; font-weight: 600; font-size: 11px; padding: 3px 10px; border-radius: 999px; }
-    .badge-staying  { background: #EDE9FE; color: #5B21B6; font-weight: 600; font-size: 11px; padding: 3px 10px; border-radius: 999px; }
-    .empty-state { text-align: center; padding: 60px 20px; color: var(--gray-400); }
-    .empty-state .empty-icon { font-size: 40px; margin-bottom: 12px; }
-    .empty-state .empty-text { font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--gray-500); }
-    .empty-state .empty-sub { font-size: 12px; }
+    .sm-list-title { font-size: 12px; font-weight: 700; color: var(--gray-500); letter-spacing: 0.06em; }
+    .sm-list-add-btn {
+      width: 24px; height: 24px; border-radius: 50%; background: #EEF2FF; border: none;
+      color: #4338CA; font-size: 16px; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; transition: background 0.15s; line-height: 1;
+    }
+    .sm-list-add-btn:hover { background: #E0E7FF; }
+    .sm-list-body { flex: 1; overflow-y: auto; }
+
+    .sm-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 14px;
+      cursor: pointer;
+      border-bottom: 1px solid var(--gray-100);
+      transition: background 0.12s;
+    }
+    .sm-row:hover { background: var(--gray-50); }
+    .sm-row.active { background: #EEF2FF; }
+
+    .sm-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .sm-dot.staying   { background: #7C3AED; }
+    .sm-dot.upcoming  { background: #2563EB; }
+    .sm-dot.unassigned{ background: #D97706; }
+    .sm-dot.done      { background: var(--gray-300); }
+
+    .sm-row-body { flex: 1; min-width: 0; }
+    .sm-row-name { font-size: 13px; font-weight: 600; color: var(--gray-800); }
+    .sm-row-sub  { font-size: 11px; color: var(--gray-400); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sm-row-badge { font-size: 10px; font-weight: 700; padding: 2px 7px; border-radius: 999px; flex-shrink: 0; }
+    .sm-row-badge.staying   { background: #EDE9FE; color: #5B21B6; }
+    .sm-row-badge.upcoming  { background: #DBEAFE; color: #1D4ED8; }
+    .sm-row-badge.unassigned{ background: #FEF3C7; color: #B45309; }
+    .sm-row-badge.done      { background: var(--gray-100); color: var(--gray-500); }
+
+    /* ── 우측 디테일 ── */
+    .sm-detail {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    .sm-detail-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-400);
+      gap: 10px;
+    }
+    .sm-detail-empty svg { opacity: 0.25; }
+    .sm-detail-empty p { font-size: 13px; }
+
+    /* 디테일 내용 (항목 선택 시) */
+    .sm-detail-content { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+
+    /* 헤더 */
+    .sm-dh {
+      background: linear-gradient(135deg, #1E1B4B, #312E81);
+      padding: 20px 24px 16px;
+      flex-shrink: 0;
+    }
+    .sm-dh-top { display: flex; align-items: flex-start; justify-content: space-between; }
+    .sm-dh-label { font-size: 10px; color: rgba(255,255,255,0.45); letter-spacing: 0.1em; font-weight: 600; margin-bottom: 6px; }
+    .sm-dh-name  { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 3px; }
+    .sm-dh-sub   { font-size: 12px; color: rgba(255,255,255,0.55); }
+    .sm-dh-badge { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 999px; flex-shrink: 0; }
+    .sm-dh-badge.staying   { background: rgba(167,139,250,0.25); color: #C4B5FD; }
+    .sm-dh-badge.upcoming  { background: rgba(96,165,250,0.2);   color: #93C5FD; }
+    .sm-dh-badge.unassigned{ background: rgba(251,191,36,0.2);   color: #FCD34D; }
+
+    /* 바디 */
+    .sm-db { flex: 1; overflow-y: auto; padding: 20px 24px; display: flex; flex-direction: column; gap: 16px; }
+
+    .sm-db-section-label {
+      font-size: 11px; font-weight: 700; color: var(--gray-400); letter-spacing: 0.07em;
+      text-transform: uppercase; margin-bottom: 8px;
+    }
+
+    .sm-memo-area {
+      width: 100%; border: 1.5px solid var(--gray-200); border-radius: var(--radius);
+      padding: 12px 14px; font-size: 13px; color: var(--gray-700); line-height: 1.7;
+      font-family: inherit; resize: none; min-height: 100px; background: var(--gray-50);
+      transition: border-color 0.15s, background 0.15s; outline: none;
+    }
+    .sm-memo-area:focus { border-color: #6366F1; background: #fff; }
+    .sm-memo-save {
+      margin-top: 8px; padding: 7px 16px; background: none; border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius); font-size: 12px; font-weight: 600; color: var(--gray-500);
+      cursor: pointer; transition: all 0.15s;
+    }
+    .sm-memo-save:hover { border-color: #6366F1; color: #6366F1; }
+
+    /* 소형 액션 버튼 */
+    .sm-act-row { display: flex; flex-wrap: wrap; gap: 6px; }
+    .sm-act-btn {
+      display: inline-flex; align-items: center; gap: 5px;
+      padding: 6px 12px; border-radius: var(--radius); border: 1.5px solid;
+      font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.14s; background: none;
+    }
+    .sm-act-btn.type   { border-color:#DDD6FE; color:#4338CA; } .sm-act-btn.type:hover   { background:#F5F3FF; }
+    .sm-act-btn.sched  { border-color:#BBF7D0; color:#15803D; } .sm-act-btn.sched:hover  { background:#F0FDF4; }
+    .sm-act-btn.room   { border-color:#BFDBFE; color:#1D4ED8; } .sm-act-btn.room:hover   { background:#EFF6FF; }
+    .sm-act-btn.extend { border-color:#BBF7D0; color:#15803D; } .sm-act-btn.extend:hover { background:#F0FDF4; }
+    .sm-act-btn.early  { border-color:#FED7AA; color:#B45309; } .sm-act-btn.early:hover  { background:#FFF7ED; }
+    .sm-act-btn.cancel { border-color:#FECDD3; color:#E11D48; } .sm-act-btn.cancel:hover { background:#FFF1F2; }
   </style>
 </head>
 <body>
 <div class="layout">
   <div class="main">
     <header class="header">
-      <div class="header-left"><div class="header-title">일정 협의 안내</div></div>
+      <div class="header-left"><div class="header-title">일정 협의 메모</div></div>
       <div class="header-right">
-        <div class="header-date"></div>
+        <div class="header-date" id="headerDate"></div>
         <button class="btn-icon">🔔<span class="notification-dot"></span></button>
         <div class="avatar">P</div>
       </div>
     </header>
-    <div class="page">
 
-      <!-- 페이지 헤더 -->
-      <div class="page-header" style="margin-bottom:6px;">
+    <div class="page" style="padding-bottom:0;">
+      <div class="page-header" style="margin-bottom:14px;">
         <div>
-          <div class="page-title" style="font-size:20px;font-weight:700;color:var(--gray-900);">일정 협의 안내 메모</div>
-          <div style="font-size:13px;color:var(--gray-400);margin-top:4px;">일정 협의 메모가 등록된 예약 고객 목록입니다</div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <div class="search-box">
-            <input type="text" placeholder="고객명·호수 검색" style="min-width:200px;" oninput="filterMemos(this.value)">
-          </div>
+          <div style="font-size:18px;font-weight:700;color:var(--gray-900);">일정 협의 메모</div>
+          <div style="font-size:12px;color:var(--gray-400);margin-top:3px;">고객과 협의 중인 일정·객실 변경 메모 목록</div>
         </div>
       </div>
 
-      <!-- 탭 -->
-      <div class="sm-tabs">
-        <button class="sm-tab active" onclick="switchTab('upcoming', this)">
-          이용 예정 <span class="sm-tab-badge" id="badgeUpcoming">3</span>
-        </button>
-        <button class="sm-tab" onclick="switchTab('staying', this)">
-          이용 중 <span class="sm-tab-badge" id="badgeStaying">2</span>
-        </button>
-      </div>
+      <!-- 마스터-디테일 -->
+      <div class="sm-wrap">
 
-      <!-- ── 이용 예정 패널 ── -->
-      <div class="sm-panel active" id="panel-upcoming">
-        <div id="listUpcoming">
-
-          <div class="memo-card" data-search="김민준 305호">
-            <div class="memo-card-header">
-              <div class="memo-guest-info">
-                <div class="memo-avatar">김</div>
-                <div>
-                  <div class="memo-name">김민준</div>
-                  <div class="memo-meta">305호 · Deluxe · 2인 · 체크인 03/20</div>
-                </div>
-              </div>
-              <span class="badge-upcoming">이용 예정</span>
-            </div>
-            <div class="memo-body">늦은 오후 체크인 예정입니다. 저녁 7시 이후 도착할 것 같은데 체크인 가능한지 확인 부탁드립니다.</div>
-            <div class="memo-footer">
-              <div class="memo-date">메모 등록 : 03/18 09:32</div>
-              <div style="display:flex;gap:8px;">
-                <button class="btn btn-ghost btn-sm" onclick="openMemoDetail(this)">상세 보기</button>
-                <button class="btn btn-sm" style="background:#F0FDF4;color:#15803D;border:1.5px solid #BBF7D0;font-weight:600;" onclick="markHandled(this)">처리 완료</button>
-              </div>
-            </div>
+        <!-- ── 좌: 목록 ── -->
+        <div class="sm-list">
+          <div class="sm-list-header">
+            <div class="sm-list-title">협의 대상 <span style="color:#6366F1;">5</span></div>
+            <button class="sm-list-add-btn" onclick="openAddMemoModal()" title="메모 추가">+</button>
           </div>
-
-          <div class="memo-card" data-search="이수진 410호">
-            <div class="memo-card-header">
-              <div class="memo-guest-info">
-                <div class="memo-avatar">이</div>
-                <div>
-                  <div class="memo-name">이수진</div>
-                  <div class="memo-meta">410호 · Suite · 3인 · 체크인 03/21</div>
-                </div>
-              </div>
-              <span class="badge-upcoming">이용 예정</span>
-            </div>
-            <div class="memo-body">생일 기념 방문입니다. 객실에 간단한 케이크 준비 가능한지 여쭤보고 싶습니다. 추가 비용은 괜찮습니다.</div>
-            <div class="memo-footer">
-              <div class="memo-date">메모 등록 : 03/17 14:15</div>
-              <div style="display:flex;gap:8px;">
-                <button class="btn btn-ghost btn-sm" onclick="openMemoDetail(this)">상세 보기</button>
-                <button class="btn btn-sm" style="background:#F0FDF4;color:#15803D;border:1.5px solid #BBF7D0;font-weight:600;" onclick="markHandled(this)">처리 완료</button>
-              </div>
-            </div>
-          </div>
-
-          <div class="memo-card" data-search="박재현 207호">
-            <div class="memo-card-header">
-              <div class="memo-guest-info">
-                <div class="memo-avatar">박</div>
-                <div>
-                  <div class="memo-name">박재현</div>
-                  <div class="memo-meta">207호 · Standard · 2인 · 체크인 03/22</div>
-                </div>
-              </div>
-              <span class="badge-upcoming">이용 예정</span>
-            </div>
-            <div class="memo-body">반려견 동반 가능한지 문의드립니다. 소형견 1마리입니다.</div>
-            <div class="memo-footer">
-              <div class="memo-date">메모 등록 : 03/17 18:40</div>
-              <div style="display:flex;gap:8px;">
-                <button class="btn btn-ghost btn-sm" onclick="openMemoDetail(this)">상세 보기</button>
-                <button class="btn btn-sm" style="background:#F0FDF4;color:#15803D;border:1.5px solid #BBF7D0;font-weight:600;" onclick="markHandled(this)">처리 완료</button>
-              </div>
-            </div>
-          </div>
-
+          <div class="sm-list-body" id="smListBody"></div>
         </div>
-      </div>
 
-      <!-- ── 이용 중 패널 ── -->
-      <div class="sm-panel" id="panel-staying">
-        <div id="listStaying">
-
-          <div class="memo-card" data-search="송혜교 702호">
-            <div class="memo-card-header">
-              <div class="memo-guest-info">
-                <div class="memo-avatar">송</div>
-                <div>
-                  <div class="memo-name">송혜교</div>
-                  <div class="memo-meta">702호 · Suite · 2인 · 체크아웃 03/19</div>
-                </div>
-              </div>
-              <span class="badge-staying">이용 중</span>
-            </div>
-            <div class="memo-body">체크아웃 시간을 오후 1시로 연장할 수 있을지 문의드립니다.</div>
-            <div class="memo-footer">
-              <div class="memo-date">메모 등록 : 03/18 08:20</div>
-              <div style="display:flex;gap:8px;">
-                <button class="btn btn-ghost btn-sm" onclick="openMemoDetail(this)">상세 보기</button>
-                <button class="btn btn-sm" style="background:#F0FDF4;color:#15803D;border:1.5px solid #BBF7D0;font-weight:600;" onclick="markHandled(this)">처리 완료</button>
-              </div>
-            </div>
+        <!-- ── 우: 디테일 ── -->
+        <div class="sm-detail" id="smDetail">
+          <div class="sm-detail-empty" id="smEmpty">
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+            <p>목록에서 항목을 선택하세요</p>
           </div>
-
-          <div class="memo-card" data-search="김태연 102호">
-            <div class="memo-card-header">
-              <div class="memo-guest-info">
-                <div class="memo-avatar">김</div>
-                <div>
-                  <div class="memo-name">김태연</div>
-                  <div class="memo-meta">102호 · Standard · 2인 · 체크아웃 03/20</div>
-                </div>
-              </div>
-              <span class="badge-staying">이용 중</span>
-            </div>
-            <div class="memo-body">룸 청소를 오전 11시 이후로 요청드립니다. 오전에는 객실에 계실 예정입니다.</div>
-            <div class="memo-footer">
-              <div class="memo-date">메모 등록 : 03/17 22:05</div>
-              <div style="display:flex;gap:8px;">
-                <button class="btn btn-ghost btn-sm" onclick="openMemoDetail(this)">상세 보기</button>
-                <button class="btn btn-sm" style="background:#F0FDF4;color:#15803D;border:1.5px solid #BBF7D0;font-weight:600;" onclick="markHandled(this)">처리 완료</button>
-              </div>
-            </div>
-          </div>
-
+          <div class="sm-detail-content" id="smContent" style="display:none;"></div>
         </div>
-      </div>
 
-    </div><!-- /.page -->
+      </div>
+    </div>
   </div>
 </div>
 
-<!-- ── 메모 상세 모달 ── -->
-<div class="modal-overlay hidden" id="modalMemoDetail">
-  <div class="modal modal-sm">
-    <div class="modal-header">
-      <div>
-        <div style="font-size:10px;color:rgba(255,255,255,0.7);letter-spacing:0.06em;margin-bottom:2px;">MEMO DETAIL</div>
-        <div class="modal-title" style="color:#fff;" id="mdGuestName">고객 메모</div>
-      </div>
-      <button class="modal-close" style="color:rgba(255,255,255,0.7);">×</button>
+<!-- ── 객실 타입 변경 모달 ── -->
+<div class="modal-overlay hidden" id="modalTypeChange">
+  <div class="modal modal-sm" style="overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#4338CA,#6366F1);padding:18px 20px;position:relative;">
+      <button class="modal-close" style="position:absolute;top:12px;right:14px;color:rgba(255,255,255,0.6);">×</button>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.08em;margin-bottom:6px;">ROOM TYPE CHANGE</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;" id="tcName"></div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.55);">현재 타입 : <span id="tcCurrent"></span></div>
     </div>
     <div class="modal-body">
-      <div style="background:var(--gray-50);border-radius:10px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:var(--gray-600);" id="mdMeta"></div>
-      <div style="font-size:12px;font-weight:700;color:var(--gray-500);margin-bottom:8px;">고객 메모 내용</div>
-      <div class="memo-body" id="mdContent" style="margin-bottom:16px;"></div>
       <div class="form-group" style="margin-bottom:0;">
-        <label class="form-label">처리 메모 (내부용)</label>
-        <textarea class="form-control" placeholder="처리 내용이나 안내 사항을 기록하세요..." rows="3"></textarea>
+        <label class="form-label">변경할 객실 타입</label>
+        <select class="form-control" id="tcNew">
+          <option value="">타입 선택</option>
+          <option>Standard</option><option>Deluxe</option><option>Suite</option>
+        </select>
       </div>
     </div>
-    <div class="modal-footer" style="justify-content:center;">
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>취소</button>
+      <button class="btn" style="background:#6366F1;color:#fff;font-weight:600;" onclick="confirmAct('modalTypeChange','🛏 객실 타입이 변경되었습니다.')">변경 확정</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 일정 변경 모달 ── -->
+<div class="modal-overlay hidden" id="modalSched">
+  <div class="modal modal-sm" style="overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#059669,#10B981);padding:18px 20px;position:relative;">
+      <button class="modal-close" style="position:absolute;top:12px;right:14px;color:rgba(255,255,255,0.6);">×</button>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.08em;margin-bottom:6px;">SCHEDULE CHANGE</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;" id="scName"></div>
+    </div>
+    <div class="modal-body">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div class="form-group" style="margin-bottom:0;"><label class="form-label">체크인</label><input type="date" class="form-control" id="scIn"></div>
+        <div class="form-group" style="margin-bottom:0;"><label class="form-label">체크아웃</label><input type="date" class="form-control" id="scOut"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>취소</button>
+      <button class="btn btn-success" onclick="confirmAct('modalSched','📆 일정이 변경되었습니다.')">확정</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 예약 취소 모달 ── -->
+<div class="modal-overlay hidden" id="modalCancel">
+  <div class="modal modal-sm" style="overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#9F1239,#E11D48);padding:18px 20px;position:relative;">
+      <button class="modal-close" style="position:absolute;top:12px;right:14px;color:rgba(255,255,255,0.6);">×</button>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.08em;margin-bottom:6px;">CANCEL</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;" id="clName"></div>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-danger" style="margin-bottom:14px;"><span>⚠️</span><span>예약을 취소합니다. 되돌릴 수 없습니다.</span></div>
+      <div class="form-group" style="margin-bottom:0;"><label class="form-label">취소 사유</label><textarea class="form-control" rows="3" placeholder="사유 입력..."></textarea></div>
+    </div>
+    <div class="modal-footer">
       <button class="btn btn-ghost" data-modal-close>닫기</button>
-      <button class="btn btn-primary"
-        onclick="document.getElementById('modalMemoDetail').classList.add('hidden'); showAlert('처리 완료로 변경되었습니다.', {icon:'✅', title:'처리 완료'})">
-        처리 완료
-      </button>
+      <button class="btn btn-danger" onclick="confirmAct('modalCancel','✕ 예약이 취소되었습니다.')">취소 확정</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 입실일 변경 모달 ── -->
+<div class="modal-overlay hidden" id="modalCheckinChange">
+  <div class="modal modal-sm" style="overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#1E40AF,#3B82F6);padding:18px 20px;position:relative;">
+      <button class="modal-close" style="position:absolute;top:12px;right:14px;color:rgba(255,255,255,0.6);">×</button>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.08em;margin-bottom:6px;">CHECK-IN DATE CHANGE</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;" id="ciName"></div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:0;"><label class="form-label">변경 입실일</label><input type="date" class="form-control" id="ciDate"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>취소</button>
+      <button class="btn" style="background:#3B82F6;color:#fff;font-weight:600;" onclick="confirmAct('modalCheckinChange','📅 입실일이 변경되었습니다.')">변경 확정</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 숙박 연장 모달 ── -->
+<div class="modal-overlay hidden" id="modalExtend">
+  <div class="modal modal-sm" style="overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#059669,#10B981);padding:18px 20px;position:relative;">
+      <button class="modal-close" style="position:absolute;top:12px;right:14px;color:rgba(255,255,255,0.6);">×</button>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.08em;margin-bottom:6px;">STAY EXTENSION</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;" id="exName"></div>
+    </div>
+    <div class="modal-body">
+      <div class="form-group" style="margin-bottom:0;">
+        <label class="form-label">연장 박 수</label>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="number" class="form-control" id="exDays" min="1" max="30" placeholder="1" style="width:100px;">
+          <span style="font-size:13px;color:var(--gray-500);">박 연장</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>취소</button>
+      <button class="btn btn-success" onclick="confirmAct('modalExtend','📅 숙박이 연장되었습니다.')">연장 확정</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 호실 변경 모달 ── -->
+<div class="modal-overlay hidden" id="modalRoom">
+  <div class="modal modal-sm" style="overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#1D4ED8,#3B82F6);padding:18px 20px;position:relative;">
+      <button class="modal-close" style="position:absolute;top:12px;right:14px;color:rgba(255,255,255,0.6);">×</button>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.08em;margin-bottom:6px;">ROOM CHANGE</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;" id="rmName"></div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.55);" id="rmTypeNote"></div>
+    </div>
+    <div class="modal-body"><div class="form-group" style="margin-bottom:0;"><label class="form-label">변경할 호실</label>
+      <select class="form-control"><option value="">호실 선택</option><option>101호 — Standard</option><option>201호 — Standard</option><option>205호 — Deluxe</option><option>501호 — Suite</option></select>
+    </div></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>취소</button>
+      <button class="btn btn-info" onclick="confirmAct('modalRoom','🔄 호실이 변경되었습니다.')">변경</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 중도 퇴실 모달 ── -->
+<div class="modal-overlay hidden" id="modalEarly">
+  <div class="modal modal-sm" style="overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#B45309,#EA580C);padding:18px 20px;position:relative;">
+      <button class="modal-close" style="position:absolute;top:12px;right:14px;color:rgba(255,255,255,0.6);">×</button>
+      <div style="font-size:10px;color:rgba(255,255,255,0.5);letter-spacing:0.08em;margin-bottom:6px;">EARLY CHECKOUT</div>
+      <div style="font-size:16px;font-weight:800;color:#fff;" id="ecName"></div>
+    </div>
+    <div class="modal-body">
+      <div class="alert alert-warning" style="margin-bottom:14px;"><span>⚠️</span><span>예정 퇴실일 이전 퇴실입니다.</span></div>
+      <div class="form-group"><label class="form-label">실제 퇴실 일시</label><input type="datetime-local" class="form-control"></div>
+      <div class="form-group" style="margin-bottom:0;"><label class="form-label">사유</label><textarea class="form-control" rows="2" placeholder="사유 입력..."></textarea></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>닫기</button>
+      <button class="btn btn-danger" onclick="confirmAct('modalEarly','🏃 중도 퇴실 처리되었습니다.')">퇴실 확정</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── 메모 추가 모달 ── -->
+<div class="modal-overlay hidden" id="modalAdd">
+  <div class="modal modal-sm">
+    <div class="modal-header"><div class="modal-title">메모 추가</div><button class="modal-close">×</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">고객 검색</label>
+        <div style="position:relative;">
+          <input type="text" id="guestSearch" class="form-control"
+            placeholder="이름, 호실, 예약번호로 검색..."
+            autocomplete="off"
+            oninput="filterGuests(this.value)"
+            onfocus="filterGuests(this.value)"
+            style="padding-right:34px;">
+          <svg style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--gray-400);pointer-events:none;"
+            width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <div id="guestDropdown"
+            style="display:none;position:absolute;top:calc(100% + 4px);left:0;right:0;
+              background:#fff;border:1.5px solid var(--gray-200);border-radius:var(--radius);
+              box-shadow:0 4px 16px rgba(0,0,0,0.1);z-index:20;max-height:180px;overflow-y:auto;"></div>
+        </div>
+        <div id="selectedGuest" style="display:none;margin-top:8px;padding:8px 12px;
+          background:#EEF2FF;border:1.5px solid #C7D2FE;border-radius:var(--radius);font-size:12px;color:#3730A3;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <span id="selectedGuestLabel"></span>
+            <button onclick="clearGuest()" style="background:none;border:none;cursor:pointer;color:#6366F1;font-size:16px;">×</button>
+          </div>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:0;"><label class="form-label">협의 메모</label>
+        <textarea class="form-control" rows="4" placeholder="일정 협의 내용 입력..."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>취소</button>
+      <button class="btn btn-primary" onclick="submitAddMemo()">추가</button>
     </div>
   </div>
 </div>
 
 <script src="shared.js"></script>
 <script>
-  initPage('partner', 'schedulememo', '일정 협의 안내');
+  initPage('partner', 'schedulememo', '일정 협의 메모');
 
-  function switchTab(tab, btn) {
-    document.querySelectorAll('.sm-tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.sm-panel').forEach(p => p.classList.remove('active'));
-    btn.classList.add('active');
-    document.getElementById('panel-' + tab).classList.add('active');
+  const DATA = [
+    { id:1, name:'송혜교', room:'702호', sub:'Suite · 2인 · 퇴실 03/19', status:'staying', type:'Suite',
+      memo:'체크아웃 13시로 연장 협의 중 — 703호 다음 예약이 15시라 가능 여부 검토.', time:'03/18 08:20' },
+    { id:2, name:'김민준', room:'305호', sub:'Deluxe · 2인 · 체크인 03/20', status:'upcoming', type:'Deluxe',
+      memo:'저녁 7시 이후 늦은 체크인 요청 — 도착 30분 전 연락 달라고 안내함.', time:'03/17 14:30' },
+    { id:3, name:'박재현', room:'미배정', sub:'Standard · 2인 · 체크인 03/22', status:'unassigned', type:'Standard',
+      memo:'창가 선호 — 201호 또는 205호 검토 중. 체크인 전 연락해서 확정 예정.', time:'03/18 10:00' },
+    { id:4, name:'이수진', room:'410호', sub:'Suite · 3인 · 체크인 03/21', status:'upcoming', type:'Suite',
+      memo:'생일 기념 방문 — 케이크·어메니티 추가 세팅 고려. 일정 1일 연장 문의 중.', time:'03/17 18:40' },
+    { id:5, name:'김태연', room:'102호', sub:'Standard · 2인 · 퇴실 03/20', status:'staying', type:'Standard',
+      memo:'1박 추가 요청 — 102호 03/21 예약 없음 확인. 고객에게 최종 확정 안내 필요.', time:'03/17 22:05' },
+  ];
+
+  // 5개 공통 액션
+  function getActions(d) {
+    const n = d.name, t = d.type;
+    return [
+      { key:'checkin', icon:'📅', label:'입실일 변경',    fn:`openCheckinChange('${n}','${d.room}')` },
+      { key:'extend',  icon:'⏳', label:'숙박 연장',      fn:`openExtend('${n}','${d.room}')` },
+      { key:'type',    icon:'🛏', label:'객실 타입 변경', fn:`openType('${n}','${t}')` },
+      { key:'room',    icon:'🔄', label:'호실 변경',      fn:`openRoom('${n}','${t}')` },
+      { key:'early',   icon:'🏃', label:'중도 퇴실',      fn:`openEarly('${n}')` },
+    ];
   }
 
-  function filterMemos(q) {
-    document.querySelectorAll('.memo-card').forEach(card => {
-      const text = (card.dataset.search || '') + card.textContent;
-      card.style.display = (!q || text.toLowerCase().includes(q.toLowerCase())) ? '' : 'none';
+  const statusLabel = { staying:'이용 중', upcoming:'이용 예정', unassigned:'미배정', done:'처리 완료' };
+
+  let selectedId = null;
+
+  function renderList() {
+    const wrap = document.getElementById('smListBody');
+    wrap.innerHTML = '';
+    DATA.forEach(d => {
+      const el = document.createElement('div');
+      el.className = 'sm-row' + (d.id === selectedId ? ' active' : '') + (d.done ? ' done' : '');
+      el.id = 'row-' + d.id;
+      el.innerHTML = `
+        <div class="sm-dot ${d.done?'done':d.status}"></div>
+        <div class="sm-row-body">
+          <div class="sm-row-name">${d.name}</div>
+          <div class="sm-row-sub">${d.room} · ${d.sub.split('·')[0].trim()}</div>
+        </div>
+        <span class="sm-row-badge ${d.done?'done':d.status}">${statusLabel[d.done?'done':d.status]}</span>`;
+      el.onclick = () => selectItem(d.id);
+      wrap.appendChild(el);
     });
   }
 
-  function openMemoDetail(btn) {
-    const card = btn.closest('.memo-card');
-    const name = card.querySelector('.memo-name').textContent;
-    const meta = card.querySelector('.memo-meta').textContent;
-    const content = card.querySelector('.memo-body').textContent.trim();
-    document.getElementById('mdGuestName').textContent = name + ' 님 메모';
-    document.getElementById('mdMeta').textContent = meta;
-    document.getElementById('mdContent').textContent = content;
-    document.getElementById('modalMemoDetail').classList.remove('hidden');
+  function selectItem(id) {
+    selectedId = id;
+    const d = DATA.find(x => x.id === id);
+    document.querySelectorAll('.sm-row').forEach(r => r.classList.remove('active'));
+    const row = document.getElementById('row-' + id);
+    if (row) row.classList.add('active');
+
+    document.getElementById('smEmpty').style.display = 'none';
+    const content = document.getElementById('smContent');
+    content.style.display = 'flex';
+
+    // 헤더 색상
+    const headerBg = d.status === 'staying'
+      ? 'linear-gradient(135deg,#4C1D95,#6D28D9)'
+      : d.status === 'unassigned'
+        ? 'linear-gradient(135deg,#78350F,#D97706)'
+        : 'linear-gradient(135deg,#1E1B4B,#312E81)';
+
+    // 소형 액션 버튼 (5개 공통)
+    const actsHtml = d.done ? '<p style="font-size:12px;color:var(--gray-400);">✅ 처리 완료된 항목입니다.</p>'
+      : `<div class="sm-act-row">${getActions(d).map(a =>
+          `<button class="sm-act-btn ${a.key}" onclick="${a.fn}">${a.icon} ${a.label}</button>`
+        ).join('')}</div>`;
+
+    // 처리 완료 버튼 (헤더 우상단)
+    const doneBtnHtml = d.done ? '' : `
+      <button onclick="markDone(${id})"
+        style="padding:5px 12px;border-radius:999px;border:1.5px solid rgba(255,255,255,0.3);
+               background:rgba(255,255,255,0.12);color:#fff;font-size:11px;font-weight:700;
+               cursor:pointer;transition:all 0.15s;white-space:nowrap;"
+        onmouseover="this.style.background='rgba(255,255,255,0.22)'"
+        onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+        ✓ 처리 완료
+      </button>`;
+
+    content.innerHTML = `
+      <div class="sm-dh" style="background:${headerBg}">
+        <div class="sm-dh-label">일정 협의 메모</div>
+        <div class="sm-dh-top">
+          <div>
+            <div class="sm-dh-name">${d.name} 님</div>
+            <div class="sm-dh-sub">${d.room} · ${d.sub}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span class="sm-dh-badge ${d.done?'done':d.status}">${statusLabel[d.done?'done':d.status]}</span>
+            ${doneBtnHtml}
+          </div>
+        </div>
+      </div>
+      <div class="sm-db">
+        <div>
+          <div class="sm-db-section-label">협의 메모</div>
+          <textarea class="sm-memo-area" id="memoArea-${id}" rows="5">${d.memo}</textarea>
+          <button class="sm-memo-save" onclick="saveMemo(${id})">저장</button>
+        </div>
+        <div>
+          <div class="sm-db-section-label">처리</div>
+          ${actsHtml}
+        </div>
+      </div>`;
   }
 
-  function markHandled(btn) {
-    const card = btn.closest('.memo-card');
-    showAlert('처리 완료로 변경되었습니다.', {
-      icon: '✅',
-      title: '처리 완료',
-      onClose: () => {
-        card.style.opacity = '0.4';
-        card.style.pointerEvents = 'none';
-      }
-    });
+  function markDone(id) {
+    const d = DATA.find(x => x.id === id);
+    showAlert('처리 완료로 변경되었습니다.', { icon:'✅', title:'처리 완료', onClose:() => {
+      d.done = true;
+      renderList();
+      selectItem(id);
+    }});
   }
+
+  function saveMemo(id) {
+    const t = document.getElementById('memoArea-' + id);
+    if (t) DATA.find(x => x.id === id).memo = t.value;
+    showAlert('메모가 저장되었습니다.', { icon:'💾', title:'저장' });
+  }
+
+  function openAddMemoModal() { document.getElementById('modalAdd').classList.remove('hidden'); }
+  function confirmAct(modalId, msg) {
+    document.getElementById(modalId).classList.add('hidden');
+    showAlert(msg, { icon:'✅', title:'처리 완료' });
+  }
+
+  function openCheckinChange(name, room) {
+    document.getElementById('ciName').textContent = name + ' 님 · ' + room;
+    document.getElementById('modalCheckinChange').classList.remove('hidden');
+  }
+  function openExtend(name, room) {
+    document.getElementById('exName').textContent = name + ' 님 · ' + room;
+    document.getElementById('exDays').value = '';
+    document.getElementById('modalExtend').classList.remove('hidden');
+  }
+  function openType(name, type) {
+    document.getElementById('tcName').textContent = name + ' 님';
+    document.getElementById('tcCurrent').textContent = type;
+    document.getElementById('modalTypeChange').classList.remove('hidden');
+  }
+  function openRoom(name, type) {
+    document.getElementById('rmName').textContent = name + ' 님';
+    document.getElementById('rmTypeNote').textContent = type + ' 타입 내 호실만 표시';
+    document.getElementById('modalRoom').classList.remove('hidden');
+  }
+  function openEarly(name) {
+    document.getElementById('ecName').textContent = name + ' 님';
+    document.getElementById('modalEarly').classList.remove('hidden');
+  }
+
+
+  // ── 고객 검색 자동완성 ──
+  // 실제 환경에서는 API로 전체 예약 목록을 가져옴 (여기선 모의 데이터)
+  const ALL_GUESTS = [
+    { label:'김민준', sub:'305호 · Deluxe · 체크인 03/20' },
+    { label:'이수진', sub:'410호 · Suite · 체크인 03/21' },
+    { label:'박재현', sub:'미배정 · Standard · 체크인 03/22' },
+    { label:'최유정', sub:'미배정 · Deluxe · 체크인 03/23' },
+    { label:'송혜교', sub:'702호 · Suite · 퇴실 03/19' },
+    { label:'김태연', sub:'102호 · Standard · 퇴실 03/20' },
+    { label:'정우성', sub:'501호 · Suite · 체크인 03/25' },
+    { label:'이하늘', sub:'203호 · Standard · 체크인 03/26' },
+    { label:'박지수', sub:'미배정 · Deluxe · 체크인 03/27' },
+    { label:'강다솔', sub:'301호 · Deluxe · 체크인 03/28' },
+  ];
+
+  let selectedGuestData = null;
+
+  function filterGuests(query) {
+    const dd = document.getElementById('guestDropdown');
+    const results = query.trim()
+      ? ALL_GUESTS.filter(g =>
+          g.label.includes(query) || g.sub.toLowerCase().includes(query.toLowerCase()))
+      : ALL_GUESTS;
+    if (!results.length) { dd.style.display = 'none'; return; }
+    dd.innerHTML = results.map((g, i) => `
+      <div onclick="selectGuest(${i},'${g.label}','${g.sub}')"
+        style="padding:10px 14px;cursor:pointer;border-bottom:1px solid var(--gray-100);transition:background 0.1s;"
+        onmouseover="this.style.background='var(--gray-50)'"
+        onmouseout="this.style.background='#fff'">
+        <div style="font-size:13px;font-weight:600;color:var(--gray-800);">${g.label}</div>
+        <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">${g.sub}</div>
+      </div>`).join('');
+    dd.style.display = 'block';
+  }
+
+  function selectGuest(idx, name, sub) {
+    selectedGuestData = { name, sub };
+    document.getElementById('guestSearch').value = '';
+    document.getElementById('guestDropdown').style.display = 'none';
+    document.getElementById('selectedGuestLabel').textContent = name + ' — ' + sub;
+    document.getElementById('selectedGuest').style.display = 'block';
+  }
+
+  function clearGuest() {
+    selectedGuestData = null;
+    document.getElementById('selectedGuest').style.display = 'none';
+    document.getElementById('guestSearch').value = '';
+  }
+
+  function openAddMemoModal() {
+    clearGuest();
+    document.getElementById('guestSearch').value = '';
+    document.getElementById('guestDropdown').style.display = 'none';
+    document.getElementById('modalAdd').classList.remove('hidden');
+  }
+
+  function submitAddMemo() {
+    if (!selectedGuestData) { showAlert('고객을 선택해주세요.', { icon:'⚠️', title:'알림' }); return; }
+    document.getElementById('modalAdd').classList.add('hidden');
+    showAlert('메모가 추가되었습니다.', { icon:'📝', title:'메모 추가' });
+  }
+
+  // 드롭다운 외부 클릭 시 닫기
+  document.addEventListener('click', e => {
+    if (!e.target.closest('#guestSearch') && !e.target.closest('#guestDropdown'))
+      document.getElementById('guestDropdown').style.display = 'none';
+  });
+
+  renderList();
+
 </script>
 </body>
 </html>
