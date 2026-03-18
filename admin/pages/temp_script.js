@@ -234,7 +234,7 @@
         } else {
           board.classList.remove('mode-assign');
           if (legendTemp) legendTemp.style.display = 'none'; // 조회 모드일 땐 숨김
-          btnToggle.querySelector('span').innerText = '객실 배치 모드 켜기';
+          btnToggle.querySelector('span').innerText = '수동 배치';
           btnToggle.style.background = 'transparent';
           btnToggle.style.color = 'var(--gray-700)';
           btnToggle.style.borderColor = 'var(--gray-300)';
@@ -644,7 +644,7 @@
             });
             updateUnassignedStatus();
           },
-          { title: '전체 배정 해제', confirmText: '전체 해제', confirmClass: 'btn-danger' }
+          { title: '배정 일괄 해제', confirmText: '일괄 해제', confirmClass: 'btn-danger' }
         );
       }
 
@@ -1518,5 +1518,94 @@
         updateUnassignedStatus();
         closeModal('modalManualAssign');
       // showAlert(`모달 수동 배정: ${uName} 님이 ${selectedRoomNumber} 객실에 가배치되었습니다.`, { icon: '💡' });
+      }
+
+      // Filtering Logic
+      let currentTypeFilter = 'all';
+      let currentCapFilter = 'all';
+
+      document.querySelectorAll('#filterTypeGroup .filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          document.querySelectorAll('#filterTypeGroup .filter-btn').forEach(b => {
+             b.classList.remove('active');
+             b.style.background = 'white';
+             b.style.color = 'var(--gray-600)';
+          });
+          e.currentTarget.classList.add('active');
+          e.currentTarget.style.background = '#111827';
+          e.currentTarget.style.color = 'white';
+          currentTypeFilter = e.currentTarget.getAttribute('data-filter');
+          applyFilters();
+        });
+      });
+
+      document.querySelectorAll('#filterCapGroup .filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const isActive = e.currentTarget.classList.contains('active');
+          document.querySelectorAll('#filterCapGroup .filter-btn').forEach(b => {
+             b.classList.remove('active');
+             b.style.background = 'white';
+             b.style.color = 'var(--gray-600)';
+          });
+          
+          if (!isActive) {
+            e.currentTarget.classList.add('active');
+            e.currentTarget.style.background = '#111827';
+            e.currentTarget.style.color = 'white';
+            currentCapFilter = e.currentTarget.getAttribute('data-cap');
+          } else {
+            currentCapFilter = 'all';
+          }
+          
+          applyFilters();
+        });
+      });
+
+      function applyFilters() {
+        // Unassigned Cards Filter
+        document.querySelectorAll('.unassigned-card').forEach(card => {
+          const type = card.getAttribute('data-type');
+          let cap = 2; // Default Standard
+          if (type === 'DELUXE') cap = 4;
+          if (type === 'SUITE') cap = 6;
+          
+          let showType = (currentTypeFilter === 'all' || type === currentTypeFilter);
+          let showCap = true;
+          if (currentCapFilter !== 'all') {
+            const filterVal = parseInt(currentCapFilter);
+            if (filterVal === 6) showCap = (cap >= 6);
+            else showCap = (cap === filterVal);
+          }
+          
+          if (showType && showCap) {
+            card.style.display = '';
+          } else {
+            card.style.display = 'none!important';
+            // Use setProperty to bypass other styles
+            card.style.setProperty('display', 'none', 'important');
+          }
+        });
+
+        // Calendar Rows Filter
+        document.querySelectorAll('.tl-row').forEach(row => {
+          const type = row.getAttribute('data-type');
+          let cap = 2; // Default Standard
+          if (type === 'DELUXE') cap = 4;
+          if (type === 'SUITE') cap = 6;
+          
+          let showType = (currentTypeFilter === 'all' || type === currentTypeFilter);
+          let showCap = true;
+          if (currentCapFilter !== 'all') {
+            const filterVal = parseInt(currentCapFilter);
+            if (filterVal === 6) showCap = (cap >= 6);
+            else showCap = (cap === filterVal);
+          }
+          
+          if (showType && showCap) {
+            row.style.display = 'contents';
+          } else {
+            row.style.display = 'none';
+          }
+        });
       }
     
