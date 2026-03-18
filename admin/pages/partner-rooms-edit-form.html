@@ -56,15 +56,16 @@
 }
 
 /* 공통 폼 요소 */
-.fe-input {
+.fe-input, .fe-textarea {
   width: 100%; box-sizing: border-box;
   background: #fff; border: 1.5px solid var(--gray-200);
   border-radius: 10px; padding: 10px 14px;
   font-size: 15px; font-family: inherit; font-weight: 600; color: #111827;
   transition: border-color 0.15s; outline: none;
 }
-.fe-input:focus { border-color: #6366F1; }
-.fe-input::placeholder { color: var(--gray-300); font-weight: 500; }
+.fe-textarea { resize: vertical; min-height: 80px; }
+.fe-input:focus, .fe-textarea:focus { border-color: #6366F1; }
+.fe-input::placeholder, .fe-textarea::placeholder { color: var(--gray-300); font-weight: 500; }
 
 .fe-select {
   width: 100%; box-sizing: border-box;
@@ -221,29 +222,37 @@
         <!-- 우: 정보 입력 폼 -->
         <div class="rd-info-panel">
 
-          <!-- 객실명 & 인원 -->
-          <div class="edit-title-row">
-            <div class="flex-1">
-              <label class="form-field-label">객실 타입</label>
-              <input type="text" class="fe-input" id="editRoomType" value="Deluxe">
-            </div>
-            <div class="w-120">
-              <label class="form-field-label">기준 인원</label>
-              <input type="number" class="fe-input" id="editCapacity" value="2" min="1">
-            </div>
-          </div>
-
-          <!-- 판매 상태 (읽기 전용) -->
+          <!-- 기본 정보 -->
           <div class="rd-section">
-            <div class="rd-section-title">Status</div>
-            <div class="status-info-row" style="align-items: flex-start;">
-              <div style="display:flex; flex-direction:column; gap:8px;">
-                <div class="status-badge inspect" style="width: fit-content;">
-                  <span class="s-dot"></span>
-                  <span>점검중</span>
-                </div>
-                <div class="status-period-text">2026-03-25 ~ 2026-03-28</div>
+            <div class="rd-section-title">Basic Info</div>
+            
+            <div class="edit-title-row" style="margin-bottom: 24px;">
+              <div class="flex-1">
+                <label class="form-field-label">객실 타입 *</label>
+                <input type="text" class="fe-input" id="editRoomType" value="Deluxe">
               </div>
+              <div class="w-120">
+                <label class="form-field-label">기준 인원 *</label>
+                <input type="number" class="fe-input" id="editCapacity" value="2" min="1">
+              </div>
+            </div>
+            
+            <div style="margin-bottom: 24px;">
+              <label class="form-field-label">판매 상태 (읽기 전용)</label>
+              <div class="status-info-row" style="align-items: flex-start;">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <div class="status-badge inspect" style="width: fit-content;">
+                    <span class="s-dot"></span>
+                    <span>점검중</span>
+                  </div>
+                  <div class="status-period-text">2026-03-25 ~ 2026-03-28</div>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <label class="form-field-label">객실 설명</label>
+              <textarea class="fe-textarea" id="editDescription" placeholder="고객에게 보여질 객실 소개 문구를 입력하세요.">마운틴 뷰가 돋보이는 모던하고 아늑한 디럭스 객실입니다. 넓은 발코니에서 자연의 여유를 만끽하며 일상의 피로를 풀어보세요.</textarea>
             </div>
           </div>
 
@@ -387,6 +396,7 @@ function getFormState() {
   return {
     roomType: document.getElementById('editRoomType').value,
     capacity: document.getElementById('editCapacity').value,
+    description: document.getElementById('editDescription').value,
     priceWeekday: document.getElementById('editPriceWeekday').value,
     priceWeekend: document.getElementById('editPriceWeekend').value,
     opIn: document.getElementById('editOpIn').value,
@@ -402,6 +412,7 @@ document.addEventListener('DOMContentLoaded', () => {
 const FIELD_LABELS = {
   roomType: '객실 타입',
   capacity: '기준 인원',
+  description: '객실 설명',
   priceWeekday: '평일 요금',
   priceWeekend: '주말 요금',
   opIn: '체크인',
@@ -414,6 +425,7 @@ function formatValue(key, val) {
     return '₩' + parseInt(val).toLocaleString();
   }
   if (key === 'capacity') return val + '인';
+  if (key === 'description') return `<div style="padding:10px;background:var(--gray-50);border-radius:8px;margin-top:4px">${val||'없음'}</div>`;
   if (!val) return '없음';
   return val;
 }

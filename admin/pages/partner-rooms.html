@@ -27,86 +27,96 @@
       </div>
 
       <div class="card" style="padding:0">
+        <!-- 필터 탭 & 검색 영역 -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-end; padding: 16px 20px 0; border-bottom: 1px solid var(--gray-200);">
+          <div class="tabs" style="border-bottom:none; padding:0; margin-bottom:-1px;">
+            <div class="tab active" data-filter="all">전체 <span class="badge" style="background:var(--gray-100);color:var(--gray-600);margin-left:4px">6</span></div>
+            <div class="tab" data-filter="on-sale">판매중 <span class="badge" style="background:var(--primary-light);color:var(--primary);margin-left:4px">4</span></div>
+            <div class="tab" data-filter="inspection">점검중 <span class="badge" style="background:#FEF3C7;color:#D97706;margin-left:4px">1</span></div>
+            <div class="tab" data-filter="suspended">판매중지 <span class="badge" style="background:#FEE2E2;color:#DC2626;margin-left:4px">1</span></div>
+          </div>
+          <div style="margin-bottom:12px; position:relative; width:260px;">
+            <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; color:var(--gray-400)">🔍</span>
+            <input type="text" id="roomSearchInput" placeholder="객실명 검색" style="width:100%; border:1px solid var(--gray-300); border-radius:8px; padding:8px 12px 8px 36px; font-size:13px; box-sizing:border-box; outline:none; transition:border-color 0.2s;" onfocus="this.style.borderColor='#6366F1'" onblur="this.style.borderColor='var(--gray-300)'">
+          </div>
+        </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th>객실명</th>
-                <th>기준 인원</th>
-                <th>주요 시설 및 비품</th>
-                <th>가격 (평일 / 주말)</th>
-                <th>판매 상태</th>
-                <th>관리</th>
+                <th style="width:22%">객실 정보</th>
+                <th style="width:13%">판매 상태</th>
+                <th style="width:17%">적용 기간</th>
+                <th style="width:18%">평일 요금</th>
+                <th style="width:18%">주말 요금</th>
+                <th style="width:12%">관리</th>
               </tr>
             </thead>
             <tbody>
               <tr>
-                <td><div style="font-weight:700">계곡뷰 A</div><div style="font-size:11px;color:var(--gray-400)">Deluxe Valley View</div></td>
-                <td>2인</td>
-                <td style="display:flex;gap:4px;flex-wrap:wrap">
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">TV</span>
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">Wi-Fi</span>
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">냉장고</span>
+                <td>
+                  <div style="font-weight:700;font-size:15px;color:var(--gray-900)" class="room-name">Deluxe</div>
+                  <div style="font-size:12px;color:var(--gray-500);margin-top:4px">(기준 2인)</div>
                 </td>
-                <td style="font-size:12px">₩150,000 / ₩180,000</td>
                 <td><span class="badge badge-on-sale">판매중</span></td>
+                <td><div style="font-size:16px;color:var(--gray-400);font-weight:600">-</div></td>
+                <td style="font-size:13px;font-weight:500;color:var(--gray-700)">₩150,000</td>
+                <td style="font-size:13px;font-weight:500;color:var(--gray-700)">₩180,000</td>
                 <td><a href="partner-rooms-detail.html"><button class="btn btn-outline btn-sm">상세 확인</button></a></td>
               </tr>
               <tr>
-                <td><div style="font-weight:700">숲속 B</div><div style="font-size:11px;color:var(--gray-400)">Forest Standard</div></td>
-                <td>2인</td>
-                <td style="display:flex;gap:4px;flex-wrap:wrap">
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">TV</span>
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">에어컨</span>
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">욕조</span>
+                <td>
+                  <div style="font-weight:700;font-size:15px;color:var(--gray-900)" class="room-name">Standard</div>
+                  <div style="font-size:12px;color:var(--gray-500);margin-top:4px">(기준 2인)</div>
                 </td>
-                <td style="font-size:12px">₩130,000 / ₩160,000</td>
                 <td><span class="badge badge-on-sale">판매중</span></td>
+                <td><div style="font-size:16px;color:var(--gray-400);font-weight:600">-</div></td>
+                <td style="font-size:13px;font-weight:500;color:var(--gray-700)">₩130,000</td>
+                <td style="font-size:13px;font-weight:500;color:var(--gray-700)">₩160,000</td>
                 <td><a href="partner-rooms-detail.html"><button class="btn btn-outline btn-sm">상세 확인</button></a></td>
               </tr>
               <tr>
-                <td><div style="font-weight:700">파노라마 C</div><div style="font-size:11px;color:var(--gray-400)">Panorama Deluxe</div></td>
-                <td>2인</td>
-                <td style="display:flex;gap:4px;flex-wrap:wrap">
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">풀빌라</span>
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">스타일러</span>
+                <td>
+                  <div style="font-weight:700;font-size:15px;color:var(--gray-900)" class="room-name">Panorama</div>
+                  <div style="font-size:12px;color:var(--gray-500);margin-top:4px">(기준 2인)</div>
                 </td>
-                <td style="font-size:12px">₩180,000 / ₩220,000</td>
                 <td><span class="badge badge-inspection">점검중</span></td>
+                <td style="font-size:12px;color:var(--gray-700);font-weight:600;letter-spacing:0.02em">26.03.25 ~ 26.03.28</td>
+                <td style="font-size:13px;font-weight:500;color:var(--gray-700)">₩180,000</td>
+                <td style="font-size:13px;font-weight:500;color:var(--gray-700)">₩220,000</td>
                 <td><a href="partner-rooms-detail.html"><button class="btn btn-outline btn-sm">상세 확인</button></a></td>
               </tr>
               <tr>
-                <td><div style="font-weight:700">별빛 D</div><div style="font-size:11px;color:var(--gray-400)">Starlight Suite</div></td>
-                <td>2인</td>
-                <td style="display:flex;gap:4px;flex-wrap:wrap">
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">스파</span>
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">조식포함</span>
+                <td>
+                  <div style="font-weight:700;font-size:15px;color:var(--gray-900)" class="room-name">Suite</div>
+                  <div style="font-size:12px;color:var(--gray-500);margin-top:4px">(기준 2인)</div>
                 </td>
-                <td style="font-size:12px">₩200,000 / ₩250,000</td>
                 <td><span class="badge badge-on-sale">판매중</span></td>
+                <td><div style="font-size:16px;color:var(--gray-400);font-weight:600">-</div></td>
+                <td style="font-size:13px;font-weight:500;color:var(--gray-700)">₩200,000</td>
+                <td style="font-size:13px;font-weight:500;color:var(--gray-700)">₩250,000</td>
                 <td><a href="partner-rooms-detail.html"><button class="btn btn-outline btn-sm">상세 확인</button></a></td>
               </tr>
               <tr>
-                <td><div style="font-weight:700">힐링 E</div><div style="font-size:11px;color:var(--gray-400)">Healing Premium</div></td>
-                <td>2인</td>
-                <td style="display:flex;gap:4px;flex-wrap:wrap">
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">오션뷰</span>
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">풀빌라</span>
+                <td>
+                  <div style="font-weight:700;font-size:15px;color:var(--gray-900)" class="room-name">Premium</div>
+                  <div style="font-size:12px;color:var(--gray-500);margin-top:4px">(기준 2인)</div>
                 </td>
-                <td style="font-size:12px">₩250,000 / ₩320,000</td>
                 <td><span class="badge badge-suspended">판매중지</span></td>
+                <td style="font-size:13px;color:var(--gray-700);font-weight:600">상시 (기한 없음)</td>
+                <td style="font-size:13px;font-weight:500;color:var(--gray-700)">₩250,000</td>
+                <td style="font-size:13px;font-weight:500;color:var(--gray-700)">₩320,000</td>
                 <td><a href="partner-rooms-detail.html"><button class="btn btn-outline btn-sm">상세 확인</button></a></td>
               </tr>
               <tr>
-                <td><div style="font-weight:700">하늘 F</div><div style="font-size:11px;color:var(--gray-400)">Sky Deluxe</div></td>
-                <td>2인</td>
-                <td style="display:flex;gap:4px;flex-wrap:wrap">
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">TV</span>
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">Wi-Fi</span>
-                  <span style="background:var(--gray-100);border-radius:4px;padding:2px 7px;font-size:11px">에어컨</span>
+                <td>
+                  <div style="font-weight:700;font-size:15px;color:var(--gray-900)" class="room-name">Sky</div>
+                  <div style="font-size:12px;color:var(--gray-500);margin-top:4px">(기준 2인)</div>
                 </td>
-                <td style="font-size:12px">₩120,000 / ₩150,000</td>
                 <td><span class="badge badge-on-sale">판매중</span></td>
+                <td><div style="font-size:16px;color:var(--gray-400);font-weight:600">-</div></td>
+                <td style="font-size:13px;font-weight:500;color:var(--gray-700)">₩120,000</td>
+                <td style="font-size:13px;font-weight:500;color:var(--gray-700)">₩150,000</td>
                 <td><a href="partner-rooms-detail.html"><button class="btn btn-outline btn-sm">상세 확인</button></a></td>
               </tr>
             </tbody>
@@ -126,6 +136,46 @@
   </div>
 </div>
 <script src="shared.js"></script>
-<script>initPage('partner', 'rooms', '객실 관리');</script>
+<script>
+  initPage('partner', 'rooms', '객실 관리');
+
+  // 상태 탭 & 검색 필터링 로직
+  const rows = document.querySelectorAll('tbody tr');
+  let currentFilter = 'all';
+  let searchQuery = '';
+
+  function applyFilters() {
+    rows.forEach(row => {
+      const roomName = row.querySelector('.room-name').textContent.toLowerCase();
+      const badge = row.querySelector('.badge');
+      
+      const matchesSearch = roomName.includes(searchQuery);
+      const matchesTab = (currentFilter === 'all') || (badge && badge.classList.contains('badge-' + currentFilter));
+      
+      if (matchesSearch && matchesTab) {
+        row.style.display = '';
+      } else {
+        row.style.display = 'none';
+      }
+    });
+  }
+
+  document.querySelectorAll('.tabs .tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.getAttribute('data-filter');
+      if (!target) return; // ignore generic tabs if any
+      currentFilter = target;
+      applyFilters();
+    });
+  });
+
+  const searchInput = document.getElementById('roomSearchInput');
+  if (searchInput) {
+    searchInput.addEventListener('input', (e) => {
+      searchQuery = e.target.value.trim().toLowerCase();
+      applyFilters();
+    });
+  }
+</script>
 </body>
 </html>

@@ -264,26 +264,35 @@
         <!-- 우: 정보 -->
         <div class="rd-info-panel">
 
-          <!-- 객실명 (토글 제거) -->
-          <div class="rd-title-row">
-            <div>
-              <div class="rd-room-name">Deluxe</div>
-              <div class="rd-room-sub">기준 2인</div>
-            </div>
-          </div>
-
-          <!-- STATUS -->
+          <!-- 기본 정보 -->
           <div class="rd-section">
-            <div class="rd-section-title">Status</div>
-            <div class="status-info-row" style="align-items: flex-start;">
-              <div style="display:flex; flex-direction:column; gap:8px;">
-                <div class="status-badge inspect" id="statusBadge" style="width: fit-content;">
-                  <span class="s-dot"></span>
-                  <span id="statusLabel">점검중</span>
-                </div>
-                <div class="status-period-text" id="statusPeriodText">2026-03-25 ~ 2026-03-28</div>
+            <div class="rd-section-title">Basic Info</div>
+            <div class="rd-title-row" style="margin-bottom: 24px;">
+              <div>
+                <div class="rd-room-name">Deluxe</div>
+                <div class="rd-room-sub">기준 2인</div>
               </div>
-              <button class="status-change-btn" onclick="openStatusModal()">판매 상태 변경</button>
+            </div>
+            
+            <div style="margin-bottom: 24px;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--gray-500); margin-bottom: 8px;">판매 상태</div>
+              <div class="status-info-row" style="align-items: flex-start;">
+                <div style="display:flex; flex-direction:column; gap:8px;">
+                  <div class="status-badge inspect" id="statusBadge" style="width: fit-content;">
+                    <span class="s-dot"></span>
+                    <span id="statusLabel">점검중</span>
+                  </div>
+                  <div class="status-period-text" id="statusPeriodText">2026-03-25 ~ 2026-03-28</div>
+                </div>
+                <button class="status-change-btn" onclick="openStatusModal()">판매 상태 변경</button>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 12px;">
+              <div style="font-size: 11px; font-weight: 700; color: var(--gray-500); margin-bottom: 8px;">객실 설명</div>
+              <div style="font-size:14px; color:var(--gray-800); line-height:1.6; background:var(--gray-50); padding:16px; border-radius:12px; border:1px solid var(--gray-100)">
+                마운틴 뷰가 돋보이는 모던하고 아늑한 디럭스 객실입니다. 넓은 발코니에서 자연의 여유를 만끽하며 일상의 피로를 풀어보세요.
+              </div>
             </div>
           </div>
 
