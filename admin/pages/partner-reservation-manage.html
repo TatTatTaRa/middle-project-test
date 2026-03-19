@@ -66,10 +66,8 @@
                   <th>예약자</th>
                   <th>연락처</th>
                   <th>객실</th>
-                  <th>배정 호실</th>
                   <th>입실일</th>
                   <th>퇴실일</th>
-                  <th>상태</th>
                   <th>관리</th>
                 </tr>
               </thead>
@@ -93,141 +91,97 @@
 
   <!-- 상세 보기 모달 -->
   <div class="modal-overlay hidden" id="modalDetail">
-    <div class="modal modal-lg">
+    <div class="modal" style="max-width:420px;">
+
+      <!-- 헤더: 예약번호 + 상태 배지 -->
       <div class="modal-header" style="border-bottom:1px solid var(--gray-100);">
-        <div>
+        <div style="display:flex;align-items:center;gap:10px;">
           <div class="modal-title">예약 상세 정보</div>
-          <div id="detailModeLabel" style="font-size:11px;color:var(--gray-400);margin-top:2px;">조회 모드</div>
+          <span style="font-size:12px;color:var(--gray-400);font-weight:500;" id="detailId"></span>
+          <span id="detailStatusBadge"></span>
         </div>
         <button class="modal-close">×</button>
       </div>
+
       <div class="modal-body">
 
-        <!-- 예약번호 + 상태 -->
-        <div
-          style="display:flex;align-items:center;justify-content:space-between;padding:4px 0 16px;border-bottom:1px solid var(--gray-100);margin-bottom:16px;">
-          <div>
-            <div style="font-size:10px;color:var(--gray-400);letter-spacing:0.06em;margin-bottom:4px;">예약번호</div>
-            <div style="font-size:14px;font-weight:700;color:var(--gray-700);" id="detailId"></div>
-          </div>
-          <div id="detailStatusBadge"></div>
-        </div>
-
-        <!-- 조회 모드: 텍스트 -->
+        <!-- 조회 모드 -->
         <div id="viewMode">
-          <div class="form-group">
-            <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">👤 예약자 정보</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-              <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
-                <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">예약자명</div>
-                <div style="font-size:14px;font-weight:600;color:var(--gray-800);" id="viewName"></div>
-              </div>
-              <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
-                <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">연락처</div>
-                <div style="font-size:14px;font-weight:600;color:var(--gray-800);" id="viewPhone"></div>
-              </div>
+          <div style="display:flex;flex-direction:column;gap:8px;">
+
+            <div style="display:flex;justify-content:space-between;">
+              <span style="font-size:13px;color:var(--gray-400);">예약자명</span>
+              <span style="font-size:13px;font-weight:600;color:var(--gray-900);" id="viewName"></span>
             </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">🛏️ 객실 정보</div>
-            <div
-              style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <div style="font-weight:600;margin-bottom:4px;" id="viewRoom"></div>
-                <div id="viewAssignedRoom" style="font-size:13px;color:var(--gray-500);"></div>
-                <div id="viewGuestsBadge" style="margin-top:6px;"></div>
-              </div>
-              <a href="partner-reservations-calendar.html" class="btn btn-primary btn-sm"
-                style="text-decoration:none;white-space:nowrap;box-shadow:none;">객실 배정 확인 👉</a>
+            <div style="display:flex;justify-content:space-between;">
+              <span style="font-size:13px;color:var(--gray-400);">연락처</span>
+              <span style="font-size:13px;font-weight:600;color:var(--gray-900);" id="viewPhone"></span>
             </div>
-          </div>
-          <div class="form-group">
-            <div class="form-label" style="margin-bottom:10px;">📆 일정 및 인원</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start;">
-              <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
-                <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">입실 일시</div>
-                <div style="font-size:13px;font-weight:600;color:var(--gray-800);" id="viewCheckin"></div>
-              </div>
-              <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
-                <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">퇴실 일시</div>
-                <div style="font-size:13px;font-weight:600;color:var(--gray-800);" id="viewCheckout"></div>
-              </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:13px;color:var(--gray-400);">객실</span>
+              <span style="font-size:13px;font-weight:600;color:var(--gray-900);" id="viewRoom"></span>
             </div>
-          </div>
-          <div class="form-group" style="margin-bottom:0;">
-            <div class="form-label" style="margin-bottom:10px;">💬 요청사항</div>
-            <div
-              style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;font-size:13px;color:var(--gray-700);line-height:1.6;min-height:60px;"
-              id="viewRequest"></div>
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <span style="font-size:13px;color:var(--gray-400);">인원</span>
+              <span id="viewGuestsBadge"></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;">
+              <span style="font-size:13px;color:var(--gray-400);">입실 일시</span>
+              <span style="font-size:13px;font-weight:600;color:var(--gray-900);" id="viewCheckin"></span>
+            </div>
+            <div style="display:flex;justify-content:space-between;">
+              <span style="font-size:13px;color:var(--gray-400);">퇴실 일시</span>
+              <span style="font-size:13px;font-weight:600;color:var(--gray-900);" id="viewCheckout"></span>
+            </div>
+
+
           </div>
         </div>
 
-        <!-- 편집 모드: 폼 -->
-        <div id="editMode" style="display:none;">
-          <div class="form-group">
-            <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">👤 예약자 정보</div>
-            <div class="form-row">
-              <div><label class="form-label">예약자명</label><input class="form-control" id="detailName" readonly style="background-color:var(--gray-50);color:var(--gray-600);cursor:not-allowed;"></div>
-              <div><label class="form-label">연락처</label><input class="form-control" id="detailPhone" readonly style="background-color:var(--gray-50);color:var(--gray-600);cursor:not-allowed;"></div>
-            </div>
+        <!-- 편집 모드 -->
+        <div id="editMode" style="display:none;flex-direction:column;gap:12px;">
+          <div class="form-row">
+            <div><label class="form-label">예약자명 <span style="font-size:10px;color:var(--gray-300);">(수정 불가)</span></label><input class="form-control" id="detailName" readonly style="background:var(--gray-50);color:var(--gray-500);cursor:not-allowed;"></div>
+            <div><label class="form-label">연락처 <span style="font-size:10px;color:var(--gray-300);">(수정 불가)</span></label><input class="form-control" id="detailPhone" readonly style="background:var(--gray-50);color:var(--gray-500);cursor:not-allowed;"></div>
           </div>
-          <div class="form-group">
-            <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">🛏️ 객실 정보</div>
-            <div
-              style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
-              <div style="flex:1;display:flex;align-items:center;gap:10px;">
-                <select class="form-control" id="detailRoomType" style="padding:4px 8px;font-size:13px;width:130px;font-weight:600;">
-                  <option value="Deluxe">Deluxe</option>
-                  <option value="Standard">Standard</option>
-                  <option value="Suite">Suite</option>
-                  <option value="Sky">Sky</option>
-                </select>
-                <div id="detailAssignedRoom" style="font-size:13px;color:var(--gray-500);"></div>
-              </div>
-              <a href="partner-reservations-calendar.html" class="btn btn-primary btn-sm"
-                style="text-decoration:none;white-space:nowrap;box-shadow:none;">객실 배정 보드 👉</a>
-            </div>
+          <div>
+            <label class="form-label">객실 타입</label>
+            <select class="form-control" id="detailRoomType">
+              <option value="Deluxe">Deluxe</option>
+              <option value="Standard">Standard</option>
+              <option value="Suite">Suite</option>
+              <option value="Sky">Sky</option>
+            </select>
           </div>
-          <div class="form-group" style="margin-bottom:0;">
-            <div class="form-label">📆 일정</div>
-            <div class="form-row" style="margin-bottom:0;">
-              <div><label class="form-label">입실 일시</label><input class="form-control" type="datetime-local"
-                  id="detailCheckin"></div>
-              <div><label class="form-label">퇴실 일시</label><input class="form-control" type="datetime-local"
-                  id="detailCheckout"></div>
-            </div>
+          <div class="form-row" style="margin-bottom:0;">
+            <div><label class="form-label">입실 일시</label><input class="form-control" type="datetime-local" id="detailCheckin"></div>
+            <div><label class="form-label">퇴실 일시</label><input class="form-control" type="datetime-local" id="detailCheckout"></div>
           </div>
         </div>
 
       </div>
+
+      <!-- 푸터 -->
       <div class="modal-footer" style="flex-direction:column;gap:0;padding:0;" id="detailFooter">
-        <!-- 기본 액션: 중앙 정렬 -->
+        <!-- 주요 버튼: 중앙 -->
         <div style="display:flex;justify-content:center;align-items:center;gap:8px;padding:14px 20px;">
           <button class="btn btn-ghost" data-modal-close>닫기</button>
           <button class="btn btn-outline btn-sm" id="btnEdit" onclick="enterEditMode()">✏️ 수정</button>
           <button class="btn btn-primary" id="btnSave" style="display:none;" onclick="saveDetail()">변경사항 저장</button>
         </div>
-        <!-- 추가 옵션 토글 헤더 -->
-        <div id="btnMoreOpts" onclick="toggleExtraOpts()" style="display:flex;align-items:center;justify-content:center;gap:6px;
-                 padding:8px;border-top:1px solid var(--gray-100);cursor:pointer;
-                 font-size:11px;color:var(--gray-400);user-select:none;
-                 background:transparent;transition:background 0.12s;"
+        <!-- 추가 옵션 토글 -->
+        <div id="btnMoreOpts" onclick="toggleExtraOpts()"
+          style="display:flex;align-items:center;justify-content:center;gap:6px;padding:8px;border-top:1px solid var(--gray-100);cursor:pointer;font-size:11px;color:var(--gray-400);user-select:none;background:transparent;transition:background 0.12s;"
           onmouseover="this.style.background='var(--gray-50)'" onmouseout="this.style.background='transparent'">
-          <svg id="extraArrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-            stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;">
-            <polyline points="6 9 12 15 18 9" />
-          </svg>
+          <svg id="extraArrow" width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform 0.2s;"><polyline points="6 9 12 15 18 9"/></svg>
           추가 옵션
         </div>
-        <!-- 추가 옵션 패널 (기본 숨김) -->
-        <div id="extraOptsPanel"
-          style="display:none;border-top:1px solid var(--gray-100);padding:12px 20px;background:var(--gray-50);">
+        <!-- 추가 옵션 패널 -->
+        <div id="extraOptsPanel" style="display:none;border-top:1px solid var(--gray-100);padding:12px 20px;background:var(--gray-50);">
           <div style="font-size:11px;color:var(--gray-400);margin-bottom:10px;font-weight:600;">⚠️ 주의가 필요한 작업</div>
           <button class="btn btn-sm" id="btnCancelResv"
             style="color:var(--danger);border:1.5px solid var(--danger);background:#fff;width:100%;justify-content:center;"
-            onclick="cancelFromModal()">
-            예약 취소
-          </button>
+            onclick="cancelFromModal()">예약 취소</button>
         </div>
       </div>
 
@@ -297,21 +251,15 @@
       document.getElementById('manageCountText').innerHTML = `전체 <strong>${filtered.length}건</strong>`;
 
       document.getElementById('manageRows').innerHTML = filtered.map((r, i) => {
-        const assignedCell = r.assignedRoom
-          ? `<span style="background:var(--primary-light);color:var(--primary);padding:2px 8px;border-radius:4px;font-size:12px;font-weight:700">${r.assignedRoom}</span>`
-          : `<span style="font-size:12px;color:var(--gray-400)">—</span>`;
-
         return `
       <tr>
         <td style="font-size:12px;color:var(--gray-600)">${r.id}</td>
         <td style="font-weight:600">${r.name}</td>
         <td style="font-size:12px;color:var(--gray-500)">${r.phone}</td>
         <td>${r.room}</td>
-        <td>${assignedCell}</td>
         <td style="font-size:13px">${r.checkin.slice(0, 10)}</td>
         <td style="font-size:13px">${r.checkout.slice(0, 10)}</td>
-        <td>${assignBadge(r)}</td>
-        <td><button class="btn btn-outline btn-sm" onclick="openDetail(${i})">상세 보기</button></td>
+        <td><button class="btn btn-outline btn-sm" onclick="openDetail(${i})">상세</button></td>
       </tr>
     `;
       }).join('');
@@ -322,8 +270,11 @@
     function openDetail(idx) {
       const r = window._filteredManage[idx];
       currentDetailIdx = idx;
-      // 제일 먼저 조회 모드로
       exitEditMode();
+
+      // 헤더: 예약번호 + 상태 배지
+      document.getElementById('detailId').textContent = r.id;
+      document.getElementById('detailStatusBadge').innerHTML = assignBadge(r);
 
       // 뷰 업데이트
       document.getElementById('viewName').textContent = r.name;
@@ -332,10 +283,7 @@
       document.getElementById('viewGuestsBadge').innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;">👥 ${r.guests}인</span>`;
       document.getElementById('viewCheckin').textContent = r.checkin.replace('T', ' ');
       document.getElementById('viewCheckout').textContent = r.checkout.replace('T', ' ');
-      document.getElementById('viewRequest').textContent = r.request || '(요청사항 없음)';
-      document.getElementById('viewAssignedRoom').innerHTML = r.assignedRoom
-        ? `배정 호실: <span style="font-weight:700;color:var(--primary);background:var(--primary-light);padding:2px 8px;border-radius:4px;margin-left:4px;">${r.assignedRoom}</span>`
-        : `<span style="color:var(--gray-400);font-size:13px;">미배정</span>`;
+
 
       // 편집 폼 기본값 세팅
       document.getElementById('detailName').value = r.name;
@@ -343,30 +291,28 @@
       document.getElementById('detailRoomType').value = r.roomType;
       document.getElementById('detailCheckin').value = r.checkin;
       document.getElementById('detailCheckout').value = r.checkout;
-      const assignEl2 = document.getElementById('detailAssignedRoom');
-      assignEl2.innerHTML = r.assignedRoom
-        ? `배정 호실: <span style="font-weight:700;color:var(--primary);background:var(--primary-light);padding:2px 8px;border-radius:4px;margin-left:4px;">${r.assignedRoom}</span>`
-        : `<span style="color:var(--gray-400);font-size:13px;">미배정</span>`;
 
-      // 취소 버튼: 종료처리된 예약은 비활성화
+
+      // 종료된 예약: 수정/추가옵션 숨김
       const readonly = !isActive(r);
+      document.getElementById('btnEdit').style.display = readonly ? 'none' : '';
+      document.getElementById('btnMoreOpts').style.display = readonly ? 'none' : '';
+      document.getElementById('extraOptsPanel').style.display = 'none';
+      document.getElementById('extraArrow').style.transform = '';
       const btnCancelR = document.getElementById('btnCancelResv');
       btnCancelR.disabled = readonly;
       btnCancelR.style.opacity = readonly ? '.4' : '';
-      document.getElementById('btnEdit').style.display = readonly ? 'none' : '';
 
       document.getElementById('modalDetail').classList.remove('hidden');
     }
 
     function enterEditMode() {
       document.getElementById('viewMode').style.display = 'none';
-      document.getElementById('editMode').style.display = 'block';
+      document.getElementById('editMode').style.display = 'flex';
       document.getElementById('btnEdit').style.display = 'none';
       document.getElementById('btnSave').style.display = '';
-      document.getElementById('detailModeLabel').textContent = '수정 모드';
-      // 수정 모드 에서는 추가 옵션 숨김
-      document.getElementById('extraOptsPanel').style.display = 'none';
       document.getElementById('btnMoreOpts').style.display = 'none';
+      document.getElementById('extraOptsPanel').style.display = 'none';
     }
 
     function exitEditMode() {
@@ -375,7 +321,6 @@
       document.getElementById('btnEdit').style.display = '';
       document.getElementById('btnSave').style.display = 'none';
       document.getElementById('btnMoreOpts').style.display = '';
-      document.getElementById('detailModeLabel').textContent = '조회 모드';
     }
 
     function toggleExtraOpts() {

@@ -1,263 +1,340 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>파트너 관리 — Super Admin</title>
-<link rel="stylesheet" href="shared.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>파트너 관리 — Super Admin</title>
+  <link rel="stylesheet" href="shared.css">
 </head>
+
 <body>
-<div class="layout">
-  <div class="main">
-    <header class="header">
-      <div class="header-left"><div class="header-title">파트너 관리</div></div>
-      <div class="header-right">
-        <div class="header-date"></div>
-        <button class="btn-icon" style="background:#1E293B;color:#818CF8">🔔</button>
-        <div class="avatar" style="background:#6366F1">A</div>
-      </div>
-    </header>
-    <div class="page" style="max-width: 1000px; margin: 0 auto; width: 100%;">
-      <div class="page-header">
-        <div class="page-header-left">
-          <div class="page-title">파트너 관리</div>
-          <div class="page-subtitle">전체 1,284개 파트너 숙소를 관리합니다.</div>
+  <div class="layout">
+    <div class="main">
+      <header class="header">
+        <div class="header-left">
+          <div class="header-title">파트너 관리</div>
         </div>
-      </div>
+        <div class="header-right">
+          <div class="header-date"></div>
+          <button class="btn-icon" style="background:#1E293B;color:#818CF8">🔔</button>
+          <div class="avatar" style="background:#6366F1">A</div>
+        </div>
+      </header>
+      <div class="page" style="max-width: 1000px; margin: 0 auto; width: 100%;">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">파트너 관리</div>
+            <div class="page-subtitle">전체 1,284개 파트너 숙소를 관리합니다.</div>
+          </div>
+        </div>
 
-      <!-- Stats -->
-      <div class="stat-grid">
-        <div class="stat-card"><div class="stat-label">🏨 전체 파트너</div><div class="stat-value">1,284</div></div>
-        <div class="stat-card"><div class="stat-label" style="color:var(--success)">✅ 승인 완료</div><div class="stat-value success">1,256</div></div>
-        <div class="stat-card"><div class="stat-label" style="color:var(--warning)">⏳ 승인 대기</div><div class="stat-value warning">5</div></div>
-        <div class="stat-card"><div class="stat-label" style="color:var(--danger)">🚫 계정 정지</div><div class="stat-value danger">23</div></div>
-      </div>
+        <!-- Stats -->
+        <div class="stat-grid">
+          <div class="stat-card">
+            <div class="stat-label">🏨 전체 파트너</div>
+            <div class="stat-value">1,284</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label" style="color:var(--success)">✅ 승인 완료</div>
+            <div class="stat-value success">1,256</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label" style="color:var(--warning)">⏳ 승인 대기</div>
+            <div class="stat-value warning">5</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-label" style="color:var(--danger)">🚫 계정 정지</div>
+            <div class="stat-value danger">23</div>
+          </div>
+        </div>
 
-      <!-- Tabs -->
-      <div class="tabs" style="margin-bottom: 16px;">
-        <div class="tab active" data-target="tab-pending">승인 대기 <span class="badge badge-warning ml-1">5</span></div>
-        <div class="tab" data-target="tab-approved">승인 완료/정지 <span style="font-size:11px;color:var(--gray-400);margin-left:4px">1,279</span></div>
-      </div>
 
-      <!-- Filter -->
-      <div class="card" style="padding:14px 20px;margin-bottom:16px">
-        <div class="filter-bar">
-          <select><option>전체 지역</option><option>서울</option><option>경기</option><option>부산</option><option>제주</option></select>
-          <select><option>가입일 순</option><option>최근 가입 순</option><option>매출 높은 순</option></select>
+        <!-- Filter -->
+        <div class="filter-bar" style="margin-bottom:16px">
+          <select>
+            <option>전체 지역</option>
+            <option>서울</option>
+            <option>경기</option>
+            <option>부산</option>
+            <option>제주</option>
+          </select>
+          <select>
+            <option>가입일 순</option>
+            <option>최근 가입 순</option>
+            <option>매출 높은 순</option>
+          </select>
           <div class="search-box ml-auto"><input type="text" placeholder="법인명 또는 사업자번호 검색..."></div>
           <button class="btn btn-sm" style="background:#6366F1;color:#fff">검색</button>
         </div>
-      </div>
 
-      <!-- Table: Approved -->
-      <div class="card tab-panel hidden" id="tab-approved" style="padding:0">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>사업자등록번호</th>
-                <th>법인명</th>
-                <th>숙소명</th>
-                <th>대표자명</th>
-                <th>이메일</th>
-                <th>이번 달 매출</th>
-                <th>가입일</th>
-                <th>상태</th>
-                <th>상세</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="font-size:12px;font-weight:600">120-88-22321</td>
-                <td style="font-weight:700">시그니엘 서울 (주)</td>
-                <td style="font-size:13px">시그니엘 서울 호텔</td>
-                <td style="font-size:13px">김대표</td>
-                <td style="font-size:12px;color:var(--gray-500)">partner@hotel.com</td>
-                <td style="font-weight:600">₩12,450,000</td>
-                <td style="font-size:12px;color:var(--gray-400)">2023.01.15</td>
-                <td><span class="badge badge-approved">승인 완료</span></td>
-                <td><button class="btn btn-ghost btn-sm" data-status="active" onclick="openPartnerDetail('active')">상세</button></td>
-              </tr>
-              <tr>
-                <td style="font-size:12px;font-weight:600">345-67-89012</td>
-                <td style="font-weight:700">그랜드하얏트 (주)</td>
-                <td style="font-size:13px">그랜드하얏트서울</td>
-                <td style="font-size:13px">이대표</td>
-                <td style="font-size:12px;color:var(--gray-500)">hyatt@hotel.com</td>
-                <td style="font-weight:600">₩28,000,000</td>
-                <td style="font-size:12px;color:var(--gray-400)">2022.11.03</td>
-                <td><span class="badge badge-approved">승인 완료</span></td>
-                <td><button class="btn btn-ghost btn-sm" data-status="active" onclick="openPartnerDetail('active')">상세</button></td>
-              </tr>
-              <tr>
-                <td style="font-size:12px;font-weight:600">456-78-90123</td>
-                <td style="font-weight:700">제주오션뷰 리조트</td>
-                <td style="font-size:13px">오션뷰 리조트 제주점</td>
-                <td style="font-size:13px">박대표</td>
-                <td style="font-size:12px;color:var(--gray-500)">ocean@jeju.com</td>
-                <td style="font-weight:600">₩9,800,000</td>
-                <td style="font-size:12px;color:var(--gray-400)">2023.05.20</td>
-                <td><span class="badge badge-approved">승인 완료</span></td>
-                <td><button class="btn btn-ghost btn-sm" data-status="active" onclick="openPartnerDetail('active')">상세</button></td>
-              </tr>
-              <tr style="opacity:0.6">
-                <td style="font-size:12px;font-weight:600">567-89-01234</td>
-                <td style="font-weight:700">모텔 OO (정지됨)</td>
-                <td style="font-size:13px">강남 OO 모텔</td>
-                <td style="font-size:13px">최대표</td>
-                <td style="font-size:12px;color:var(--gray-500)">motel@oo.com</td>
-                <td style="font-weight:600;color:var(--gray-400)">-</td>
-                <td style="font-size:12px;color:var(--gray-400)">2023.08.10</td>
-                <td><span class="badge badge-suspended">정지됨</span></td>
-                <td><button class="btn btn-ghost btn-sm" data-status="suspended" onclick="openPartnerDetail('suspended')">상세</button></td>
-              </tr>
-            </tbody>
-          </table>
+        <!-- Tabs -->
+        <div class="tabs" style="margin-bottom: 16px;">
+          <div class="tab active" data-target="tab-all">전체 <span class="badge ml-1">1,279</span></div>
+          <div class="tab" data-target="tab-active">운영중 <span class="badge badge-approved ml-1">1,256</span></div>
+          <div class="tab" data-target="tab-suspended">정지 <span class="badge badge-suspended ml-1">23</span></div>
         </div>
-        <div style="padding:12px 20px;border-top:1px solid var(--gray-200)">
-          <div class="pagination">
-            <div class="pg-btn">‹</div>
-            <div class="pg-btn active">1</div>
-            <div class="pg-btn">2</div>
-            <div class="pg-btn">3</div>
-            <div class="pg-btn">···</div>
-            <div class="pg-btn">128</div>
-            <div class="pg-btn">›</div>
+
+        <!-- Table: 전체 -->
+        <div class="card tab-panel" id="tab-all" style="padding:0">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>사업자등록번호</th>
+                  <th>법인명</th>
+                  <th>대표자명</th>
+                  <th>가입일</th>
+                  <th>상태</th>
+                  <th>상세</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-size:12px;font-weight:600">120-88-22321</td>
+                  <td style="font-weight:700">시그니엘 서울 (주)</td>
+                  <td style="font-size:13px">김대표</td>
+                  <td style="font-size:12px;color:var(--gray-400)">2023.01.15</td>
+                  <td><span class="badge badge-approved">운영중</span></td>
+                  <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('active')">상세</button></td>
+                </tr>
+                <tr>
+                  <td style="font-size:12px;font-weight:600">345-67-89012</td>
+                  <td style="font-weight:700">그랜드하얋트 (주)</td>
+                  <td style="font-size:13px">이대표</td>
+                  <td style="font-size:12px;color:var(--gray-400)">2022.11.03</td>
+                  <td><span class="badge badge-approved">운영중</span></td>
+                  <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('active')">상세</button></td>
+                </tr>
+                <tr>
+                  <td style="font-size:12px;font-weight:600">456-78-90123</td>
+                  <td style="font-weight:700">제주오션뷰 리조트</td>
+                  <td style="font-size:13px">박대표</td>
+                  <td style="font-size:12px;color:var(--gray-400)">2023.05.20</td>
+                  <td><span class="badge badge-approved">운영중</span></td>
+                  <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('active')">상세</button></td>
+                </tr>
+                <tr style="opacity:0.6">
+                  <td style="font-size:12px;font-weight:600">567-89-01234</td>
+                  <td style="font-weight:700">모텔 OO</td>
+                  <td style="font-size:13px">최대표</td>
+                  <td style="font-size:12px;color:var(--gray-400)">2023.08.10</td>
+                  <td><span class="badge badge-suspended">정지</span></td>
+                  <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('suspended')">상세</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="padding:12px 20px;border-top:1px solid var(--gray-200);font-size:12px;color:var(--gray-400)">총
+            1,279개</div>
+        </div>
+
+        <!-- Table: 운영중 -->
+        <div class="card tab-panel hidden" id="tab-active" style="padding:0">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>사업자등록번호</th>
+                  <th>법인명</th>
+                  <th>대표자명</th>
+                  <th>가입일</th>
+                  <th>상세</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td style="font-size:12px;font-weight:600">120-88-22321</td>
+                  <td style="font-weight:700">시그니엘 서울 (주)</td>
+                  <td style="font-size:13px">김대표</td>
+                  <td style="font-size:12px;color:var(--gray-400)">2023.01.15</td>
+                  <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('active')">상세</button></td>
+                </tr>
+                <tr>
+                  <td style="font-size:12px;font-weight:600">345-67-89012</td>
+                  <td style="font-weight:700">그랜드하얏트 (주)</td>
+                  <td style="font-size:13px">이대표</td>
+                  <td style="font-size:12px;color:var(--gray-400)">2022.11.03</td>
+                  <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('active')">상세</button></td>
+                </tr>
+                <tr>
+                  <td style="font-size:12px;font-weight:600">456-78-90123</td>
+                  <td style="font-weight:700">제주오션뷰 리조트</td>
+                  <td style="font-size:13px">박대표</td>
+                  <td style="font-size:12px;color:var(--gray-400)">2023.05.20</td>
+                  <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('active')">상세</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="padding:12px 20px;border-top:1px solid var(--gray-200);font-size:12px;color:var(--gray-400)">총
+            1,256개</div>
+        </div>
+        <!-- Table: Suspended -->
+        <div class="card tab-panel hidden" id="tab-suspended" style="padding:0">
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>사업자등록번호</th>
+                  <th>법인명</th>
+                  <th>대표자명</th>
+                  <th>가입일</th>
+                  <th>상세</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="opacity:0.6">
+                  <td style="font-size:12px;font-weight:600">567-89-01234</td>
+                  <td style="font-weight:700">모텔 OO</td>
+                  <td style="font-size:13px">최대표</td>
+                  <td style="font-size:12px;color:var(--gray-400)">2023.08.10</td>
+                  <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('suspended')">상세</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div style="padding:12px 20px;border-top:1px solid var(--gray-200);font-size:12px;color:var(--gray-400)">총 23개
           </div>
         </div>
       </div>
-
-      <!-- Table: Pending -->
-      <div class="card tab-panel" id="tab-pending" style="padding:0">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>가입 신청일</th>
-                <th>사업자등록번호</th>
-                <th>법인명</th>
-                <th>숙소명</th>
-                <th>대표자명</th>
-                <th>담당자 연락처</th>
-                <th>상태</th>
-                <th>심사</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td style="font-size:12px;color:var(--gray-500)">2026.03.18 14:20</td>
-                <td style="font-size:12px;font-weight:600">890-12-34567</td>
-                <td style="font-weight:700">해운대스테이 (주)</td>
-                <td style="font-size:13px">해운대 오션뷰 호텔</td>
-                <td style="font-size:13px">정대표</td>
-                <td style="font-size:13px">010-9999-8888</td>
-                <td><span class="badge badge-warning">서류 검토 중</span></td>
-                <td><button class="btn btn-outline btn-sm">심사 시작</button></td>
-              </tr>
-              <tr>
-                <td style="font-size:12px;color:var(--gray-500)">2026.03.17 09:15</td>
-                <td style="font-size:12px;font-weight:600">678-90-12345</td>
-                <td style="font-weight:700">남산빌리지 (주)</td>
-                <td style="font-size:13px">남산 포레스트 펜션</td>
-                <td style="font-size:13px">박대표</td>
-                <td style="font-size:13px">010-7777-6666</td>
-                <td><span class="badge badge-warning">서류 제출 완료</span></td>
-                <td><button class="btn btn-outline btn-sm">심사 시작</button></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div style="padding:12px 20px;border-top:1px solid var(--gray-200);text-align:center;font-size:12px;color:var(--gray-400)">
-          총 5건의 대기 내역이 있습니다.
-        </div>
-      </div>
     </div>
   </div>
-</div>
 
-<!-- Partner Detail Modal -->
-<div class="modal-overlay hidden" id="modalPartnerDetail">
-  <div class="modal modal-lg">
-    <div class="modal-header">
-      <div class="modal-title">파트너 상세 정보</div>
-      <button class="modal-close">×</button>
-    </div>
-    <div class="modal-body">
-      <div class="flex items-center gap-4 mb-4" style="padding:16px;background:var(--gray-50);border-radius:var(--radius)">
-        <div style="font-size:40px">🏨</div>
+  <!-- Partner Detail Modal -->
+  <div class="modal-overlay hidden" id="modalPartnerDetail">
+    <div class="modal modal-lg"
+      style="max-width:720px; width:90%; display:flex; flex-direction:column; max-height:90vh;">
+      <div class="modal-header" style="align-items:flex-start; flex-shrink:0;">
         <div>
-          <div style="font-size:16px;font-weight:700">시그니엘 서울 (주)</div>
-          <div style="font-size:12px;color:var(--gray-500)">숙소 ID: 12345678 &nbsp;·&nbsp; 가입일: 2023.01.15</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+            <div style="font-size:22px;font-weight:800">시그니엘 서울 (주)</div>
+            <span class="badge" id="modalStatusBadge">승인 완료</span>
+          </div>
+          <div style="font-size:12px;color:var(--gray-500);display:flex;align-items:center;gap:6px">
+            가입일: <span style="font-weight:600;color:var(--gray-700)">2023.01.15</span>
+          </div>
         </div>
-        <span class="badge ml-auto" id="modalStatusBadge">승인 완료</span>
+        <button class="modal-close" data-modal-close>×</button>
       </div>
-      <div class="form-row mb-3">
-        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px">
-          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">사업자등록번호</div>
-          <div style="font-weight:600">120-88-22321</div>
+      <div class="modal-body" style="padding:24px; overflow-y:auto;">
+        <!-- 기업 기본 정보 -->
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--gray-800)">🏢 기업 기본 정보</div>
+        <div
+          style="background:var(--gray-50);border-radius:var(--radius);padding:16px;border:1px solid var(--gray-200);margin-bottom:20px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+              <div style="font-size:11px;color:var(--gray-500);margin-bottom:4px">사업자등록번호</div>
+              <div style="font-size:14px;font-weight:700;color:var(--gray-900)">120-88-22321</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--gray-500);margin-bottom:4px">대표자명</div>
+              <div style="font-size:14px;font-weight:700;color:var(--gray-900)">김대표</div>
+            </div>
+          </div>
         </div>
-        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px">
-          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">대표자 연락처</div>
-          <div style="font-weight:600">010-1234-5678</div>
-        </div>
-      </div>
-      <div class="form-row mb-3">
-        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px">
-          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">대표자 이메일</div>
-          <div style="font-weight:600">partner@hotel.com</div>
-        </div>
-        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px">
-          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">이번 달 총 매출</div>
-          <div style="font-size:20px;font-weight:700;color:var(--success)">₩12,450,000</div>
-        </div>
-      </div>
 
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-danger btn-sm" id="btnSuspend" onclick="suspendPartner()">계정 정지</button>
-      <button class="btn btn-success btn-sm" id="btnRestore" style="display:none" onclick="restorePartner()">정지 해제</button>
-      <button class="btn btn-ghost" data-modal-close>닫기</button>
+        <!-- 담당자 연락망 -->
+        <div style="font-size:13px;font-weight:700;margin-bottom:6px;color:var(--gray-800)">📞 담당자 연락망</div>
+        <div
+          style="background:var(--gray-50);border-radius:var(--radius);padding:16px;border:1px solid var(--gray-200);">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+            <div>
+              <div style="font-size:11px;color:var(--gray-500);margin-bottom:4px">📱 담당자 연락처</div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-800)">010-1234-5678</div>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--gray-500);margin-bottom:4px">✉️ 담당자 이메일</div>
+              <div style="font-size:14px;font-weight:600;color:var(--gray-800)">partner@hotel.com</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content:center; gap:12px;">
+        <button class="btn btn-danger" style="width:120px" id="btnSuspend" onclick="suspendPartner()">계정 정지</button>
+        <button class="btn btn-success" style="width:120px" id="btnRestore" style="display:none"
+          onclick="restorePartner()">정지 해제</button>
+      </div>
     </div>
   </div>
-</div>
 
-<script src="shared.js"></script>
-<script>
-initPage('admin', 'partners', '파트너 관리');
+  <!-- Suspend Reason Modal -->
+  <div class="modal-overlay hidden" id="modalSuspendReason" style="z-index:1100">
+    <div class="modal" style="max-width:480px; width:90%;">
+      <div class="modal-header">
+        <div class="modal-title" style="display:flex;align-items:center;gap:8px">🚫 계정 정지</div>
+        <button class="modal-close" onclick="document.getElementById('modalSuspendReason').classList.add('hidden')">×</button>
+      </div>
+      <div class="modal-body">
+        <div style="font-size:13px;color:var(--gray-600);margin-bottom:12px;line-height:1.6">
+          정지 시 파트너의 모든 서비스 이용이 중단됩니다.<br>
+          정지 사유는 파트너에게 이메일로 전달됩니다.
+        </div>
+        <div class="form-group">
+          <label class="form-label">정지 사유</label>
+          <textarea class="form-control" id="suspendReasonText" rows="4" placeholder="정지 사유를 입력해 주세요. (예: 허위 서류 제출, 이용 약관 위반 등)" style="resize:none;font-size:13px;"></textarea>
+        </div>
+      </div>
+      <div class="modal-footer" style="justify-content:center; gap:12px;">
+        <button class="btn btn-ghost" onclick="document.getElementById('modalSuspendReason').classList.add('hidden')">취소</button>
+        <button class="btn btn-danger" style="width:120px" onclick="confirmSuspend()">정지 확인</button>
+      </div>
+    </div>
+  </div>
 
-function openPartnerDetail(status) {
-  const badge = document.getElementById('modalStatusBadge');
-  const btnSuspend = document.getElementById('btnSuspend');
-  const btnRestore = document.getElementById('btnRestore');
+  <script src="shared.js"></script>
+  <script>
+    initPage('admin', 'partners', '파트너 관리');
 
-  if (status === 'suspended') {
-    badge.className = 'badge badge-suspended ml-auto';
-    badge.textContent = '정지됨';
-    btnSuspend.style.display = 'none';
-    btnRestore.style.display = '';
-  } else {
-    badge.className = 'badge badge-approved ml-auto';
-    badge.textContent = '승인 완료';
-    btnSuspend.style.display = '';
-    btnRestore.style.display = 'none';
-  }
+    function openPartnerDetail(status) {
+      const badge = document.getElementById('modalStatusBadge');
+      const btnSuspend = document.getElementById('btnSuspend');
+      const btnRestore = document.getElementById('btnRestore');
 
-  document.getElementById('modalPartnerDetail').classList.remove('hidden');
-}
+      if (status === 'suspended') {
+        badge.className = 'badge badge-suspended ml-auto';
+        badge.textContent = '정지됨';
+        btnSuspend.style.display = 'none';
+        btnRestore.style.display = '';
+      } else if (status === 'pending') {
+        badge.className = 'badge badge-warning ml-auto';
+        badge.textContent = '승인 대기';
+        btnSuspend.style.display = 'none';
+        btnRestore.style.display = 'none';
+      } else {
+        badge.className = 'badge badge-approved ml-auto';
+        badge.textContent = '승인 완료';
+        btnSuspend.style.display = '';
+        btnRestore.style.display = 'none';
+      }
 
-function suspendPartner() {
-  showConfirm('해당 파트너 계정을 정지하시겠습니까?\n정지 시 파트너의 모든 서비스 이용이 중단됩니다.', () => {
-    document.getElementById('modalPartnerDetail').classList.add('hidden');
-    showAlert('계정이 정지되었습니다.', {icon:'🚫'});
-  }, {confirmText:'정지'});
-}
+      document.getElementById('modalPartnerDetail').classList.remove('hidden');
+    }
 
-function restorePartner() {
-  showConfirm('해당 파트너 계정의 정지를 해제하시겠습니까?', () => {
-    document.getElementById('modalPartnerDetail').classList.add('hidden');
-    showAlert('계정 정지가 해제되었습니다.', {icon:'✅'});
-  }, {confirmText:'해제', confirmClass:'btn-success'});
-}
-</script>
+    function suspendPartner() {
+      // 정지 사유 입력 모달 표시
+      document.getElementById('suspendReasonText').value = '';
+      document.getElementById('modalSuspendReason').classList.remove('hidden');
+    }
+
+    function confirmSuspend() {
+      const reason = document.getElementById('suspendReasonText').value.trim();
+      if (!reason) {
+        showAlert('정지 사유를 입력해 주세요.', { icon: '⚠️' });
+        return;
+      }
+      document.getElementById('modalSuspendReason').classList.add('hidden');
+      document.getElementById('modalPartnerDetail').classList.add('hidden');
+      showAlert('계정이 정지되었습니다.\\n사유: ' + reason, { icon: '🚫' });
+    }
+
+    function restorePartner() {
+      showConfirm('해당 파트너 계정의 정지를 해제하시겠습니까?', () => {
+        document.getElementById('modalPartnerDetail').classList.add('hidden');
+        showAlert('계정 정지가 해제되었습니다.', { icon: '✅' });
+      }, { confirmText: '해제', confirmClass: 'btn-success' });
+    }
+  </script>
 </body>
+
 </html>

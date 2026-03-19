@@ -130,6 +130,21 @@
   background: #fff; border-radius: 16px; padding: 32px;
   width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.18);
 }
+
+/* 범위 블록 스타일 */
+.range-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.range-block {
+  display: grid; grid-template-columns: 1fr auto 1fr 1fr auto;
+  align-items: center; gap: 8px;
+  background: var(--gray-50); border: 1px solid var(--gray-200);
+  border-radius: 8px; padding: 10px 12px;
+}
+.range-sep { font-size: 13px; color: var(--gray-400); text-align: center; }
+.range-del-btn {
+  background: none; border: none; color: var(--gray-300);
+  font-size: 18px; cursor: pointer; line-height: 1; padding: 0 4px;
+}
+.range-del-btn:hover { color: var(--danger); }
 </style>
 </head>
 <body>
@@ -243,51 +258,6 @@
             </div>
           </div>
 
-          <!-- 운영 정책 -->
-          <div class="rd-section">
-            <div class="rd-section-title">Operation</div>
-            <div class="form-grid-2" style="margin-bottom:0">
-              <div>
-                <label class="form-field-label">체크인 (IN)</label>
-                <select class="fe-select" id="newOpIn">
-                  <option value="14:00">14:00</option>
-                  <option value="15:00" selected>15:00</option>
-                  <option value="16:00">16:00</option>
-                </select>
-              </div>
-              <div>
-                <label class="form-field-label">체크아웃 (OUT)</label>
-                <select class="fe-select" id="newOpOut">
-                  <option value="10:00">10:00</option>
-                  <option value="11:00" selected>11:00</option>
-                  <option value="12:00">12:00</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- 편의시설 -->
-          <div class="rd-section">
-            <div class="rd-section-title">Amenities</div>
-            <div class="amenity-list" id="amenityList">
-              <button class="am-btn" onclick="this.classList.toggle('active')">📺 스마트 TV</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">📶 초고속 Wi-Fi</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">❄️ 시스템 에어컨</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">🧊 대형 냉장고</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">💨 헤어 드라이기</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">🛁 전용 욕실</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">욕조</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">🧴 욕실 용품</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">☕ 전기 포트</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">🔒 금고</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">🏊 개인 풀장</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">♨️ 스파/월풀</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">⭐ 스타일러</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">🍳 조식포함</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">🅿️ 주차 가능</button>
-            </div>
-          </div>
-
           <!-- Actions -->
           <div class="edit-actions">
             <a href="partner-rooms.html" class="btn-w btn-cancel">취소</a>
@@ -344,24 +314,15 @@
 
       <!-- 순차 모드 -->
       <div id="modeSequence" style="display:block;">
-        <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:12px; margin-bottom:12px;">
-          <div>
-            <label class="form-field-label">접두어 (선택)</label>
-            <input type="text" class="fe-input" id="seqPrefix" placeholder="예: 2" oninput="updateUnitPreview()">
-          </div>
-          <div>
-            <label class="form-field-label">시작 번호</label>
-            <input type="text" class="fe-input" id="seqStart" placeholder="01" value="01" oninput="updateUnitPreview()">
-          </div>
-          <div>
-            <label class="form-field-label">끝 번호</label>
-            <input type="text" class="fe-input" id="seqEnd" placeholder="05" value="05" oninput="updateUnitPreview()">
-          </div>
+        <div style="display:grid; grid-template-columns: 1fr auto 1fr 1fr auto; gap:8px; align-items:center; padding:0 2px; margin-bottom:6px;">
+          <span class="form-field-label" style="margin:0">시작 번호</span>
+          <span></span>
+          <span class="form-field-label" style="margin:0">끝 번호</span>
+          <span class="form-field-label" style="margin:0">접미어 (선택)</span>
+          <span></span>
         </div>
-        <div>
-          <label class="form-field-label">접미어 (선택)</label>
-          <input type="text" class="fe-input" id="seqSuffix" placeholder="예: 호" value="호" oninput="updateUnitPreview()">
-        </div>
+        <div class="range-list" id="rangeList"></div>
+        <button type="button" onclick="addRange()" style="width:100%; padding:9px; background:var(--gray-50); border:1.5px dashed var(--gray-300); border-radius:8px; font-size:13px; font-weight:600; color:var(--gray-500); cursor:pointer;">+ 범위 추가</button>
       </div>
 
       <!-- 수동 모드 -->
@@ -388,26 +349,30 @@
 <script>
 initPage('partner', 'rooms', '새 객실 등록');
 
+// ── 전역 상태 ──────────────────────────────────────────
+let createdUnits = [];   // 최종 확정된 호실 목록
+let modalRanges  = [];   // 모달 내 범위 블록 목록 (임시)
+
+// ── 유틸 ──────────────────────────────────────────────
 function formatValue(key, val) {
   if (!val) return '미설정';
-  if (key === 'newPriceWeekday' || key === 'newPriceWeekend') {
-    return '₩' + parseInt(val).toLocaleString();
-  }
+  if (key === 'newPriceWeekday' || key === 'newPriceWeekend') return '₩' + parseInt(val).toLocaleString();
   if (key === 'newCapacity') return val + '인';
   return val;
 }
 
-function switchUnitMode() {
-  const isSeq = document.querySelector('input[name="creationMode"]:checked').value === 'sequence';
-  document.getElementById('modeSequence').style.display = isSeq ? 'block' : 'none';
-  document.getElementById('modeManual').style.display = isSeq ? 'none' : 'block';
-  updateUnitPreview();
+function padNum(num, len) {
+  return String(num).padStart(len, '0');
 }
 
-let createdUnits = [];
-
+// ── 모달 열기/닫기 ────────────────────────────────────
 function openUnitModal() {
+  // 이미 적용된 호실이 없으면 범위 1개로 초기화, 있으면 이전 modalRanges 유지
+  if (createdUnits.length === 0 && modalRanges.length === 0) {
+    modalRanges = [{ start: '', end: '', suffix: '호' }];
+  }
   document.getElementById('modalUnitCreate').classList.remove('hidden');
+  renderRangeList();
   updateUnitPreview();
 }
 
@@ -415,56 +380,72 @@ function closeUnitModal() {
   document.getElementById('modalUnitCreate').classList.add('hidden');
 }
 
-function applyUnitCreation() {
-  const arr = getFinalUnitsArray();
-  if(arr.length === 0) {
-    alert("존재하는 호실을 하나 이상 생성해야 합니다.");
-    return;
-  }
-  
-  createdUnits = arr;
-  
-  // 폼 필드 반영
-  document.getElementById('newInventory').value = createdUnits.length;
-  
-  // 결과 박스 내용 교체
-  document.getElementById('unitResultBox').style.background = '#EEF2FF';
-  document.getElementById('unitResultBox').style.borderColor = '#C7D2FE';
-  document.getElementById('unitResultBox').style.textAlign = 'left';
-  document.getElementById('unitResultEmpty').classList.add('hidden');
-  document.getElementById('unitResultContent').classList.remove('hidden');
-  
-  document.getElementById('resCountText').textContent = createdUnits.length;
-  document.getElementById('unitResultText').textContent = createdUnits.join(', ');
-  
-  closeUnitModal();
+// ── 모드 전환 ─────────────────────────────────────────
+function switchUnitMode() {
+  const isSeq = document.querySelector('input[name="creationMode"]:checked').value === 'sequence';
+  document.getElementById('modeSequence').style.display = isSeq ? 'block' : 'none';
+  document.getElementById('modeManual').style.display   = isSeq ? 'none'  : 'block';
+  updateUnitPreview();
 }
 
-function padZero(num, len) {
-  return String(num).padStart(len, '0');
+// ── 범위 블록 ─────────────────────────────────────────
+function addRange() {
+  modalRanges.push({ start: '', end: '', suffix: '호' });
+  renderRangeList();
+  updateUnitPreview();
 }
 
+function removeRange(idx) {
+  if (modalRanges.length === 1) return; // 최소 1개 유지
+  modalRanges.splice(idx, 1);
+  renderRangeList();
+  updateUnitPreview();
+}
+
+function onRangeInput(idx, field, value) {
+  modalRanges[idx][field] = value;
+  updateUnitPreview();
+}
+
+function renderRangeList() {
+  const list = document.getElementById('rangeList');
+  list.innerHTML = modalRanges.map((r, i) => `
+    <div class="range-block">
+      <input type="text" class="fe-input" placeholder="201" value="${r.start}"
+        oninput="onRangeInput(${i},'start',this.value)" style="text-align:center;">
+      <span class="range-sep">~</span>
+      <input type="text" class="fe-input" placeholder="205" value="${r.end}"
+        oninput="onRangeInput(${i},'end',this.value)" style="text-align:center;">
+      <input type="text" class="fe-input" placeholder="호" value="${r.suffix}"
+        oninput="onRangeInput(${i},'suffix',this.value)">
+      <button class="range-del-btn" onclick="removeRange(${i})" title="삭제">&times;</button>
+    </div>
+  `).join('');
+}
+
+// ── 호실 배열 생성 ────────────────────────────────────
 function generateSequenceArray() {
-  const prefix = document.getElementById('seqPrefix').value.trim();
-  const suffix = document.getElementById('seqSuffix').value.trim();
-  const startStr = document.getElementById('seqStart').value.trim();
-  const endStr = document.getElementById('seqEnd').value.trim();
-  
-  if(!startStr || !endStr) return [];
-  
-  const startNum = parseInt(startStr, 10);
-  const endNum = parseInt(endStr, 10);
-  const len = Math.max(startStr.length, endStr.length);
+  const all = [];
+  const seen = new Set();
 
-  if(isNaN(startNum) || isNaN(endNum) || startNum > endNum || (endNum - startNum) > 100) {
-    return [];
-  }
+  for (const r of modalRanges) {
+    const startStr = r.start.trim();
+    const endStr   = r.end.trim();
+    const suffix   = r.suffix;
 
-  const arr = [];
-  for(let i=startNum; i<=endNum; i++) {
-     arr.push(prefix + padZero(i, len) + suffix);
+    if (!startStr || !endStr) continue;
+
+    const startNum = parseInt(startStr, 10);
+    const endNum   = parseInt(endStr, 10);
+    if (isNaN(startNum) || isNaN(endNum) || startNum > endNum || (endNum - startNum) > 200) continue;
+
+    const len = Math.max(startStr.length, endStr.length);
+    for (let n = startNum; n <= endNum; n++) {
+      const name = padNum(n, len) + suffix;
+      if (!seen.has(name)) { seen.add(name); all.push(name); }
+    }
   }
-  return arr;
+  return all;
 }
 
 function getManualArray() {
@@ -477,47 +458,64 @@ function getFinalUnitsArray() {
   return isSeq ? generateSequenceArray() : getManualArray();
 }
 
+// ── 미리보기 갱신 ─────────────────────────────────────
 function updateUnitPreview() {
-  const arr = getFinalUnitsArray();
-  const elText = document.getElementById('unitPreviewText');
-  const elCount = document.getElementById('unitInvCount');
-  
-  if(arr.length === 0) {
-    elText.textContent = '올바른 값을 입력해 주세요. (가용 최대 100객실)';
-    elText.style.color = 'var(--danger)';
-    elCount.textContent = '0개';
+  const arr   = getFinalUnitsArray();
+  const elTxt = document.getElementById('unitPreviewText');
+  const elCnt = document.getElementById('unitInvCount');
+
+  if (arr.length === 0) {
+    elTxt.textContent = '올바른 범위를 입력해 주세요.';
+    elTxt.style.color = 'var(--danger)';
+    elCnt.textContent = '0개';
   } else {
-    elText.textContent = arr.join(', ');
-    elText.style.color = 'var(--gray-700)';
-    elCount.textContent = arr.length + '개';
+    elTxt.textContent = arr.join(', ');
+    elTxt.style.color = 'var(--gray-700)';
+    elCnt.textContent = arr.length + '개';
   }
 }
 
+// ── 본 폼에 반영 ──────────────────────────────────────
+function applyUnitCreation() {
+  const arr = getFinalUnitsArray();
+  if (arr.length === 0) {
+    alert('호실을 하나 이상 설정해야 합니다.');
+    return;
+  }
+
+  createdUnits = arr;
+  document.getElementById('newInventory').value = createdUnits.length;
+  document.getElementById('resCountText').textContent = createdUnits.length;
+  document.getElementById('unitResultText').textContent = createdUnits.join(', ');
+
+  const box = document.getElementById('unitResultBox');
+  box.style.background  = '#EEF2FF';
+  box.style.borderColor = '#C7D2FE';
+  box.style.textAlign   = 'left';
+  document.getElementById('unitResultEmpty').classList.add('hidden');
+  document.getElementById('unitResultContent').classList.remove('hidden');
+
+  closeUnitModal();
+}
+
+// ── 등록 ──────────────────────────────────────────────
 function handleRegister() {
   const roomType = document.getElementById('newRoomType').value || '(이름을 입력하지 않음)';
   const capacity = document.getElementById('newCapacity').value;
   const pWd = document.getElementById('newPriceWeekday').value || '0';
   const pWe = document.getElementById('newPriceWeekend').value || '0';
-  
-  const amenities = Array.from(document.querySelectorAll('#amenityList .am-btn.active'))
-                         .map(b => b.textContent.trim());
 
-  const inv = createdUnits.length;
-
-  if (inv === 0) {
-    alert("우측 셋팅 버튼을 눌러 객실에 속할 실물 방(호실)을 최소 1개라도 생성해야 등록이 가능합니다.");
+  if (createdUnits.length === 0) {
+    alert('셋팅 버튼을 눌러 호실을 최소 1개 이상 추가해야 등록이 가능합니다.');
     return;
   }
 
-  const summaryHTML = `
-    <div style="margin-bottom:6px"><span style="color:#6366F1; font-weight:700;">객실 타입:</span> ${roomType}</div>
-    <div style="margin-bottom:6px"><span style="color:#6366F1; font-weight:700;">기본 제원:</span> 기준 ${formatValue('newCapacity', capacity)} / 자동 재고 배정 <strong style="color:var(--gray-900);">${inv}실</strong></div>
-    <div style="margin-bottom:6px; line-height:1.5;"><span style="color:#6366F1; font-weight:700;">할당 호실:</span> <span style="color:var(--gray-800);">${createdUnits.join(', ')}</span></div>
-    <div style="margin-bottom:6px"><span style="color:#6366F1; font-weight:700;">판매 요금:</span> 평일 ${formatValue('newPriceWeekday', pWd)} / 주말 ${formatValue('newPriceWeekend', pWe)}</div>
-    <div><span style="color:#6366F1; font-weight:700;">편의시설:</span> <span style="font-weight:500;color:var(--gray-500)">${amenities.length > 0 ? amenities.join(', ') : '선택 안 됨'}</span></div>
+  document.getElementById('modalSummaryDesc').innerHTML = `
+    <div style="margin-bottom:6px"><span style="color:#6366F1;font-weight:700;">객실 타입:</span> ${roomType}</div>
+    <div style="margin-bottom:6px"><span style="color:#6366F1;font-weight:700;">기본 제원:</span> 기준 ${formatValue('newCapacity', capacity)} / 자동 재고 배정 <strong style="color:var(--gray-900);">${createdUnits.length}실</strong></div>
+    <div style="margin-bottom:6px;line-height:1.5;"><span style="color:#6366F1;font-weight:700;">할당 호실:</span> <span style="color:var(--gray-800);">${createdUnits.join(', ')}</span></div>
+    <div style="margin-bottom:6px"><span style="color:#6366F1;font-weight:700;">판매 요금:</span> 평일 ${formatValue('newPriceWeekday', pWd)} / 주말 ${formatValue('newPriceWeekend', pWe)}</div>
   `;
-  
-  document.getElementById('modalSummaryDesc').innerHTML = summaryHTML;
   document.getElementById('modalSuccess').classList.remove('hidden');
 }
 </script>

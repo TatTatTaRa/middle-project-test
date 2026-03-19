@@ -212,17 +212,6 @@ const INQ_DATA = [
   },
 
   {
-    id: 3, corp: '제주신화월드 (주)', bizNum: '456-78-90123', phone: '010-9999-0000', status: 'new', badge: 'inq-badge-reapp', badgeLabel: '재신청',
-    subject: '서류 재심사 관련 문의',
-    preview: '반려 사유가 사업자 주소 불일치라고 하셨는데...',
-    time: '2시간 전',
-    messages: [
-      { from: 'partner', text: '반려 사유가 사업자 주소 불일치라고 하셨는데, 저희 법인은 본사와 운영 숙소 주소가 다릅니다.\n법인등기부등본을 제출하면 될까요?', time: '08:55' },
-      { from: 'admin', text: '네, 법인등기부등본과 운영 숙소 사용 확인서를 함께 첨부하여 재제출해주시면 검토하겠습니다.', time: '09:05' },
-      { from: 'partner', text: '알겠습니다. 서류를 준비해서 재신청하겠습니다. 감사합니다!', time: '09:10' },
-    ]
-  },
-  {
     id: 4, corp: '소노벨 리조트 (주)', bizNum: '211-86-68194', phone: '010-2222-3333', status: 'done', badge: 'inq-badge-done', badgeLabel: '답변완료',
     subject: '정산 계좌 변경 방법',
     preview: '답변해주셔서 감사합니다.',
@@ -231,16 +220,6 @@ const INQ_DATA = [
       { from: 'partner', text: '정산 계좌를 변경하고 싶은데 어떻게 하면 되나요?', time: '어제 14:20' },
       { from: 'admin', text: '정산 계좌 변경은 파트너센터 > 숙소 설정 > 정산 계좌 메뉴에서 가능합니다.\n변경 요청 시 운영팀 검토 후 1~2 영업일 내에 적용됩니다.', time: '어제 14:45' },
       { from: 'partner', text: '답변해주셔서 감사합니다. 바로 변경해보겠습니다.', time: '어제 15:00' },
-    ]
-  },
-  {
-    id: 5, corp: '해운대스테이 (주)', bizNum: '890-12-34567', phone: '010-9999-8888', status: 'new', badge: 'inq-badge-new', badgeLabel: '미답변',
-    appStatus: '서류 검토 중', appStatusBadge: 'badge-warning',
-    subject: '파트너 가입 심사는 며칠이나 걸리나요?',
-    preview: '어제 가입 서류를 냈는데, 심사가 언제쯤 끝날까요?',
-    time: '3시간 전',
-    messages: [
-      { from: 'partner', text: '안녕하세요. 어제 가입 신청과 함께 필수 서류를 모두 제출했습니다.\n보통 서류 검토 및 승인까지 기간이 얼마나 소요되는지 궁금합니다.', time: '08:30' },
     ]
   },
 ];
@@ -267,7 +246,6 @@ function renderList() {
         <div class="inq-item-header">
           ${d.status === 'new' ? '<div class="dot-unread"></div>' : ''}
           <div class="inq-corp">${d.corp}</div>
-          ${d.appStatus ? `<span class="badge ${d.appStatusBadge}" style="font-size:10px;padding:2px 6px;">${d.appStatus}</span>` : ''}
           <div class="inq-time" style="margin-left:auto">${d.time}</div>
         </div>
         <div style="margin-bottom:4px;display:flex;align-items:center;gap:6px">
@@ -293,7 +271,6 @@ function openChat(id) {
     <div style="display:flex;flex-direction:column;justify-content:center;flex:1">
       <div class="inq-chat-corp" style="margin-bottom:6px;display:flex;align-items:center;gap:6px">
         <span>${inq.corp}</span>
-        ${inq.appStatus ? `<span class="badge ${inq.appStatusBadge}" style="font-size:10px;padding:2px 6px;">${inq.appStatus}</span>` : ''}
         <span class="inq-badge ${inq.badge}">${inq.badgeLabel}</span>
       </div>
       <div style="font-size:11px;color:var(--gray-500);display:flex;align-items:center;gap:4px">

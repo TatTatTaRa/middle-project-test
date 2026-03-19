@@ -697,17 +697,17 @@
                     <span id="sidebarBadge-all"
                       style="background:var(--gray-900); color:#fff; border-radius:999px; font-size:11px; font-weight:700; padding:1px 7px;">3</span>
                   </button>
-                  <button id="sidebarTab-impossible" onclick="sidebarTabFilter('impossible', this)"
-                    style="background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-2px; padding:8px 14px; font-size:14px; font-weight:500; color:var(--gray-400); cursor:pointer; display:flex; align-items:center; gap:6px;">
-                    미배정/불가
-                    <span id="sidebarBadge-impossible"
-                      style="background:var(--gray-200); color:var(--gray-600); border-radius:999px; font-size:11px; font-weight:700; padding:1px 7px;">1</span>
-                  </button>
                   <button id="sidebarTab-possible" onclick="sidebarTabFilter('possible', this)"
                     style="background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-2px; padding:8px 14px; font-size:14px; font-weight:500; color:var(--gray-400); cursor:pointer; display:flex; align-items:center; gap:6px;">
-                    대기
+                    미배정
                     <span id="sidebarBadge-possible"
                       style="background:var(--gray-200); color:var(--gray-600); border-radius:999px; font-size:11px; font-weight:700; padding:1px 7px;">2</span>
+                  </button>
+                  <button id="sidebarTab-impossible" onclick="sidebarTabFilter('impossible', this)"
+                    style="background:none; border:none; border-bottom:2px solid transparent; margin-bottom:-2px; padding:8px 14px; font-size:14px; font-weight:500; color:var(--gray-400); cursor:pointer; display:flex; align-items:center; gap:6px;">
+                    불가
+                    <span id="sidebarBadge-impossible"
+                      style="background:var(--gray-200); color:var(--gray-600); border-radius:999px; font-size:11px; font-weight:700; padding:1px 7px;">1</span>
                   </button>
                 </div>
               </div>
@@ -945,11 +945,22 @@
   <!-- 수동 호실 배정 모달 -->
   <div id="modalManualAssign" class="modal-overlay" style="display:none;"
     onclick="if(event.target===this) closeModal('modalManualAssign')">
-    <div class="modal" style="width:400px;">
+    <div class="modal" style="width:400px; position:relative;">
+      <button onclick="closeModal('modalManualAssign')" style="position:absolute; top:12px; right:14px; background:none; border:none; font-size:20px; color:var(--gray-400); cursor:pointer; line-height:1; padding:4px; z-index:1;">×</button>
       <div class="modal-body" style="padding-top: 24px;">
         <!-- 선택된 예약 정보 요약 -->
         <div style="margin-bottom:16px; padding:12px; background:var(--gray-50); border-radius:8px;">
-          <div style="font-weight:700; font-size:15px; margin-bottom:4px;" id="maName">김철수</div>
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:4px;">
+            <div style="font-weight:700; font-size:15px;" id="maName">김철수</div>
+            <button onclick="openMemoModal()"
+              style="background:none; border:none; padding:2px; cursor:pointer; display:flex; align-items:center; gap:4px; font-size:11px; font-weight:500; color:var(--gray-500);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              메모
+            </button>
+          </div>
           <div style="font-size:13px; color:var(--gray-600); display:flex; gap:12px;">
             <span id="maDates">📅 -</span>
             <span id="maType" style="font-weight:600; color:var(--primary);">-</span>
@@ -965,10 +976,17 @@
           <!-- Javascript에서 동적으로 .room-option-item 삽입 -->
         </div>
 
-        <!-- 하단 버튼 영역 -->
-        <div style="display:flex; justify-content:center; gap:8px; width:100%;">
-          <button class="btn btn-outline" style="border-radius:6px; font-weight:600; padding:8px 16px; width: 100px;"
-            onclick="closeModal('modalManualAssign')">닫기</button>
+
+        <!-- 배정 해제 (이미 배정된 블록에서만 표시) -->
+        <div id="unassignSection" style="display:none; margin-top:16px; background:#FEF2F2; border:1px solid #FECACA; border-radius:8px; padding:14px 16px;">
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="flex:1;">
+              <div style="font-size:13px; font-weight:700; color:#991B1B; margin-bottom:2px;">현재 배정을 해제할까요?</div>
+              <div style="font-size:11px; color:#B91C1C; opacity:0.7;">미배정 대기 목록으로 되돌아갑니다.</div>
+            </div>
+            <button class="btn btn-sm" style="background:#EF4444; color:#fff; border:none; border-radius:6px; padding:6px 14px; font-weight:700; font-size:12px; white-space:nowrap; cursor:pointer;"
+              onclick="unassignFromRoom()">배정 해제</button>
+          </div>
         </div>
       </div>
     </div>
@@ -1079,8 +1097,19 @@
         <button class="modal-close" data-modal-close>×</button>
       </div>
       <div class="modal-body">
-        <div style="margin-bottom:12px"><span class="badge" style="background:#FEF3C7;color:#B45309;font-weight:700">이용
-            중</span></div>
+        <div style="margin-bottom:12px; display:flex; justify-content:space-between; align-items:center;">
+          <span class="badge" style="background:#FEF3C7;color:#B45309;font-weight:700">이용 중</span>
+          <div id="usingMemoWrap" style="display:none;">
+            <button onclick="openMemoModal()"
+              style="background:none; border:1px solid var(--gray-200); border-radius:6px; padding:5px 10px; cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:11px; font-weight:500; color:var(--gray-500);">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+              메모
+            </button>
+          </div>
+        </div>
         <div style="font-size:15px;font-weight:700;margin-bottom:4px" id="uaGuestName"></div>
         <div style="font-size:13px;color:var(--gray-600);margin-bottom:12px" id="uaRoomInfo"></div>
         <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px;font-size:13px">
@@ -1294,7 +1323,7 @@
     // 사이드바 탭 필터링
     function sidebarTabFilter(type, clickedBtn) {
       // 모든 탭 버튼 비활성화
-      ['all', 'impossible', 'possible'].forEach(t => {
+      ['all', 'possible', 'impossible'].forEach(t => {
         const btn = document.getElementById('sidebarTab-' + t);
         const badge = document.getElementById('sidebarBadge-' + t);
         if (!btn) return;
@@ -1404,8 +1433,21 @@
       // 단, 확정된 예약 블록(파란색)을 클릭하면 해당 블록에 대한 수동 배정 모달을 엶
       if (isAssignMode) {
         if (e) e.preventDefault();
-        if (e.currentTarget && e.currentTarget.classList.contains('draggable-event') && !e.currentTarget.classList.contains('unassigned-card')) {
-          openManualAssignModal(e.currentTarget, true);
+        const el = e.currentTarget;
+        // 이용중 블록 → 간단 정보 + 메모
+        if (el && el.getAttribute('data-status') === 'using') {
+          const name = el.getAttribute('data-name');
+          currentModalResName = name;
+          openUsingModal(el);
+          // 배치 모드에서는 추가 작업(중도 퇴실 등) 숨기고 메모만
+          document.getElementById('usingExtraActions').style.display = 'none';
+          const toggleBtn = document.querySelector('#modalUsingAction .modal-footer button[onclick="toggleSetupActions()"]');
+          if (toggleBtn) toggleBtn.style.display = 'none';
+          document.getElementById('usingMemoWrap').style.display = 'block';
+          return;
+        }
+        if (el && el.classList.contains('draggable-event') && !el.classList.contains('unassigned-card')) {
+          openManualAssignModal(el, true);
         }
         return;
       }
@@ -1414,7 +1456,13 @@
 
       // 이용중(using) 타임라인 블록 → 별도 액션 모달로 라우팅
       if (!target.classList.contains('unassigned-card') && target.getAttribute('data-status') === 'using') {
+        currentModalResName = target.getAttribute('data-name');
         openUsingModal(target);
+        // 비배치 모드: 추가 작업 버튼 복원, 메모 wrap 숨김
+        const toggleBtn = document.querySelector('#modalUsingAction .modal-footer button[onclick="toggleSetupActions()"]');
+        if (toggleBtn) toggleBtn.style.display = '';
+        const memoBtnWrap = document.getElementById('usingMemoWrap');
+        if (memoBtnWrap) memoBtnWrap.style.display = 'none';
         return;
       }
 
@@ -2622,6 +2670,7 @@
       // 모달 상단 예약 요약 정보 업데이트
       document.getElementById('maName').innerText = uName;
       document.getElementById('maType').innerText = uType;
+      currentModalResName = uName;
 
       const dateMap = { 1: '3/15', 2: '3/16', 3: '3/17', 4: '3/18', 5: '3/19', 6: '3/20', 7: '3/21' };
       const startDateStr = dateMap[uStart] || `Day ${uStart}`;
@@ -2711,6 +2760,14 @@
       }
 
       openModal('modalManualAssign');
+
+      // 이미 배정된 블록(캘린더 그리드)에서 열었으면 배정 해제 버튼 표시
+      const unassignSection = document.getElementById('unassignSection');
+      if (targetCardForAssign && !targetCardForAssign.classList.contains('unassigned-card')) {
+        unassignSection.style.display = 'block';
+      } else {
+        unassignSection.style.display = 'none';
+      }
     }
 
     function confirmManualAssign(selectedRoomNumber) {
@@ -2810,6 +2867,30 @@
       updateUnassignedStatus();
       closeModal('modalManualAssign');
       // showAlert(`모달 수동 배정: ${uName} 님이 ${selectedRoomNumber} 객실에 가배치되었습니다.`, { icon: '💡' });
+    }
+    function unassignFromRoom() {
+      if (!targetCardForAssign) return;
+      const uName = targetCardForAssign.getAttribute('data-name');
+      const nights = targetCardForAssign.getAttribute('data-nights');
+      const startIdx = targetCardForAssign.getAttribute('data-start');
+      const uType = targetCardForAssign.getAttribute('data-type');
+      const roomRow = targetCardForAssign.closest('.tl-row');
+      const sourceRoom = roomRow ? roomRow.getAttribute('data-room') : '';
+
+      showConfirm(`${uName}님의 ${sourceRoom} 배정을 해제하고 미배정 목록으로 되돌리시겠습니까?`, () => {
+        // 캘린더에서 블록 제거
+        targetCardForAssign.remove();
+
+        // 미배정 사이드바에 카드 추가
+        addUnassignedCard(uName, nights, startIdx, uType);
+
+        // 변경 이력
+        assignChanges[uName] = { from: sourceRoom, to: '미배정' };
+
+        updateUnassignedStatus();
+        closeModal('modalManualAssign');
+        showAlert(`${uName}님의 배정이 해제되었습니다.`, { icon: '↩️' });
+      }, { confirmText: '배정 해제', confirmClass: 'btn-danger' });
     }
   </script>
 </body>

@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>숙소 심사 관리 — Super Admin</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .tabs { display: flex; gap: 8px; margin-bottom: 16px; border-bottom: 1px solid var(--gray-200); }
+  .tab { padding: 10px 16px; font-size: 14px; font-weight: 600; color: var(--gray-500); cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; }
+  .tab:hover { color: var(--gray-800); }
+  .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .table-container { background-color: #fff; border: 1px solid var(--gray-100); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); overflow: hidden; }
+  .table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .table th, .table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid var(--gray-100); vertical-align: middle; }
+  .table th { background-color: var(--gray-50); color: var(--gray-500); font-weight: 600; font-size: 12px; }
+  .table tbody tr:last-child td { border-bottom: none; }
+  .table tbody tr:hover { background-color: var(--gray-25); }
+  .table .text-center { text-align: center; }
+  .table .font-semibold { font-weight: 600; }
+  .table .text-gray-900 { color: var(--gray-900); }
+  .table .ws-nowrap { white-space: nowrap; }
+  .detail-grid { display: grid; grid-template-columns: 100px 1fr; gap: 12px 8px; }
+  .detail-grid > dt { color: var(--gray-500); }
+  .detail-grid > dd { font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left"><div class="header-title">숙소 심사 관리</div></div>
+      <div class="header-right"><div class="header-date"></div><div class="avatar" style="background:#6366F1">A</div></div>
+    </header>
+
+    <div class="page" style="max-width:1200px;margin:0 auto;width:100%">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">숙소 심사 관리</div>
+          <div class="page-subtitle">신규 또는 재신청된 숙소의 등록을 승인하거나 반려합니다.</div>
+        </div>
+      </div>
+      
+      <div style="margin-bottom: 16px;">
+        <div class="filter-bar">
+          <select id="regionFilter"><option value="">전체 지역</option></select>
+          <select id="typeFilter"><option value="">전체 유형</option></select>
+          <div style="position:relative;">
+            <div id="dateRangeBtn" onclick="toggleDatePicker()" style="display:flex;align-items:center;gap:6px;padding:8px 12px;border:1.5px solid var(--gray-200);border-radius:var(--radius);font-size:13px;cursor:pointer;background:#fff;white-space:nowrap;">
+              <span>📅</span>
+              <span id="dateRangeLabel">기간 선택</span>
+            </div>
+            <div id="datePickerPanel" style="display:none;position:absolute;top:calc(100% + 6px);left:0;background:#fff;border:1.5px solid var(--gray-200);border-radius:var(--radius-lg);padding:16px;box-shadow:0 4px 16px rgba(0,0,0,0.12);z-index:100;">
+              <div style="display:flex;gap:12px;align-items:center;margin-bottom:12px;">
+                <div>
+                  <div style="font-size:11px;color:var(--gray-400);margin-bottom:4px;">시작일</div>
+                  <input type="date" id="dateFrom" style="padding:7px 10px;border:1.5px solid var(--gray-200);border-radius:var(--radius);font-size:13px;outline:none;" onchange="updateDateLabel()">
+                </div>
+                <div style="color:var(--gray-300);margin-top:16px;">~</div>
+                <div>
+                  <div style="font-size:11px;color:var(--gray-400);margin-bottom:4px;">종료일</div>
+                  <input type="date" id="dateTo" style="padding:7px 10px;border:1.5px solid var(--gray-200);border-radius:var(--radius);font-size:13px;outline:none;" onchange="updateDateLabel()">
+                </div>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button class="btn btn-ghost btn-sm" onclick="setRange('month')">이번 달</button>
+                <button class="btn btn-ghost btn-sm" onclick="setRange('last')">지난 달</button>
+                <button class="btn btn-ghost btn-sm" onclick="setRange('3m')">최근 3개월</button>
+                <button class="btn btn-ghost btn-sm" onclick="setRange('all')">전체</button>
+              </div>
+            </div>
+          </div>
+          <div class="search-box ml-auto"><input type="text" id="searchInput" placeholder="숙소명 또는 파트너 법인명 검색..."></div>
+          <button id="searchBtn" class="btn btn-sm btn-primary">검색</button>
+        </div>
+      </div>
+      
+      <div class="tabs" id="statusTabs"></div>
+
+      <div class="table-container">
+        <table class="table" id="accomTable"></table>
+      </div>
+
+      <div class="pagination" style="margin-top:16px"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 숙소 심사 모달 -->
+<div class="modal-overlay hidden" id="modalAccomReview">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span id="revBadge" class="badge"></span>
+        <div class="modal-title" id="revAccomName" style="font-size:20px;font-weight:800"></div>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+      <dl class="detail-grid">
+        <dt>소속 파트너</dt><dd id="revPartner"></dd>
+        <dt>숙소 유형</dt><dd id="revType"></dd>
+        <dt>숙소 주소</dt><dd id="revAddr"></dd>
+        <dt>지역</dt><dd id="revRegion"></dd>
+        <dt>신청일</dt><dd id="revCreatedAt"></dd>
+      </dl>
+      <hr style="margin: 20px 0; border-color: var(--gray-100);">
+      <div id="rejectionSection">
+          <label for="revReason" style="font-weight:600;font-size:14px;margin-bottom:8px;display:block">반려 사유</label>
+          <textarea id="revReason" class="form-control" rows="4" placeholder="반려 시 파트너에게 전달될 사유를 명확하게 입력해주세요."></textarea>
+      </div>
+    </div>
+    <div class="modal-footer" id="reviewModalFooter" style="justify-content:space-between">
+      <!-- JS에서 동적 생성 -->
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+initPage('admin', 'accommodations-review', '숙소 심사 관리');
+
+const ALL_ACCOMS = [
+  { id:1, name:'시그니엘 서울 호텔', partner:'시그니엘 서울 (주)', type:'호텔', region:'서울', status:'active', addr: '서울특별시 송파구 올림픽로 300' },
+  { id:5, name:'해운대 오션뷰 호텔', partner:'해운대스테이 (주)', type:'호텔', region:'부산', status:'new', createdAt:'2026.03.18 11:05', addr: '부산광역시 해운대구 해운대해변로 298' },
+  { id:6, name:'남산 포레스트 펜션', partner:'남산빌리지 (주)', type:'펜션', region:'서울', status:'new', createdAt:'2026.03.17 09:30', addr: '서울특별시 용산구 남산공원길 105' },
+  { id:9, name:'제주 해변가 펜션', partner:'제주사랑', type:'펜션', region:'제주', status:'reapply', createdAt:'2026.03.15 14:20', reason: '사업자등록증 불명확', addr: '제주특별자치도 제주시 애월읍 애월해안로 55' },
+  { id:10, name:'설악산 국립공원 호텔', partner:'설악산 관광(주)', type:'호텔', region:'강원', status:'rejected', createdAt:'2026.03.19 16:45', reason: '필수 서류 누락', addr: '강원도 속초시 설악산로 1091' },
+  { id:11, name:'경기 부띠크 호텔', partner:'경기호텔(주)', type:'호텔', region:'경기', status:'new', createdAt:'2026.03.20 10:10', addr: '경기도 성남시 분당구 판교역로 123' },
+];
+
+let reviewAccoms = ALL_ACCOMS.filter(a => ['new', 'reapply', 'rejected'].includes(a.status));
+let currentTabFilter = 'pending';
+let activeReviewId = null;
+
+const tabConfig = {
+  pending: { label: '심사 대기', badge: 'badge-warning' },
+  rejected: { label: '반려', badge: 'badge-danger' },
+};
+
+function setupTabs() {
+  const tabsContainer = document.getElementById('statusTabs');
+  const counts = {
+    pending: reviewAccoms.filter(a => a.status === 'new' || a.status === 'reapply').length,
+    rejected: reviewAccoms.filter(a => a.status === 'rejected').length
+  };
+  
+  tabsContainer.innerHTML = Object.keys(tabConfig).map(key => `
+    <div class="tab ${currentTabFilter === key ? 'active' : ''}" data-status="${key}">
+      ${tabConfig[key].label} <span class="badge ${tabConfig[key].badge}">${counts[key] || 0}</span>
+    </div>
+  `).join('');
+
+  tabsContainer.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      currentTabFilter = tab.dataset.status;
+      applyAndRenderFilters();
+    });
+  });
+}
+
+function renderTable() {
+    const table = document.getElementById('accomTable');
+    const colspan = 6;
+    
+    let headerHtml = `<thead><tr><th>신청일시</th><th>숙소명</th><th>소속 파트너</th><th>유형</th><th>지역</th>`;
+    if (currentTabFilter === 'rejected') {
+        headerHtml = `<thead><tr><th>반려일</th><th>숙소명</th><th>소속 파트너</th><th>유형</th><th>지역</th><th>반려 사유</th>`;
+    }
+    headerHtml += `<th class="text-center">관리</th></tr></thead>`;
+    
+    let filteredData;
+    if (currentTabFilter === 'pending') {
+      filteredData = reviewAccoms.filter(a => a.status === 'new' || a.status === 'reapply');
+    } else {
+      filteredData = reviewAccoms.filter(a => a.status === 'rejected');
+    }
+
+    let bodyHtml = '<tbody>';
+    if (filteredData.length === 0) {
+        bodyHtml += `<tr><td colspan="${colspan + (currentTabFilter === 'rejected' ? 1:0) }" class="text-center" style="padding:48px 0">${tabConfig[currentTabFilter].label} 상태의 숙소가 없습니다.</td></tr>`;
+    } else {
+        bodyHtml += filteredData.map(a => {
+            const reapplyBadge = a.status === 'reapply' ? '<span class="badge badge-primary" style="margin-left:6px;">재신청</span>' : '';
+            const actionButton = (currentTabFilter === 'pending')
+                ? `<button class="btn btn-outline btn-sm" onclick="startReview(${a.id})">심사</button>`
+                : `<button class="btn btn-ghost btn-sm" onclick="startReview(${a.id})">상세 보기</button>`;
+            
+            return `<tr>
+              ${currentTabFilter === 'rejected' ? `<td class="ws-nowrap">${a.createdAt}</td>` : ''}
+              ${currentTabFilter === 'pending' ? `<td class="ws-nowrap">${a.createdAt}</td>` : ''}
+              <td class="font-semibold text-gray-900">${a.name} ${currentTabFilter === 'pending' ? reapplyBadge : ''}</td>
+              <td>${a.partner}</td><td>${a.type}</td><td>${a.region}</td>
+              ${currentTabFilter === 'rejected' ? `<td style="color:var(--danger);font-size:12px;">${a.reason || ''}</td>` : ''}
+              <td class="text-center ws-nowrap">${actionButton}</td>
+            </tr>`;
+        }).join('');
+    }
+    bodyHtml += '</tbody>';
+    table.innerHTML = headerHtml + bodyHtml;
+}
+
+function applyAndRenderFilters() {
+    setupTabs();
+    renderTable();
+}
+
+function startReview(id) {
+  const accom = reviewAccoms.find(a => a.id === id);
+  if (!accom) return;
+
+  activeReviewId = id;
+  const isRejected = accom.status === 'rejected';
+
+  // 모달 내용 채우기
+  const badgeEl = document.getElementById('revBadge');
+  badgeEl.textContent = isRejected ? '반려됨' : (accom.status === 'reapply' ? '재신청' : '신규 신청');
+  badgeEl.className = `badge ${isRejected ? 'badge-danger' : (accom.status === 'reapply' ? 'badge-primary' : 'badge-warning')}`;
+  
+  document.getElementById('revAccomName').textContent = accom.name;
+  document.getElementById('revPartner').textContent = accom.partner;
+  document.getElementById('revType').textContent = accom.type;
+  document.getElementById('revAddr').textContent = accom.addr || '주소 정보 없음';
+  document.getElementById('revRegion').textContent = accom.region;
+  document.getElementById('revCreatedAt').textContent = accom.createdAt;
+  
+  const rejectionSection = document.getElementById('rejectionSection');
+  const reasonTextarea = document.getElementById('revReason');
+  const footer = document.getElementById('reviewModalFooter');
+
+  if (isRejected) {
+    rejectionSection.style.display = 'block';
+    reasonTextarea.value = accom.reason || '';
+    reasonTextarea.readOnly = true;
+    footer.innerHTML = '';
+    // 반려 취소 버튼을 모달 body 하단 중앙에 추가
+    let cancelBtnWrap = document.getElementById('cancelRejectWrap');
+    if (!cancelBtnWrap) {
+      cancelBtnWrap = document.createElement('div');
+      cancelBtnWrap.id = 'cancelRejectWrap';
+      cancelBtnWrap.style.cssText = 'text-align:center;margin-top:20px;padding-top:16px;border-top:1px solid var(--gray-100);';
+      document.querySelector('#modalAccomReview .modal-body').appendChild(cancelBtnWrap);
+    }
+    cancelBtnWrap.style.display = 'block';
+    cancelBtnWrap.innerHTML = `<button class="btn btn-primary" onclick="cancelRejectAccom()">반려 취소</button>`;
+  } else {
+    // 심사 대기일 때 반려 취소 버튼 숨김
+    const cancelBtnWrap = document.getElementById('cancelRejectWrap');
+    if (cancelBtnWrap) cancelBtnWrap.style.display = 'none';
+    rejectionSection.style.display = 'block';
+    reasonTextarea.value = accom.reason || '';
+    reasonTextarea.readOnly = false;
+    footer.innerHTML = `
+      <button class="btn btn-danger" onclick="submitReview('reject')">등록 반려</button>
+      <button class="btn btn-success" onclick="submitReview('approve')">등록 승인</button>
+    `;
+  }
+  
+  document.getElementById('modalAccomReview').classList.remove('hidden');
+}
+
+function submitReview(decision) {
+    const reasonTextarea = document.getElementById('revReason');
+    const reason = reasonTextarea.value.trim();
+
+    if (decision === 'reject' && !reason) {
+        showAlert('반려 시 사유를 반드시 입력해야 합니다.', { icon: '⚠️' });
+        reasonTextarea.focus();
+        return;
+    }
+    finishReview(activeReviewId, decision, reason);
+}
+
+function finishReview(id, decision, reason = '') {
+  const accomIndex = reviewAccoms.findIndex(a => a.id === id);
+  if (accomIndex === -1) return;
+
+  if (decision === 'approve') {
+    reviewAccoms.splice(accomIndex, 1);
+    showAlert('숙소 등록이 승인되었습니다.', { icon: '✅' });
+  } else {
+    const accom = reviewAccoms[accomIndex];
+    accom.status = 'rejected';
+    accom.reason = reason;
+    showAlert('숙소 등록이 반려되었습니다.', { icon: '🚫' });
+  }
+  
+  document.getElementById('modalAccomReview').classList.add('hidden');
+  activeReviewId = null;
+  applyAndRenderFilters();
+}
+
+function cancelRejectAccom() {
+  const accom = reviewAccoms.find(a => a.id === activeReviewId);
+  if (!accom) return;
+  showConfirm('"' + accom.name + '"의 반려를 취소하고 심사 대기 목록으로 되돌리시겠습니까?', () => {
+    accom.status = 'reapply';
+    accom.reason = '';
+    document.getElementById('modalAccomReview').classList.add('hidden');
+    activeReviewId = null;
+    applyAndRenderFilters();
+    showAlert('반려가 취소되었습니다. 심사 대기 목록에서 다시 심사할 수 있습니다.', { icon: '↩️' });
+  }, { confirmText: '반려 취소', confirmClass: 'btn-primary' });
+}
+
+applyAndRenderFilters();
+
+// Date range picker
+function toggleDatePicker() {
+  const panel = document.getElementById('datePickerPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+function updateDateLabel() {
+  const from = document.getElementById('dateFrom').value;
+  const to   = document.getElementById('dateTo').value;
+  const label = document.getElementById('dateRangeLabel');
+  if (from && to) label.textContent = `${from} ~ ${to}`;
+  else if (from)  label.textContent = `${from} ~`;
+  else            label.textContent = '기간 선택';
+}
+function setRange(type) {
+  const now = new Date();
+  let from, to;
+  if (type === 'month') {
+    from = new Date(now.getFullYear(), now.getMonth(), 1);
+    to   = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  } else if (type === 'last') {
+    from = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    to   = new Date(now.getFullYear(), now.getMonth(), 0);
+  } else if (type === '3m') {
+    from = new Date(now.getFullYear(), now.getMonth() - 2, 1);
+    to   = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+  } else {
+    document.getElementById('dateFrom').value = '';
+    document.getElementById('dateTo').value   = '';
+    document.getElementById('dateRangeLabel').textContent = '전체';
+    document.getElementById('datePickerPanel').style.display = 'none';
+    return;
+  }
+  const fmt = d => d.toISOString().slice(0, 10);
+  document.getElementById('dateFrom').value = fmt(from);
+  document.getElementById('dateTo').value   = fmt(to);
+  updateDateLabel();
+  document.getElementById('datePickerPanel').style.display = 'none';
+}
+document.addEventListener('click', e => {
+  const btn   = document.getElementById('dateRangeBtn');
+  const panel = document.getElementById('datePickerPanel');
+  if (!btn.contains(e.target) && !panel.contains(e.target)) panel.style.display = 'none';
+});
+</script>
+</body>
+</html>

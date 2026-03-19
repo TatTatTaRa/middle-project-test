@@ -53,6 +53,32 @@
   height: 100%; background: var(--primary);
   border-radius: 99px; transition: width 0.4s ease;
 }
+.file-upload-box {
+  border: 2px dashed var(--gray-200); border-radius: var(--radius);
+  padding: 24px 20px; text-align: center; cursor: pointer;
+  transition: border-color 0.15s, background 0.15s; margin-top: 6px;
+}
+.file-upload-box:hover { border-color: var(--primary); background: #fdf2f8; }
+.file-upload-box .upload-icon { font-size: 28px; margin-bottom: 6px; }
+.file-upload-box .upload-text { font-size: 13px; color: var(--gray-500); }
+.file-upload-box .upload-hint { font-size: 11px; color: var(--gray-400); margin-top: 4px; }
+.file-selected-preview {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; background: var(--gray-50);
+  border-radius: var(--radius); font-size: 13px; margin-top: 8px;
+  border: 1px solid var(--gray-200);
+}
+.file-selected-preview .file-icon { font-size: 20px; }
+.file-selected-preview .file-info { flex: 1; }
+.file-selected-preview .file-name { font-weight: 600; color: var(--gray-800); }
+.file-selected-preview .file-size { font-size: 11px; color: var(--gray-400); }
+.file-selected-preview .file-del { cursor: pointer; color: var(--gray-400); font-size: 16px; padding: 2px 4px; }
+.file-selected-preview .file-del:hover { color: var(--danger); }
+.doc-section { margin-bottom: 20px; }
+.doc-section-title { font-size: 13px; font-weight: 700; color: var(--gray-700); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.required-star { color: var(--danger); }
+.optional-badge { font-size: 11px; font-weight: 400; color: var(--gray-400); background: var(--gray-100); padding: 2px 7px; border-radius: 99px; }
+.upload-error { font-size: 12px; color: var(--danger); margin-top: 5px; display: none; }
 
 </style>
 </head>
@@ -71,10 +97,10 @@
     <div class="progress-wrap">
       <div class="progress-meta">
         <span class="progress-label" id="progressLabel">사업자 정보</span>
-        <span class="progress-count" id="progressCount">1 / 6단계</span>
+        <span class="progress-count" id="progressCount">1 / 7단계</span>
       </div>
       <div class="progress-bar-bg">
-        <div class="progress-bar-fill" id="progressFill" style="width:16.7%"></div>
+        <div class="progress-bar-fill" id="progressFill" style="width:14.3%"></div>
       </div>
     </div>
 
@@ -186,10 +212,7 @@
           </div>
           <input type="text" class="form-control" placeholder="상세 주소 (동·호수 등)">
         </div>
-        <div class="form-group">
-          <label class="form-label">숙소 대표 연락처 <span style="color:var(--danger)">*</span></label>
-          <input type="tel" class="form-control" placeholder="02-0000-0000">
-        </div>
+
         <div class="flex gap-2 mt-4">
           <button class="btn btn-ghost btn-full" onclick="goStep(2)">이전</button>
           <button class="btn btn-primary btn-full" onclick="goStep(4)">다음 단계</button>
@@ -243,12 +266,51 @@
         </div>
         <div class="flex gap-2 mt-4">
           <button class="btn btn-ghost btn-full" onclick="goStep(4)">이전</button>
-          <button class="btn btn-primary btn-full" onclick="goStep(6)">가입 신청</button>
+          <button class="btn btn-primary btn-full" onclick="goStep(6)">다음 단계</button>
         </div>
       </div>
 
-      <!-- ⑥ 완료 -->
+      <!-- ⑥ 서류 제출 -->
       <div id="panel6">
+        <div class="auth-title">서류 제출</div>
+        <div class="auth-subtitle">심사에 필요한 서류를 첨부해 주세요.</div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;font-size:12px;color:var(--gray-600);margin-bottom:20px;line-height:1.8">
+          📋 신청 법인: <strong>(주)시그니엘호텔</strong> &nbsp;·&nbsp; 사업자등록번호: <strong>123-45-67890</strong>
+        </div>
+
+        <!-- 필수 서류 -->
+        <div class="doc-section">
+          <div class="doc-section-title">📎 사업자등록증 <span class="required-star">*</span></div>
+          <div class="file-upload-box" id="box1" onclick="document.getElementById('file1').click()">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text">클릭하여 파일을 선택하거나 여기로 드래그하세요</div>
+            <div class="upload-hint">PDF · JPG · PNG / 최대 10MB</div>
+          </div>
+          <input type="file" id="file1" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFile(this, 'preview1', 'box1')">
+          <div id="preview1"></div>
+          <div class="upload-error" id="err1">사업자등록증은 필수 서류입니다.</div>
+        </div>
+
+        <!-- 선택 서류 -->
+        <div class="doc-section">
+          <div class="doc-section-title">🏦 통장 사본 <span class="optional-badge">선택</span></div>
+          <div class="file-upload-box" id="box2" onclick="document.getElementById('file2').click()">
+            <div class="upload-icon">💳</div>
+            <div class="upload-text">정산 계좌 확인용 통장 사본</div>
+            <div class="upload-hint">PDF · JPG · PNG / 최대 10MB</div>
+          </div>
+          <input type="file" id="file2" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFile(this, 'preview2', 'box2')">
+          <div id="preview2"></div>
+        </div>
+
+        <div class="flex gap-2 mt-4">
+          <button class="btn btn-ghost btn-full" onclick="goStep(5)">이전</button>
+          <button class="btn btn-primary btn-full" onclick="submitAndGoNext()">가입 신청</button>
+        </div>
+      </div>
+
+      <!-- ⑦ 완료 -->
+      <div id="panel7">
         <div class="success-icon">🎉</div>
         <div style="text-align:center;margin-bottom:24px">
           <div class="auth-title">가입 신청이 완료되었습니다!</div>
@@ -276,8 +338,8 @@
   </div>
 </div>
 <script>
-const TOTAL = 6;
-const STEP_LABELS = ['사업자 정보', '정산 계좌', '숙소 기본 정보', '계정 정보', '약관 동의', '가입 완료'];
+const TOTAL = 7;
+const STEP_LABELS = ['사업자 정보', '정산 계좌', '숙소 기본 정보', '계정 정보', '약관 동의', '서류 제출', '가입 완료'];
 
 function goStep(n) {
   document.querySelectorAll('.step-panels > div').forEach((p, i) => {
@@ -320,6 +382,73 @@ function searchAddr() {
 
 function toggleAll(el) {
   document.querySelectorAll('.agree-check').forEach(c => c.checked = el.checked);
+}
+
+// --- 서류 제출 로직 ---
+const fileData = { file1: null, file2: null };
+
+function handleFile(input, previewId, boxId) {
+  const file = input.files[0];
+  if (!file) return;
+
+  const maxSize = 10 * 1024 * 1024; // 10MB
+  const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
+  const previewEl = document.getElementById(previewId);
+  const boxEl = document.getElementById(boxId);
+
+  if (!allowedTypes.includes(file.type)) {
+    alert('PDF, JPG, PNG 파일만 첨부 가능합니다.');
+    input.value = '';
+    return;
+  }
+  if (file.size > maxSize) {
+    alert('파일 크기는 10MB 이하여야 합니다.');
+    input.value = '';
+    return;
+  }
+
+  const key = input.id;
+  fileData[key] = file;
+  boxEl.style.display = 'none';
+
+  const sizeMB = (file.size / (1024 * 1024)).toFixed(1);
+  const ext = file.name.split('.').pop().toUpperCase();
+  const icon = ext === 'PDF' ? '📄' : '🖼️';
+
+  previewEl.innerHTML = `
+    <div class="file-selected-preview">
+      <span class="file-icon">${icon}</span>
+      <div class="file-info">
+        <div class="file-name">${file.name}</div>
+        <div class="file-size">${sizeMB} MB · ${ext}</div>
+      </div>
+      <span class="file-del" title="삭제" onclick="removeFile('${key}', '${previewId}', '${boxId}')">✕</span>
+    </div>
+  `;
+
+  const errEl = document.getElementById('err1');
+  if (errEl) errEl.style.display = 'none';
+}
+
+function removeFile(key, previewId, boxId) {
+  fileData[key] = null;
+  document.getElementById(previewId).innerHTML = '';
+  document.getElementById(boxId).style.display = 'block';
+  document.getElementById(key).value = '';
+}
+
+function submitAndGoNext() {
+  // 필수 서류 확인
+  if (!fileData['file1']) {
+    const errEl = document.getElementById('err1');
+    const boxEl = document.getElementById('box1');
+    if(errEl) errEl.style.display = 'block';
+    if(boxEl) boxEl.style.borderColor = 'var(--danger)';
+    return;
+  }
+  
+  // 성공 시 다음 단계로
+  goStep(7);
 }
 </script>
 </body>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>숙소 목록 관리 — Super Admin</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .tab {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-500);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab:hover {
+    color: var(--gray-800);
+  }
+  .tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+  .table-container {
+    background-color: #fff;
+    border: 1px solid var(--gray-100);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .table th, .table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+  }
+  .table th {
+    background-color: var(--gray-50);
+    color: var(--gray-500);
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .table tbody tr:hover {
+    background-color: var(--gray-25);
+  }
+  .table .text-center { text-align: center; }
+  .table .font-semibold { font-weight: 600; }
+  .table .text-gray-900 { color: var(--gray-900); }
+  .table .ws-nowrap { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left"><div class="header-title">숙소 목록 관리</div></div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <button class="btn-icon" style="background:#1E293B;color:#818CF8">🔔</button>
+        <div class="avatar" style="background:#6366F1">A</div>
+      </div>
+    </header>
+
+    <div class="page" style="max-width:1200px;margin:0 auto;width:100%">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">숙소 목록 관리</div>
+          <div class="page-subtitle">플랫폼에 등록된 전체 숙소를 관리합니다.</div>
+        </div>
+      </div>
+
+      <div class="filter-bar" style="margin-bottom:16px">
+        <select id="regionFilter">
+          <option value="">전체 지역</option>
+          <option>서울</option><option>경기</option><option>부산</option><option>제주</option><option>강원</option>
+        </select>
+        <select id="typeFilter">
+          <option value="">전체 유형</option>
+          <option>호텔</option><option>리조트</option><option>펜션</option><option>모텔</option>
+        </select>
+        <div class="search-box ml-auto"><input type="text" id="searchInput" placeholder="숙소명 또는 파트너 법인명 검색..."></div>
+        <button id="searchBtn" class="btn btn-sm" style="background:#6366F1;color:#fff">검색</button>
+      </div>
+
+      <div class="tabs" id="statusTabs">
+        <!-- JS 렌더링 -->
+      </div>
+
+      <div class="table-container">
+        <table class="table" id="accomTable">
+          <thead>
+            <tr>
+              <th>숙소명</th>
+              <th>소속 파트너</th>
+              <th style="width:80px">유형</th>
+              <th style="width:80px">지역</th>
+              <th style="width:100px" class="text-center">상태</th>
+              <th style="width:120px">등록일</th>
+              <th style="width:100px" class="text-center">관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS 렌더링 -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" style="margin-top:16px">
+        <div class="pg-btn">‹</div><div class="pg-btn active">1</div><div class="pg-btn">2</div><div class="pg-btn">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="modalAccomDetail">
+  <div class="modal modal-lg">
+    <div class="modal-header" style="border-bottom:1px solid var(--gray-100);">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="modal-title" id="modalAccomName" style="font-size:18px;font-weight:800"></div>
+        <span id="modalAccomStatus"></span>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body" id="accomDetailBody">
+      <!-- 기본 정보 -->
+      <div class="form-group">
+        <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">🏨 숙소 기본 정보</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
+            <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">숙소 유형</div>
+            <div style="font-size:14px;font-weight:600;color:var(--gray-800);" id="modalAccomType"></div>
+          </div>
+          <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
+            <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">지역</div>
+            <div style="font-size:14px;font-weight:600;color:var(--gray-800);" id="modalAccomRegion"></div>
+          </div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">📍 주소</div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
+          <div style="font-size:14px;font-weight:600;color:var(--gray-800);" id="modalAccomAddr"></div>
+        </div>
+      </div>
+      <div class="form-group">
+        <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">🤝 소속 파트너</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
+            <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">파트너 법인명</div>
+            <div style="font-size:14px;font-weight:600;color:var(--gray-800);" id="modalAccomPartner"></div>
+          </div>
+          <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
+            <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">등록일</div>
+            <div style="font-size:14px;font-weight:600;color:var(--gray-800);" id="modalAccomCreated"></div>
+          </div>
+        </div>
+      </div>
+      <!-- 운영 상태 변경 -->
+      <div class="form-group" style="margin-bottom:0;">
+        <div class="form-label" style="margin-bottom:10px;">⚙️ 운영 상태 관리</div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--gray-700);" id="modalStatusText"></div>
+            <div style="font-size:11px;color:var(--gray-400);margin-top:2px;">상태 변경 시 즉시 서비스에 반영됩니다.</div>
+          </div>
+          <button class="btn btn-sm" id="modalToggleBtn" onclick="toggleAccomStatus()"></button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>닫기</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+initPage('admin', 'accommodations-list', '숙소 목록 관리');
+
+const ALL_ACCOMS = [
+  { id:1, name:'시그니엘 서울 호텔', partner:'시그니엘 서울 (주)', type:'호텔', region:'서울', status:'active', addr:'서울특별시 송파구 올림픽로 300', createdAt:'2023.01.15' },
+  { id:2, name:'시그니엘 부산 호텔', partner:'시그니엘 서울 (주)', type:'호텔', region:'부산', status:'active', addr:'부산광역시 해운대구 달맞이길 30', createdAt:'2024.03.10' },
+  { id:3, name:'그랜드하얏트서울', partner:'그랜드하얏트 (주)', type:'호텔', region:'서울', status:'active', addr:'서울특별시 용산구 소월로 322', createdAt:'2022.11.03' },
+  { id:4, name:'오션뷰 리조트 제주점', partner:'제주오션뷰 리조트', type:'리조트', region:'제주', status:'active', addr:'제주특별자치도 서귀포시 중문관광로 72', createdAt:'2023.05.20' },
+  { id:5, name:'해운대 오션뷰 호텔', partner:'해운대스테이 (주)', type:'호텔', region:'부산', status:'review', addr:'부산광역시 해운대구 해운대해변로 298', createdAt:'2026.03.18' },
+  { id:6, name:'남산 포레스트 펜션', partner:'남산빌리지 (주)', type:'펜션', region:'서울', status:'review', addr:'서울특별시 용산구 남산공원길 105', createdAt:'2026.03.17' },
+  { id:7, name:'강남 OO 모텔', partner:'모텔 OO', type:'모텔', region:'서울', status:'suspended', addr:'서울특별시 강남구 역삼동 123-45', createdAt:'2023.08.10' },
+  { id:8, name:'소노벨 비발디파크', partner:'소노벨 리조트 (주)', type:'리조트', region:'강원', status:'active', addr:'강원도 홍천군 서면 한치골길 262', createdAt:'2023.02.28' },
+];
+
+const managedAccoms = ALL_ACCOMS.filter(a => a.status === 'active' || a.status === 'suspended');
+
+const statusBadge = (s) => {
+  if (s === 'active') return '<span class="badge badge-approved">운영중</span>';
+  if (s === 'suspended') return '<span class="badge badge-suspended">운영중지</span>';
+  return '';
+};
+
+let currentStatusFilter = 'active';
+
+function renderList(filteredData) {
+  const tableBody = document.querySelector('#accomTable tbody');
+  if (filteredData.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="7" class="text-center" style="padding:48px 0">조건에 맞는 숙소가 없습니다.</td></tr>`;
+    return;
+  }
+  tableBody.innerHTML = filteredData.map(a => `
+    <tr style="${a.status === 'suspended' ? 'opacity:0.6' : ''}">
+      <td class="font-semibold text-gray-900">${a.name}</td>
+      <td>${a.partner}</td>
+      <td>${a.type}</td>
+      <td>${a.region}</td>
+      <td class="text-center">${statusBadge(a.status)}</td>
+      <td class="ws-nowrap">${a.createdAt}</td>
+      <td class="text-center ws-nowrap">
+        <button class="btn btn-outline btn-sm" onclick="openDetail(${a.id})">상세 관리</button>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function applyAndRenderFilters() {
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  const regionFilter = document.getElementById('regionFilter').value;
+  const typeFilter = document.getElementById('typeFilter').value;
+
+  const filteredData = managedAccoms.filter(a => {
+    const statusMatch = !currentStatusFilter || a.status === currentStatusFilter;
+    const searchMatch = !searchTerm || a.name.toLowerCase().includes(searchTerm) || a.partner.toLowerCase().includes(searchTerm);
+    const regionMatch = !regionFilter || a.region === regionFilter;
+    const typeMatch = !typeFilter || a.type === typeFilter;
+    return statusMatch && searchMatch && regionMatch && typeMatch;
+  });
+  renderList(filteredData);
+}
+
+function setupTabs() {
+  const tabsContainer = document.getElementById('statusTabs');
+  const counts = {
+    active: managedAccoms.filter(a => a.status === 'active').length,
+    suspended: managedAccoms.filter(a => a.status === 'suspended').length
+  };
+  tabsContainer.innerHTML = `
+    <div class="tab active" data-status="active">운영중 <span class="badge badge-approved">${counts.active}</span></div>
+    <div class="tab" data-status="suspended">운영중지 <span class="badge badge-suspended">${counts.suspended}</span></div>
+  `;
+  tabsContainer.addEventListener('click', (e) => {
+    const tab = e.target.closest('.tab');
+    if (tab && !tab.classList.contains('active')) {
+      tabsContainer.querySelector('.active').classList.remove('active');
+      tab.classList.add('active');
+      currentStatusFilter = tab.dataset.status;
+      applyAndRenderFilters();
+    }
+  });
+}
+
+let _currentAccomId = null;
+
+function openDetail(id) {
+  const accom = managedAccoms.find(a => a.id === id);
+  if (!accom) return;
+  _currentAccomId = id;
+
+  document.getElementById('modalAccomName').textContent = accom.name;
+  document.getElementById('modalAccomStatus').innerHTML = statusBadge(accom.status);
+  document.getElementById('modalAccomType').textContent = accom.type;
+  document.getElementById('modalAccomRegion').textContent = accom.region;
+  document.getElementById('modalAccomAddr').textContent = accom.addr;
+  document.getElementById('modalAccomPartner').textContent = accom.partner;
+  document.getElementById('modalAccomCreated').textContent = accom.createdAt;
+
+  const isActive = accom.status === 'active';
+  document.getElementById('modalStatusText').textContent = isActive ? '현재 운영중입니다.' : '현재 운영이 중지된 상태입니다.';
+  const btn = document.getElementById('modalToggleBtn');
+  btn.textContent = isActive ? '운영 중지' : '운영 재개';
+  btn.className = isActive ? 'btn btn-sm btn-danger' : 'btn btn-sm btn-primary';
+
+  document.getElementById('modalAccomDetail').classList.remove('hidden');
+}
+
+function toggleAccomStatus() {
+  const accom = managedAccoms.find(a => a.id === _currentAccomId);
+  if (!accom) return;
+  const newStatus = accom.status === 'active' ? 'suspended' : 'active';
+  const msg = newStatus === 'suspended' ? '이 숙소의 운영을 중지하시겠습니까?' : '이 숙소의 운영을 재개하시겠습니까?';
+  showConfirm(msg, () => {
+    accom.status = newStatus;
+    document.getElementById('modalAccomDetail').classList.add('hidden');
+    setupTabs();
+    applyAndRenderFilters();
+    showAlert(newStatus === 'suspended' ? '운영이 중지되었습니다.' : '운영이 재개되었습니다.', { icon: newStatus === 'suspended' ? '⛔' : '✅' });
+  }, { confirmText: newStatus === 'suspended' ? '운영 중지' : '운영 재개', confirmClass: newStatus === 'suspended' ? 'btn-danger' : 'btn-primary' });
+}
+
+function saveAccom() {
+  document.getElementById('modalAccomDetail').classList.add('hidden');
+  showAlert('변경 사항이 저장되었습니다.', { icon: '✅' });
+}
+
+// Event Listeners
+document.getElementById('searchInput').addEventListener('keyup', applyAndRenderFilters);
+document.getElementById('searchBtn').addEventListener('click', applyAndRenderFilters);
+document.getElementById('regionFilter').addEventListener('change', applyAndRenderFilters);
+document.getElementById('typeFilter').addEventListener('change', applyAndRenderFilters);
+
+// Initial Page Load
+setupTabs();
+applyAndRenderFilters();
+</script>
+</body>
+</html>

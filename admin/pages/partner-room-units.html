@@ -41,7 +41,7 @@
           <div class="page-title">호실 관리</div>
           <div class="page-subtitle">실제 투숙이 이루어지는 개별 호실(방 번호)을 추가하고 관리하세요.</div>
         </div>
-        <button class="btn btn-primary" onclick="openBatchModal()">+ 호실 일괄 추가</button>
+
       </div>
 
       <div class="card" style="padding:0">
@@ -63,12 +63,7 @@
             </div>
           </div>
 
-          <div style="display:flex; align-items:center; gap:8px;">
-            <!-- 삭제 모드 진입/취소 버튼 -->
-            <button class="btn btn-outline" id="btnEnterDeleteMode" style="color:var(--gray-600); border-color:var(--gray-300); padding:8px 16px;" onclick="toggleDeleteMode(true)">🗑️ 호실 선택 삭제</button>
-            <button class="btn btn-outline" id="btnCancelDeleteMode" style="display:none; padding:8px 16px;" onclick="toggleDeleteMode(false)">삭제 취소</button>
-            <button class="btn" id="btnDeleteSelected" style="background:var(--danger); color:var(--white); border:none; padding:8px 16px; display:none;" onclick="deleteSelectedUnits()">선택 삭제 (<span id="selCount">0</span>)</button>
-          </div>
+
           
         </div>
         <div class="table-wrap">

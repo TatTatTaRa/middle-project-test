@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>숙소 관리 — Super Admin</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+  /* 탭 스타일 */
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    border-bottom: 1px solid var(--gray-200);
+  }
+  .tab {
+    padding: 10px 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--gray-500);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: all 0.2s;
+  }
+  .tab:hover {
+    color: var(--gray-800);
+  }
+  .tab.active {
+    color: var(--primary);
+    border-bottom-color: var(--primary);
+  }
+
+  /* 테이블 스타일 */
+  .table-container {
+    background-color: #fff;
+    border: 1px solid var(--gray-100);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .table th, .table td {
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 1px solid var(--gray-100);
+    vertical-align: middle;
+  }
+  .table th {
+    background-color: var(--gray-50);
+    color: var(--gray-500);
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  .table tbody tr:hover {
+    background-color: var(--gray-25);
+  }
+  .table .text-center { text-align: center; }
+  .table .font-semibold { font-weight: 600; }
+  .table .text-gray-900 { color: var(--gray-900); }
+  .table .ws-nowrap { white-space: nowrap; }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left"><div class="header-title">숙소 관리</div></div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <button class="btn-icon" style="background:#1E293B;color:#818CF8">🔔</button>
+        <div class="avatar" style="background:#6366F1">A</div>
+      </div>
+    </header>
+
+    <div class="page" style="max-width:1200px;margin:0 auto;width:100%">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">숙소 관리</div>
+          <div class="page-subtitle">플랫폼에 등록된 전체 숙소를 관리합니다.</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs" id="statusTabs">
+        <!-- JS 렌더링 -->
+      </div>
+      
+      <!-- Filter -->
+      <div class="card" style="padding:14px 20px;margin-bottom:16px">
+        <div class="filter-bar">
+          <select>
+            <option>전체 지역</option>
+            <option>서울</option><option>경기</option><option>부산</option><option>제주</option><option>강원</option>
+          </select>
+          <select>
+            <option>전체 유형</option>
+            <option>호텔</option><option>리조트</option><option>펜션</option><option>모텔</option>
+          </select>
+          <div class="search-box ml-auto"><input type="text" id="searchInput" placeholder="숙소명 또는 파트너 법인명 검색..."></div>
+          <button id="searchBtn" class="btn btn-sm" style="background:#6366F1;color:#fff">검색</button>
+        </div>
+      </div>
+
+      <!-- List Table -->
+      <div class="table-container">
+        <table class="table" id="accomTable">
+          <thead>
+            <tr>
+              <th>숙소명</th>
+              <th>소속 파트너</th>
+              <th style="width:80px">유형</th>
+              <th style="width:80px">지역</th>
+              <th style="width:100px" class="text-center">상태</th>
+              <th style="width:120px">등록일</th>
+              <th style="width:100px" class="text-center">관리</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- JS 렌더링 -->
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination" style="margin-top:16px">
+        <div class="pg-btn">‹</div>
+        <div class="pg-btn active">1</div>
+        <div class="pg-btn">2</div>
+        <div class="pg-btn">3</div>
+        <div class="pg-btn">···</div>
+        <div class="pg-btn">132</div>
+        <div class="pg-btn">›</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 숙소 상세 모달 -->
+<div class="modal-overlay hidden" id="modalAccomDetail">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div class="modal-title">숙소 상세 정보</div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body">
+      <!-- ... (내용은 이전과 동일) ... -->
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" data-modal-close>닫기</button>
+      <button class="btn btn-primary btn-sm" onclick="saveAccom()">변경 사항 저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 숙소 심사 모달 -->
+<div class="modal-overlay hidden" id="modalAccomReview">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="badge badge-warning">심사 대기</span>
+        <div class="modal-title" id="revAccomName" style="font-size:20px;font-weight:800">숙소명</div>
+      </div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body" style="font-size:13px">
+      <div style="display:grid; grid-template-columns:100px 1fr; gap:12px 8px;">
+        <div style="color:var(--gray-500)">소속 파트너</div>
+        <div id="revPartner" style="font-weight:600"></div>
+        <div style="color:var(--gray-500)">숙소 유형</div>
+        <div id="revType" style="font-weight:600"></div>
+        <div style="color:var(--gray-500)">숙소 주소</div>
+        <div id="revAddr" style="font-weight:600"></div>
+        <div style="color:var(--gray-500)">지역</div>
+        <div id="revRegion" style="font-weight:600"></div>
+        <div style="color:var(--gray-500)">등록 신청일</div>
+        <div id="revCreatedAt" style="font-weight:600"></div>
+      </div>
+    </div>
+    <div class="modal-footer" style="justify-content:center; gap:12px;">
+      <button class="btn btn-danger" style="width:120px" onclick="finishReview('reject')">등록 반려</button>
+      <button class="btn btn-success" style="width:120px" onclick="finishReview('approve')">✓ 등록 승인</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+initPage('admin', 'accommodations', '숙소 관리');
+
+const ACCOMS = [
+  { id:1, name:'시그니엘 서울 호텔', partner:'시그니엘 서울 (주)', type:'호텔', region:'서울', status:'active', addr:'서울특별시 송파구 올림픽로 300', createdAt:'2023.01.15', rejectionReason: '' },
+  { id:2, name:'시그니엘 부산 호텔', partner:'시그니엘 서울 (주)', type:'호텔', region:'부산', status:'active', addr:'부산광역시 해운대구 달맞이길 30', createdAt:'2024.03.10', rejectionReason: '' },
+  { id:3, name:'그랜드하얏트서울', partner:'그랜드하얏트 (주)', type:'호텔', region:'서울', status:'active', addr:'서울특별시 용산구 소월로 322', createdAt:'2022.11.03', rejectionReason: '' },
+  { id:4, name:'오션뷰 리조트 제주점', partner:'제주오션뷰 리조트', type:'리조트', region:'제주', status:'active', addr:'제주특별자치도 서귀포시 중문관광로 72', createdAt:'2023.05.20', rejectionReason: '' },
+  { id:5, name:'해운대 오션뷰 호텔', partner:'해운대스테이 (주)', type:'호텔', region:'부산', status:'review', addr:'부산광역시 해운대구 해운대해변로 298', createdAt:'2026.03.18', rejectionReason: '' },
+  { id:6, name:'남산 포레스트 펜션', partner:'남산빌리지 (주)', type:'펜션', region:'서울', status:'review', addr:'서울특별시 용산구 남산공원길 105', createdAt:'2026.03.17', rejectionReason: '' },
+  { id:7, name:'강남 OO 모텔', partner:'모텔 OO', type:'모텔', region:'서울', status:'rejected', addr:'서울특별시 강남구 역삼동 123-45', createdAt:'2023.08.10', rejectionReason: '사업자 등록증 불일치' },
+  { id:8, name:'소노벨 비발디파크', partner:'소노벨 리조트 (주)', type:'리조트', region:'강원', status:'active', addr:'강원도 홍천군 서면 한치골길 262', createdAt:'2023.02.28', rejectionReason: '' },
+];
+
+const statusBadge = (s) => {
+  if (s === 'active') return '<span class="badge badge-approved">운영중</span>';
+  if (s === 'review') return '<span class="badge badge-warning">심사 대기</span>';
+  if (s === 'rejected') return '<span class="badge badge-danger">반려</span>';
+  return '<span class="badge badge-suspended">정지</span>';
+};
+
+let currentStatusFilter = 'review';
+let activeReviewId = null;
+
+const renderManageButton = (accom) => {
+  if (accom.status === 'review') {
+    return `<button class="btn btn-outline btn-sm" onclick="startReview(this, ${accom.id})">심사 시작</button>`;
+  }
+  return `<button class="btn btn-outline btn-sm" onclick="openDetail(${accom.id})">상세</button>`;
+}
+
+function renderHeaders() {
+  const thead = document.querySelector('#accomTable thead');
+  if (currentStatusFilter === 'review') {
+    thead.innerHTML = `<tr><th>숙소명</th><th>소속 파트너</th><th style="width:80px">유형</th><th style="width:80px">지역</th><th style="width:120px">등록일</th><th style="width:100px" class="text-center">심사</th></tr>`;
+  } else if (currentStatusFilter === 'rejected') {
+    thead.innerHTML = `<tr><th>숙소명</th><th>소속 파트너</th><th style="width:80px">유형</th><th style="width:80px">지역</th><th style="width:120px">등록일</th><th>반려 사유</th><th style="width:100px" class="text-center">관리</th></tr>`;
+  } else {
+    thead.innerHTML = `<tr><th>숙소명</th><th>소속 파트너</th><th style="width:80px">유형</th><th style="width:80px">지역</th><th style="width:100px" class="text-center">상태</th><th style="width:120px">등록일</th><th style="width:100px" class="text-center">관리</th></tr>`;
+  }
+}
+
+function renderList(filteredData) {
+  const tableBody = document.querySelector('#accomTable tbody');
+  const isReviewTab = currentStatusFilter === 'review';
+  const isRejectedTab = currentStatusFilter === 'rejected';
+  let colspan = 7;
+  if (isReviewTab) colspan = 6;
+  if (isRejectedTab) colspan = 7;
+
+
+  if (filteredData.length === 0) {
+    tableBody.innerHTML = `<tr><td colspan="${colspan}" class="text-center" style="padding:48px 0">조건에 맞는 숙소가 없습니다.</td></tr>`;
+    return;
+  }
+  tableBody.innerHTML = filteredData.map(a => `
+    <tr style="${a.status === 'suspended' || a.status === 'rejected' ? 'opacity:0.5' : ''}">
+      <td class="font-semibold text-gray-900">${a.name}</td>
+      <td>${a.partner}</td>
+      <td>${a.type}</td>
+      <td>${a.region}</td>
+      ${!isReviewTab && !isRejectedTab ? `<td class="text-center">${statusBadge(a.status)}</td>` : ''}
+      <td class="ws-nowrap">${a.createdAt}</td>
+      ${isRejectedTab ? `<td style="color:var(--danger); font-size:12px;">${a.rejectionReason || 'N/A'}</td>` : ''}
+      <td class="text-center ws-nowrap">${renderManageButton(a)}</td>
+    </tr>
+  `).join('');
+}
+
+function applyAndRenderFilters() {
+  const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+  const filteredData = ACCOMS.filter(a => {
+    const statusMatch = !currentStatusFilter || a.status === currentStatusFilter;
+    const searchMatch = !searchTerm || a.name.toLowerCase().includes(searchTerm) || a.partner.toLowerCase().includes(searchTerm);
+    return statusMatch && searchMatch;
+  });
+  renderList(filteredData);
+}
+
+function updateTableView() {
+  renderHeaders();
+  applyAndRenderFilters();
+}
+
+function setupTabs() {
+  const tabsContainer = document.getElementById('statusTabs');
+  const counts = {
+    active: ACCOMS.filter(a => a.status === 'active').length,
+    review: ACCOMS.filter(a => a.status === 'review').length,
+    rejected: ACCOMS.filter(a => a.status === 'rejected').length,
+    suspended: ACCOMS.filter(a => a.status === 'suspended').length
+  };
+  tabsContainer.innerHTML = `
+    <div class="tab active" data-status="review">심사 대기 <span class="badge badge-warning">${counts.review}</span></div>
+    <div class="tab" data-status="active">운영중 <span class="badge badge-approved">${counts.active}</span></div>
+    <div class="tab" data-status="rejected">반려 <span class="badge badge-danger">${counts.rejected}</span></div>
+    <div class="tab" data-status="suspended">정지 <span class="badge badge-suspended">${counts.suspended}</span></div>
+  `;
+  tabsContainer.addEventListener('click', (e) => {
+    const tab = e.target.closest('.tab');
+    if (tab && !tab.classList.contains('active')) {
+      tabsContainer.querySelector('.active').classList.remove('active');
+      tab.classList.add('active');
+      currentStatusFilter = tab.dataset.status;
+      updateTableView();
+    }
+  });
+}
+
+function openDetail(id) {
+  // 상세 모달 로직 (채우기 등)
+  document.getElementById('modalAccomDetail').classList.remove('hidden');
+}
+
+function startReview(btn, id) {
+  const accom = ACCOMS.find(a => a.id === id);
+  if (!accom) return;
+
+  activeReviewId = id;
+  if (btn.textContent === '심사 시작') {
+    btn.textContent = '심사중';
+    btn.className = 'btn btn-primary btn-sm';
+  }
+  
+  document.getElementById('revAccomName').textContent = accom.name;
+  document.getElementById('revPartner').textContent = accom.partner;
+  document.getElementById('revType').textContent = accom.type;
+  document.getElementById('revAddr').textContent = accom.addr;
+  document.getElementById('revRegion').textContent = accom.region;
+  document.getElementById('revCreatedAt').textContent = accom.createdAt;
+  
+  document.getElementById('modalAccomReview').classList.remove('hidden');
+}
+
+function finishReview(decision) {
+  const accom = ACCOMS.find(a => a.id === activeReviewId);
+  if (!accom) return;
+
+  if (decision === 'approve') {
+    accom.status = 'active';
+    showAlert('숙소 등록이 승인되었습니다.', { icon: '✅' });
+  } else {
+    const reason = prompt('반려 사유를 입력해주세요.');
+    accom.status = 'rejected';
+    accom.rejectionReason = reason;
+    showAlert('숙소 등록이 반려되었습니다.', { icon: '🚫' });
+  }
+  
+  document.getElementById('modalAccomReview').classList.add('hidden');
+  activeReviewId = null;
+  
+  // 탭 카운트 및 테이블 뷰 전체 새로고침
+  setupTabs();
+  updateTableView();
+}
+
+function saveAccom() {
+  document.getElementById('modalAccomDetail').classList.add('hidden');
+  showAlert('변경 사항이 저장되었습니다.', { icon: '✅' });
+}
+
+// 이벤트 리스너 연결
+document.getElementById('searchInput').addEventListener('keyup', updateTableView);
+document.getElementById('searchBtn').addEventListener('click', updateTableView);
+
+// 페이지 초기화
+setupTabs();
+updateTableView();
+</script>
+</body>
+</html>

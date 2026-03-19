@@ -58,10 +58,15 @@
       <div class="card" style="padding:0;">
         <!-- 검색 -->
         <div style="padding:14px 20px; border-bottom:1px solid var(--gray-100); display:flex; gap:12px; align-items:center;">
+          <select id="stayFilter" onchange="filterStaying()" style="padding:7px 12px; border:1.5px solid var(--gray-200); border-radius:var(--radius); font-size:13px; outline:none; background:white; cursor:pointer;">
+            <option value="all">전체</option>
+            <option value="checkout-today">오늘 퇴실</option>
+            <option value="consecutive">투숙(연박)</option>
+          </select>
           <div class="search-box" style="flex:1; max-width:300px;">
-            <input type="text" placeholder="고객명 또는 호수 검색" oninput="filterStaying(this.value)">
+            <input type="text" id="staySearchInput" placeholder="고객명 또는 호수 검색" oninput="filterStaying()">
           </div>
-          <div style="font-size:12px; color:var(--gray-400);">총 <strong style="color:var(--gray-700)">3</strong>팀 투숙 중</div>
+          <div style="font-size:12px; color:var(--gray-400);" id="stayCountLabel">총 <strong style="color:var(--gray-700)">3</strong>팀 투숙 중</div>
         </div>
 
         <!-- 테이블 -->
@@ -80,8 +85,8 @@
               </tr>
             </thead>
             <tbody id="tbodyStaying">
-              <tr data-name="송혜교">
-                <td><span class="badge-stay">투숙 중</span></td>
+              <tr data-name="송혜교" data-status="staying" data-consecutive="true">
+                <td><span class="badge-stay">투숙(연박)</span></td>
                 <td>
                   <div style="font-weight:600">송혜교</div>
                   <div style="font-size:11px;color:var(--gray-500)">010-5555-6666</div>
@@ -98,7 +103,7 @@
                   </button>
                 </td>
               </tr>
-              <tr data-name="공유">
+              <tr data-name="공유" data-status="checkout-today" data-consecutive="false">
                 <td><span class="badge-checkout-today">오늘 퇴실</span></td>
                 <td>
                   <div style="font-weight:600">공유</div>
@@ -108,16 +113,16 @@
                 <td style="color:var(--info);font-weight:600">308호</td>
                 <td>1인</td>
                 <td style="font-size:12px;color:var(--gray-500)">03/17 14:10</td>
-                <td style="font-size:12px;color:#F59E0B;font-weight:700">오늘 (11:00)</td>
+                <td style="font-size:12px;color:#F59E0B;font-weight:700">오늘</td>
                 <td>
                   <button class="btn btn-outline btn-sm"
-                    onclick="openStayingDetail({name:'공유',phone:'010-7777-8888',type:'Deluxe',room:'308호',pax:'1인',checkin:'03/17 14:10',checkout:'오늘 (11:00)',status:'오늘 퇴실'})">
+                    onclick="openStayingDetail({name:'공유',phone:'010-7777-8888',type:'Deluxe',room:'308호',pax:'1인',checkin:'03/17 14:10',checkout:'오늘',status:'오늘 퇴실'})">
                     상세 정보
                   </button>
                 </td>
               </tr>
-              <tr data-name="김태연">
-                <td><span class="badge-stay">투숙 중</span></td>
+              <tr data-name="김태연" data-status="staying" data-consecutive="true">
+                <td><span class="badge-stay">투숙(연박)</span></td>
                 <td>
                   <div style="font-weight:600">김태연</div>
                   <div style="font-size:11px;color:var(--gray-500)">010-1111-3333</div>
@@ -301,10 +306,23 @@
     `${now.getFullYear()}. ${now.getMonth()+1}. ${now.getDate()}. (${days[now.getDay()]}) 기준`;
 
   // ── 검색 ──
-  function filterStaying(q) {
+  function filterStaying() {
+    const q = document.getElementById('staySearchInput').value.toLowerCase();
+    const filter = document.getElementById('stayFilter').value;
+    let count = 0;
     document.querySelectorAll('#tbodyStaying tr').forEach(r => {
-      r.style.display = (!q || r.textContent.toLowerCase().includes(q.toLowerCase())) ? '' : 'none';
+      const textMatch = !q || r.textContent.toLowerCase().includes(q);
+      let filterMatch = true;
+      if (filter === 'checkout-today') {
+        filterMatch = r.getAttribute('data-status') === 'checkout-today';
+      } else if (filter === 'consecutive') {
+        filterMatch = r.getAttribute('data-consecutive') === 'true';
+      }
+      const show = textMatch && filterMatch;
+      r.style.display = show ? '' : 'none';
+      if (show) count++;
     });
+    document.getElementById('stayCountLabel').innerHTML = `총 <strong style="color:var(--gray-700)">${count}</strong>팀 투숙 중`;
   }
 
   // ── 상세정보 모달 ──

@@ -296,23 +296,6 @@
             </div>
           </div>
 
-          <!-- 편의시설 -->
-          <div class="rd-section">
-            <div class="rd-section-title">Amenities</div>
-            <div class="amenity-list" id="amenityList">
-              <button class="am-btn active" onclick="this.classList.toggle('active')">📺 스마트 TV</button>
-              <button class="am-btn active" onclick="this.classList.toggle('active')">📶 초고속 Wi-Fi</button>
-              <button class="am-btn active" onclick="this.classList.toggle('active')">❄️ 시스템 에어컨</button>
-              <button class="am-btn active" onclick="this.classList.toggle('active')">🧊 대형 냉장고</button>
-              <button class="am-btn active" onclick="this.classList.toggle('active')">💨 헤어 드라이기</button>
-              <button class="am-btn active" onclick="this.classList.toggle('active')">🛁 전용 욕실</button>
-              <button class="am-btn active" onclick="this.classList.toggle('active')">🧴 욕실 용품</button>
-              <button class="am-btn active" onclick="this.classList.toggle('active')">☕ 전기 포트</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">🏊 개인 풀장</button>
-              <button class="am-btn" onclick="this.classList.toggle('active')">♨️ 스파/월풀</button>
-            </div>
-          </div>
-
           <!-- Actions -->
           <div class="edit-actions">
             <a href="partner-rooms-detail.html" class="btn-w btn-cancel">취소</a>
@@ -456,8 +439,6 @@ let initialState = {};
 let currentUnits = ['201호', '202호', '203호', '204호', '205호'];
 
 function getFormState() {
-  const amenities = Array.from(document.querySelectorAll('#amenityList .am-btn.active'))
-                         .map(b => b.textContent.trim());
   return {
     roomType: document.getElementById('editRoomType').value,
     capacity: document.getElementById('editCapacity').value,
@@ -466,7 +447,6 @@ function getFormState() {
     description: document.getElementById('editDescription').value,
     priceWeekday: document.getElementById('editPriceWeekday').value,
     priceWeekend: document.getElementById('editPriceWeekend').value,
-    amenities: amenities.join(', ')
   };
 }
 
@@ -482,7 +462,6 @@ const FIELD_LABELS = {
   description: '객실 설명',
   priceWeekday: '평일 요금',
   priceWeekend: '주말 요금',
-  amenities: '편의시설'
 };
 
 function formatValue(key, val) {
