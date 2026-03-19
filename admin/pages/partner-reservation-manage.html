@@ -135,6 +135,7 @@
               <div>
                 <div style="font-weight:600;margin-bottom:4px;" id="viewRoom"></div>
                 <div id="viewAssignedRoom" style="font-size:13px;color:var(--gray-500);"></div>
+                <div id="viewGuestsBadge" style="margin-top:6px;"></div>
               </div>
               <a href="partner-reservations-calendar.html" class="btn btn-primary btn-sm"
                 style="text-decoration:none;white-space:nowrap;box-shadow:none;">객실 배정 확인 👉</a>
@@ -142,7 +143,7 @@
           </div>
           <div class="form-group">
             <div class="form-label" style="margin-bottom:10px;">📆 일정 및 인원</div>
-            <div style="display:grid;grid-template-columns:1fr 1fr auto;gap:12px;align-items:start;">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:start;">
               <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
                 <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">입실 일시</div>
                 <div style="font-size:13px;font-weight:600;color:var(--gray-800);" id="viewCheckin"></div>
@@ -150,10 +151,6 @@
               <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;">
                 <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">퇴실 일시</div>
                 <div style="font-size:13px;font-weight:600;color:var(--gray-800);" id="viewCheckout"></div>
-              </div>
-              <div style="background:var(--gray-50);border-radius:var(--radius);padding:10px 14px;min-width:70px;">
-                <div style="font-size:10px;color:var(--gray-400);margin-bottom:4px;">인원</div>
-                <div style="font-size:13px;font-weight:600;color:var(--gray-800);" id="viewGuests"></div>
               </div>
             </div>
           </div>
@@ -170,39 +167,35 @@
           <div class="form-group">
             <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">👤 예약자 정보</div>
             <div class="form-row">
-              <div><label class="form-label">예약자명</label><input class="form-control" id="detailName"></div>
-              <div><label class="form-label">연락처</label><input class="form-control" id="detailPhone"></div>
+              <div><label class="form-label">예약자명</label><input class="form-control" id="detailName" readonly style="background-color:var(--gray-50);color:var(--gray-600);cursor:not-allowed;"></div>
+              <div><label class="form-label">연락처</label><input class="form-control" id="detailPhone" readonly style="background-color:var(--gray-50);color:var(--gray-600);cursor:not-allowed;"></div>
             </div>
           </div>
           <div class="form-group">
             <div class="form-label" style="margin-bottom:10px;display:flex;align-items:center;gap:6px;">🛏️ 객실 정보</div>
             <div
               style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;display:flex;justify-content:space-between;align-items:center;">
-              <div>
-                <div style="font-weight:600;margin-bottom:4px;" id="detailRoom"></div>
+              <div style="flex:1;display:flex;align-items:center;gap:10px;">
+                <select class="form-control" id="detailRoomType" style="padding:4px 8px;font-size:13px;width:130px;font-weight:600;">
+                  <option value="Deluxe">Deluxe</option>
+                  <option value="Standard">Standard</option>
+                  <option value="Suite">Suite</option>
+                  <option value="Sky">Sky</option>
+                </select>
                 <div id="detailAssignedRoom" style="font-size:13px;color:var(--gray-500);"></div>
               </div>
               <a href="partner-reservations-calendar.html" class="btn btn-primary btn-sm"
                 style="text-decoration:none;white-space:nowrap;box-shadow:none;">객실 배정 보드 👉</a>
             </div>
           </div>
-          <div class="form-group">
-            <div class="form-label">📆 일정 및 인원</div>
-            <div class="form-row" style="margin-bottom:12px;">
+          <div class="form-group" style="margin-bottom:0;">
+            <div class="form-label">📆 일정</div>
+            <div class="form-row" style="margin-bottom:0;">
               <div><label class="form-label">입실 일시</label><input class="form-control" type="datetime-local"
                   id="detailCheckin"></div>
               <div><label class="form-label">퇴실 일시</label><input class="form-control" type="datetime-local"
                   id="detailCheckout"></div>
             </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <div style="flex:0 0 100px;"><label class="form-label">인원</label><input class="form-control" type="number"
-                  min="1" max="10" id="detailGuests"></div>
-              <span style="font-size:12px;color:var(--gray-400);margin-top:18px;">인</span>
-            </div>
-          </div>
-          <div class="form-group" style="margin-bottom:0;">
-            <label class="form-label">💬 요청사항</label>
-            <textarea class="form-control" id="detailRequest" rows="3" style="resize:vertical;"></textarea>
           </div>
         </div>
 
@@ -233,7 +226,7 @@
           <button class="btn btn-sm" id="btnCancelResv"
             style="color:var(--danger);border:1.5px solid var(--danger);background:#fff;width:100%;justify-content:center;"
             onclick="cancelFromModal()">
-            예약 취소 — 취소 시 환불 절차가 진행됩니다
+            예약 취소
           </button>
         </div>
       </div>
@@ -251,15 +244,15 @@
     // status: pending | confirmed | completed | cancelled
     // ──────────────────────────────────────────
     const manageData = [
-      { id: '20260310-0042', name: '김민준', phone: '010-1234-5678', room: '디럭스 트윈', assignedRoom: '302호', checkin: '2026-03-20T15:00', checkout: '2026-03-22T11:00', status: 'confirmed', guests: 2, request: '' },
-      { id: '20260308-0019', name: '이서연', phone: '010-9876-5432', room: '스탠다드 더블', assignedRoom: null, checkin: '2026-03-18T15:00', checkout: '2026-03-19T11:00', status: 'confirmed', guests: 1, request: '조용한 방 요청' },
-      { id: '20260312-0077', name: '박도윤', phone: '010-5553-4444', room: '프리미어 스위트', assignedRoom: '501호', checkin: '2026-03-25T15:00', checkout: '2026-03-27T11:00', status: 'confirmed', guests: 3, request: '생일 이벤트 준비 요청' },
-      { id: '20260309-0055', name: '최지우', phone: '010-7777-8888', room: '계곡뷰 A', assignedRoom: null, checkin: '2026-03-22T15:00', checkout: '2026-03-24T11:00', status: 'confirmed', guests: 2, request: '' },
-      { id: '20260314-0003', name: '정하은', phone: '010-3333-2222', room: '숲속 B', assignedRoom: null, checkin: '2026-03-18T15:00', checkout: '2026-03-20T11:00', status: 'confirmed', guests: 2, request: '' },
-      { id: '20260307-0061', name: '윤서아', phone: '010-1111-9999', room: '힐링 E', assignedRoom: '203호', checkin: '2026-03-28T15:00', checkout: '2026-03-30T11:00', status: 'confirmed', guests: 2, request: '알레르기 (복숭아)' },
-      { id: '20260315-0021', name: '한지민', phone: '010-8888-1111', room: '하늘 F', assignedRoom: null, checkin: '2026-03-29T15:00', checkout: '2026-03-31T11:00', status: 'confirmed', guests: 3, request: '' },
-      { id: '20260305-0034', name: '임준혁', phone: '010-4444-5555', room: '파노라마 C', assignedRoom: '401호', checkin: '2026-03-10T15:00', checkout: '2026-03-12T11:00', status: 'completed', guests: 1, request: '' },
-      { id: '20260301-0088', name: '강현우', phone: '010-6666-7777', room: '계곡뷰 A', assignedRoom: null, checkin: '2026-03-05T15:00', checkout: '2026-03-07T11:00', status: 'cancelled', guests: 4, request: '' },
+      { id: '20260310-0042', name: '김민준', phone: '010-1234-5678', room: '디럭스 트윈', roomType: 'Deluxe', assignedRoom: '302호', checkin: '2026-03-20T15:00', checkout: '2026-03-22T11:00', status: 'confirmed', guests: 2, request: '' },
+      { id: '20260308-0019', name: '이서연', phone: '010-9876-5432', room: '스탠다드 더블', roomType: 'Standard', assignedRoom: null, checkin: '2026-03-18T15:00', checkout: '2026-03-19T11:00', status: 'confirmed', guests: 1, request: '조용한 방 요청' },
+      { id: '20260312-0077', name: '박도윤', phone: '010-5553-4444', room: '프리미어 스위트', roomType: 'Suite', assignedRoom: '501호', checkin: '2026-03-25T15:00', checkout: '2026-03-27T11:00', status: 'confirmed', guests: 3, request: '생일 이벤트 준비 요청' },
+      { id: '20260309-0055', name: '최지우', phone: '010-7777-8888', room: '계곡라 에디션', roomType: 'Deluxe', assignedRoom: null, checkin: '2026-03-22T15:00', checkout: '2026-03-24T11:00', status: 'confirmed', guests: 2, request: '' },
+      { id: '20260314-0003', name: '정하은', phone: '010-3333-2222', room: '포레스트 스탠다드', roomType: 'Standard', assignedRoom: null, checkin: '2026-03-18T15:00', checkout: '2026-03-20T11:00', status: 'confirmed', guests: 2, request: '' },
+      { id: '20260307-0061', name: '윤서아', phone: '010-1111-9999', room: '스카이 듀플렉스', roomType: 'Sky', assignedRoom: '203호', checkin: '2026-03-28T15:00', checkout: '2026-03-30T11:00', status: 'confirmed', guests: 2, request: '알레르기 (복숭아)' },
+      { id: '20260315-0021', name: '한지민', phone: '010-8888-1111', room: '스카이 스위트', roomType: 'Sky', assignedRoom: null, checkin: '2026-03-29T15:00', checkout: '2026-03-31T11:00', status: 'confirmed', guests: 3, request: '' },
+      { id: '20260305-0034', name: '임준혁', phone: '010-4444-5555', room: '파노라마 듀플렉스', roomType: 'Deluxe', assignedRoom: '401호', checkin: '2026-03-10T15:00', checkout: '2026-03-12T11:00', status: 'completed', guests: 1, request: '' },
+      { id: '20260301-0088', name: '강현우', phone: '010-6666-7777', room: '계곡라 에디션', roomType: 'Deluxe', assignedRoom: null, checkin: '2026-03-05T15:00', checkout: '2026-03-07T11:00', status: 'cancelled', guests: 4, request: '' },
     ];
 
     // 배정 상태 판정
@@ -335,10 +328,10 @@
       // 뷰 업데이트
       document.getElementById('viewName').textContent = r.name;
       document.getElementById('viewPhone').textContent = r.phone;
-      document.getElementById('viewRoom').textContent = r.room;
+      document.getElementById('viewRoom').innerHTML = `${r.roomType} <span style="font-size:11px;font-weight:500;color:var(--gray-400);">(${r.room})</span>`;
+      document.getElementById('viewGuestsBadge').innerHTML = `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--primary-light);color:var(--primary);font-size:11px;font-weight:700;padding:2px 8px;border-radius:20px;">👥 ${r.guests}인</span>`;
       document.getElementById('viewCheckin').textContent = r.checkin.replace('T', ' ');
       document.getElementById('viewCheckout').textContent = r.checkout.replace('T', ' ');
-      document.getElementById('viewGuests').textContent = r.guests + '인';
       document.getElementById('viewRequest').textContent = r.request || '(요청사항 없음)';
       document.getElementById('viewAssignedRoom').innerHTML = r.assignedRoom
         ? `배정 호실: <span style="font-weight:700;color:var(--primary);background:var(--primary-light);padding:2px 8px;border-radius:4px;margin-left:4px;">${r.assignedRoom}</span>`
@@ -347,11 +340,9 @@
       // 편집 폼 기본값 세팅
       document.getElementById('detailName').value = r.name;
       document.getElementById('detailPhone').value = r.phone;
-      document.getElementById('detailRoom').textContent = r.room;
+      document.getElementById('detailRoomType').value = r.roomType;
       document.getElementById('detailCheckin').value = r.checkin;
       document.getElementById('detailCheckout').value = r.checkout;
-      document.getElementById('detailGuests').value = r.guests;
-      document.getElementById('detailRequest').value = r.request;
       const assignEl2 = document.getElementById('detailAssignedRoom');
       assignEl2.innerHTML = r.assignedRoom
         ? `배정 호실: <span style="font-weight:700;color:var(--primary);background:var(--primary-light);padding:2px 8px;border-radius:4px;margin-left:4px;">${r.assignedRoom}</span>`
@@ -403,21 +394,94 @@
 
     function cancelFromModal() {
       const r = window._filteredManage[currentDetailIdx];
+      // 취소 방식 선택 모달 열기
+      document.getElementById('crResNo').textContent = r.id;
+      document.getElementById('crGuestInfo').textContent = r.name + ' 님 · ' + r.room;
+      document.getElementById('modalCancelReason').classList.remove('hidden');
+    }
+
+    function confirmCancelRefund() {
+      const r = window._filteredManage[currentDetailIdx];
+      document.getElementById('modalCancelReason').classList.add('hidden');
       showConfirm(
-        `${r.name}님의 예약(${r.id})을 취소하시겠습니까?\n취소 후 환불 절차가 진행됩니다.`,
+        r.name + '님의 예약을 취소하시겠습니까?\n고객에게 전액 환불 처리됩니다.',
         () => {
           r.status = 'cancelled';
           r.assignedRoom = null;
           document.getElementById('modalDetail').classList.add('hidden');
           renderManage();
-          showAlert('취소 처리가 완료되었습니다.', { icon: '✅', title: '취소 완료' });
+          showAlert('취소 처리가 완료되었습니다.\n고객에게 전액 환불되었습니다.', { icon: '✅', title: '환불 취소 완료' });
         },
-        { icon: '⚠️', title: '예약 취소 확인', confirmText: '취소 처리', confirmClass: 'btn-danger' }
+        { icon: '⚠️', title: '전액 환불 취소', confirmText: '취소 확정', confirmClass: 'btn-danger' }
+      );
+    }
+
+    function confirmCancelAgreed() {
+      const r = window._filteredManage[currentDetailIdx];
+      document.getElementById('modalCancelReason').classList.add('hidden');
+      showConfirm(
+        r.name + '님의 예약을 고객 연락 후 해제 처리하시겠습니까?\n환불 없이 예약이 해제되며, 오프라인에서 고객과 직접 정산되어야 합니다.',
+        () => {
+          r.status = 'cancelled';
+          r.assignedRoom = null;
+          document.getElementById('modalDetail').classList.add('hidden');
+          renderManage();
+          showAlert('예약 해제 처리가 완료되었습니다.\n오프라인 정산을 진행해 주세요.', { icon: '✅', title: '해제 완료' });
+        },
+        { icon: '📞', title: '해제 확인', confirmText: '해제 확정', confirmClass: 'btn-primary' }
       );
     }
 
     renderManage();
   </script>
+
+<!-- ── 취소 방식 선택 모달 ── -->
+<div class="modal-overlay hidden" id="modalCancelReason" style="z-index:1100;">
+  <div class="modal modal-sm" style="overflow:hidden;">
+    <div style="background:linear-gradient(135deg,#7F1D1D,#991B1B);padding:22px 22px 18px;position:relative;">
+      <button class="modal-close" onclick="document.getElementById('modalCancelReason').classList.add('hidden')" style="position:absolute;top:14px;right:14px;color:rgba(255,255,255,0.5);">×</button>
+      <div style="font-size:10px;color:rgba(255,255,255,0.45);letter-spacing:0.1em;font-weight:600;margin-bottom:8px;">예약 취소 방식 선택</div>
+      <div style="font-size:14px;font-weight:800;color:#fff;margin-bottom:2px;" id="crResNo"></div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.5);" id="crGuestInfo"></div>
+    </div>
+    <div style="padding:14px 16px 8px;display:flex;flex-direction:column;gap:8px;">
+
+      <!-- 전액 환불 -->
+      <button onclick="confirmCancelRefund()"
+        style="display:flex;align-items:flex-start;gap:14px;width:100%;padding:16px;background:#FFF1F2;border:1.5px solid #FECDD3;border-radius:12px;cursor:pointer;transition:all 0.15s;text-align:left;"
+        onmouseover="this.style.background='#FFE4E6';this.style.borderColor='#FDA4AF';this.style.transform='translateX(2px)'"
+        onmouseout="this.style.background='#FFF1F2';this.style.borderColor='#FECDD3';this.style.transform='translateX(0)'">
+        <div style="width:38px;height:38px;border-radius:10px;background:#FFE4E6;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#E11D48" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;color:#E11D48;margin-bottom:4px;">전액 환불 취소 <span style="font-size:11px;font-weight:600;background:#FFE4E6;padding:1px 7px;border-radius:20px;">환불 100%</span></div>
+          <div style="font-size:12px;color:#BE123C;line-height:1.6;">예약을 즉시 취소하며 고객에게 <strong>전액 환불</strong> 처리됩니다.</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#FDA4AF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+      <!-- 고객 연락 후 해제 -->
+      <button onclick="confirmCancelAgreed()"
+        style="display:flex;align-items:flex-start;gap:14px;width:100%;padding:16px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;cursor:pointer;transition:all 0.15s;text-align:left;"
+        onmouseover="this.style.background='#F1F5F9';this.style.borderColor='#CBD5E1';this.style.transform='translateX(2px)'"
+        onmouseout="this.style.background='#F8FAFC';this.style.borderColor='#E2E8F0';this.style.transform='translateX(0)'">
+        <div style="width:38px;height:38px;border-radius:10px;background:#E2E8F0;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#475569" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.89 13a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.8 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 17z"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div style="font-size:14px;font-weight:700;color:#475569;margin-bottom:4px;">고객 연락 후 해제 <span style="font-size:11px;font-weight:600;background:#E2E8F0;color:#64748B;padding:1px 7px;border-radius:20px;">상호 협의</span></div>
+          <div style="font-size:12px;color:#64748B;line-height:1.6;">고객과 연락 후 협의된 해제 — <strong>환불 없음</strong>.<br>오프라인에서 직접 정산되어야 합니다.</div>
+        </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#CBD5E1" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+
+    </div>
+    <div style="padding:8px 16px 16px;">
+      <button class="btn btn-ghost" onclick="document.getElementById('modalCancelReason').classList.add('hidden')" style="width:100%;justify-content:center;border-color:var(--gray-100);color:var(--gray-400);">닫기</button>
+    </div>
+  </div>
+</div>
 
 <!-- 예약 현황 캘린더 모달 -->
 <style>

@@ -35,6 +35,8 @@ const ADMIN_NAV = [
   { icon: '👥', label: '고객 관리', href: 'admin-customers.html', id: 'customers' },
   { icon: '🙋', label: '고객 문의', href: 'admin-customer-inquiries.html', id: 'customer-inquiries', badge: '3' },
   { icon: '❓', label: 'FAQ 관리', href: 'admin-faq.html', id: 'faq' },
+  { section: '정산 관리' },
+  { icon: '💳', label: '파트너 정산', href: 'admin-settlements.html', id: 'settlements' },
   { section: '플랫폼' },
   { icon: '💰', label: '수수료 정책', href: 'admin-fee-policy.html', id: 'feepolicy' },
   { icon: '🖼️', label: '배너 설정', href: 'admin-banner.html', id: 'banner' },

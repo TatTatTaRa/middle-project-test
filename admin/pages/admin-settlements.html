@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>파트너 정산 내역 — Super Admin</title>
+<link rel="stylesheet" href="shared.css">
+<style>
+/* 통계 카드용 */
+.stat-card.primary { background: var(--primary-light); border-color: #C7D2FE; }
+.stat-card.primary .stat-value { color: var(--primary); }
+</style>
+</head>
+<body>
+<div class="layout">
+  <div class="main">
+    <header class="header">
+      <div class="header-left"><div class="header-title">정산 관리</div></div>
+      <div class="header-right">
+        <div class="header-date"></div>
+        <button class="btn-icon" style="background:#1E293B;color:#818CF8">🔔</button>
+        <div class="avatar" style="background:#6366F1">A</div>
+      </div>
+    </header>
+
+    <div class="page" style="max-width:1100px;margin:0 auto;width:100%">
+      <div class="page-header">
+        <div class="page-header-left">
+          <div class="page-title">파트너 정산 내역</div>
+          <div class="page-subtitle">플랫폼 내 전체 파트너의 월별 정산 내역과 통합 수수료 수익을 확인합니다.</div>
+        </div>
+        <div class="page-header-right">
+          <button class="btn btn-outline" style="background:#fff">
+            엑셀 다운로드 <span style="font-size:12px;margin-left:4px">⬇️</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 요약 통계 -->
+      <div class="stat-grid" style="margin-bottom:20px">
+        <div class="stat-card">
+          <div class="stat-label">이번 달 정산 예정 총액</div>
+          <div class="stat-value">₩234,500,000</div>
+          <div style="font-size:11px;color:var(--gray-500);margin-top:4px">전체 459건</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">이번 달 처리 완료</div>
+          <div class="stat-value success">₩182,300,000</div>
+          <div style="font-size:11px;color:var(--gray-500);margin-top:4px">전체 312건</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">지급 보류 / 미처리</div>
+          <div class="stat-value warning">₩52,200,000</div>
+          <div style="font-size:11px;color:var(--gray-500);margin-top:4px">전체 147건</div>
+        </div>
+        <div class="stat-card primary">
+          <div class="stat-label" style="font-weight:700">💰 플랫폼 수수료 예상 수익</div>
+          <div class="stat-value">₩26,055,000</div>
+          <div style="font-size:11px;color:var(--primary);margin-top:4px;font-weight:600">당월 발생 환불 공제 적용</div>
+        </div>
+      </div>
+
+      <!-- 검색 필터 -->
+      <div class="card" style="padding:14px 20px;margin-bottom:16px">
+        <div class="filter-bar">
+          <input type="month" class="form-control" style="width:160px" value="2026-03">
+          <select id="filterStatus" class="form-control" style="width:130px">
+            <option value="">전체 상태</option>
+            <option value="pending">정산 예정</option>
+            <option value="completed">정산 완료</option>
+            <option value="hold">지급 보류</option>
+          </select>
+          <div class="search-box ml-auto" style="width:250px">
+            <input type="text" id="searchInput" placeholder="파트너명, 연락처 검색...">
+          </div>
+          <button class="btn" style="background:#6366F1;color:#fff">검색</button>
+        </div>
+      </div>
+
+      <!-- 데이터 테이블 -->
+      <div class="card" style="padding:0">
+        <div class="table-wrap">
+          <table style="width:100%;border-collapse:collapse;text-align:left">
+            <thead>
+              <tr>
+                <th style="padding:14px 20px;border-bottom:1px solid var(--gray-200);color:var(--gray-500);font-weight:600;font-size:13px">정산 대상월</th>
+                <th style="padding:14px 20px;border-bottom:1px solid var(--gray-200);color:var(--gray-500);font-weight:600;font-size:13px">파트너명</th>
+                <th style="padding:14px 20px;border-bottom:1px solid var(--gray-200);color:var(--gray-500);font-weight:600;font-size:13px">결제 금액(A)</th>
+                <th style="padding:14px 20px;border-bottom:1px solid var(--gray-200);color:var(--gray-500);font-weight:600;font-size:13px">플랫폼 수수료(B)</th>
+                <th style="padding:14px 20px;border-bottom:1px solid var(--gray-200);color:var(--gray-500);font-weight:600;font-size:13px">환불 차감(C)</th>
+                <th style="padding:14px 20px;border-bottom:1px solid var(--gray-200);color:var(--gray-500);font-weight:600;font-size:13px">최종 지급액(A-B-C)</th>
+                <th style="padding:14px 20px;border-bottom:1px solid var(--gray-200);color:var(--gray-500);font-weight:600;font-size:13px">상태</th>
+                <th style="padding:14px 20px;border-bottom:1px solid var(--gray-200);color:var(--gray-500);font-weight:600;font-size:13px;text-align:right">상세</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Row 1 -->
+              <tr style="border-bottom:1px solid var(--gray-100)">
+                <td style="padding:14px 20px;font-weight:600;vertical-align:middle">2026.03</td>
+                <td style="padding:14px 20px;vertical-align:middle">
+                  <div style="font-weight:700;color:var(--gray-900)">시그니엘 서울</div>
+                  <div style="font-size:11px;color:var(--gray-500)">파트너ID: 12345678</div>
+                </td>
+                <td style="padding:14px 20px;font-weight:600;vertical-align:middle">₩12,500,000</td>
+                <td style="padding:14px 20px;color:var(--danger);font-weight:600;vertical-align:middle">-₩1,250,000</td>
+                <td style="padding:14px 20px;color:var(--danger);font-weight:600;vertical-align:middle">-₩350,000</td>
+                <td style="padding:14px 20px;font-weight:800;color:var(--primary);font-size:15px;vertical-align:middle">₩10,900,000</td>
+                <td style="padding:14px 20px;vertical-align:middle"><span class="badge badge-pending">정산 예정</span></td>
+                <td style="padding:14px 20px;text-align:right;vertical-align:middle"><button class="btn btn-outline btn-sm" onclick="openSettlementDetail('시그니엘 서울', '2026.03', '10,900,000', 'pending')">상세 보기</button></td>
+              </tr>
+              <!-- Row 2 -->
+              <tr style="border-bottom:1px solid var(--gray-100)">
+                <td style="padding:14px 20px;font-weight:600;vertical-align:middle">2026.03</td>
+                <td style="padding:14px 20px;vertical-align:middle">
+                  <div style="font-weight:700;color:var(--gray-900)">롯데호텔 서울</div>
+                  <div style="font-size:11px;color:var(--gray-500)">파트너ID: 23456789</div>
+                </td>
+                <td style="padding:14px 20px;font-weight:600;vertical-align:middle">₩8,000,000</td>
+                <td style="padding:14px 20px;color:var(--danger);font-weight:600;vertical-align:middle">-₩800,000</td>
+                <td style="padding:14px 20px;color:var(--gray-400);vertical-align:middle">₩0</td>
+                <td style="padding:14px 20px;font-weight:800;color:var(--primary);font-size:15px;vertical-align:middle">₩7,200,000</td>
+                <td style="padding:14px 20px;vertical-align:middle"><span class="badge badge-pending">정산 예정</span></td>
+                <td style="padding:14px 20px;text-align:right;vertical-align:middle"><button class="btn btn-outline btn-sm" onclick="openSettlementDetail('롯데호텔 서울', '2026.03', '7,200,000', 'pending')">상세 보기</button></td>
+              </tr>
+              <!-- Row 3 -->
+              <tr style="border-bottom:1px solid var(--gray-100)">
+                <td style="padding:14px 20px;font-weight:600;color:var(--gray-500);vertical-align:middle">2026.02</td>
+                <td style="padding:14px 20px;vertical-align:middle">
+                  <div style="font-weight:700;color:var(--gray-900)">소노벨 리조트</div>
+                  <div style="font-size:11px;color:var(--gray-500)">파트너ID: 34567890</div>
+                </td>
+                <td style="padding:14px 20px;font-weight:600;vertical-align:middle">₩4,200,000</td>
+                <td style="padding:14px 20px;color:var(--danger);font-weight:600;vertical-align:middle">-₩420,000</td>
+                <td style="padding:14px 20px;color:var(--gray-400);vertical-align:middle">₩0</td>
+                <td style="padding:14px 20px;font-weight:800;color:var(--success);font-size:15px;vertical-align:middle">₩3,780,000</td>
+                <td style="padding:14px 20px;vertical-align:middle"><span class="badge badge-completed">지급 완료</span></td>
+                <td style="padding:14px 20px;text-align:right;vertical-align:middle"><button class="btn btn-outline btn-sm" onclick="openSettlementDetail('소노벨 리조트', '2026.02', '3,780,000', 'completed')">상세 보기</button></td>
+              </tr>
+              <!-- Row 4 -->
+              <tr style="border-bottom:1px solid var(--gray-100)">
+                <td style="padding:14px 20px;font-weight:600;color:var(--gray-500);vertical-align:middle">2026.02</td>
+                <td style="padding:14px 20px;vertical-align:middle">
+                  <div style="font-weight:700;color:var(--gray-900)">강남 스테이 (구역 1)</div>
+                  <div style="font-size:11px;color:var(--gray-500)">파트너ID: 98765432</div>
+                </td>
+                <td style="padding:14px 20px;font-weight:600;vertical-align:middle">₩1,800,000</td>
+                <td style="padding:14px 20px;color:var(--danger);font-weight:600;vertical-align:middle">-₩180,000</td>
+                <td style="padding:14px 20px;color:var(--danger);font-weight:600;vertical-align:middle">-₩180,000</td>
+                <td style="padding:14px 20px;font-weight:800;color:var(--warning);font-size:15px;vertical-align:middle">₩1,440,000</td>
+                <td style="padding:14px 20px;vertical-align:middle"><span class="badge" style="background:#FEF3C7;color:#92400E">지급 보류</span></td>
+                <td style="padding:14px 20px;text-align:right;vertical-align:middle"><button class="btn btn-outline btn-sm" onclick="openSettlementDetail('강남 스테이 (구역 1)', '2026.02', '1,440,000', 'hold')">상세 보기</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Pagination -->
+        <div style="padding:12px 20px;border-top:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center">
+          <div style="font-size:12px;color:var(--gray-400)">전체 459건 · 1-4 표시</div>
+          <div class="pagination">
+            <div class="pg-btn">‹</div>
+            <div class="pg-btn active">1</div>
+            <div class="pg-btn">2</div>
+            <div class="pg-btn">3</div>
+            <div class="pg-btn">···</div>
+            <div class="pg-btn">46</div>
+            <div class="pg-btn">›</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 상세 내역 모달 -->
+<div class="modal-overlay hidden" id="modalSettlementDetail">
+  <div class="modal" style="width:700px; max-width:90%">
+    <div class="modal-header">
+      <div class="modal-title">정산 상세 내역 <span id="detailMonth" style="font-size:14px;color:var(--gray-500);font-weight:500;margin-left:8px">(2026.03)</span></div>
+      <button class="modal-close" data-modal-close>×</button>
+    </div>
+    <div class="modal-body" style="padding:24px">
+      
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--gray-200)">
+        <div>
+          <div style="font-size:18px;font-weight:800;color:var(--gray-900)" id="detailPartnerName">시그니엘 서울</div>
+          <div style="font-size:13px;color:var(--gray-500);margin-top:4px">파트너사 담당자 연동 정보</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:12px;color:var(--gray-500);margin-bottom:4px">최종 정산 대상액</div>
+          <div style="font-size:24px;font-weight:900;color:var(--primary)" id="detailTotalAmount">₩10,900,000</div>
+          <div style="margin-top:6px" id="detailStatusBadge"><span class="badge badge-pending">정산 예정</span></div>
+        </div>
+      </div>
+
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">내역 요약</div>
+      <div style="background:var(--gray-50);border-radius:8px;padding:16px;margin-bottom:24px">
+        <div style="display:flex;justify-content:space-between;padding-bottom:12px;border-bottom:1px dashed var(--gray-300);margin-bottom:12px">
+          <span style="font-weight:600;color:var(--gray-700)">결제 금액 총액</span>
+          <span style="font-weight:700">₩12,500,000</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:13px;color:var(--gray-600)">플랫폼 수수료 (10%)</span>
+          <span style="font-size:13px;font-weight:600;color:var(--danger)">-₩1,250,000</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:13px;color:var(--gray-600)">예약 취소 환불 건 차감액</span>
+          <span style="font-size:13px;font-weight:600;color:var(--danger)">-₩350,000</span>
+        </div>
+      </div>
+
+      <div style="font-size:14px;font-weight:700;margin-bottom:12px">해당 월 예약 건 (총 12건)</div>
+      <div style="border:1px solid var(--gray-200);border-radius:8px;overflow:hidden">
+        <table style="width:100%;font-size:12px;text-align:left;border-collapse:collapse">
+          <thead style="background:var(--gray-50);border-bottom:1px solid var(--gray-200)">
+            <tr style="color:var(--gray-600)">
+              <th style="padding:10px 16px">예약번호 / 체크인</th>
+              <th style="padding:10px 16px">유형</th>
+              <th style="padding:10px 16px;text-align:right">결제액</th>
+              <th style="padding:10px 16px;text-align:right">수수료</th>
+              <th style="padding:10px 16px;text-align:right">최종 정산액</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--gray-100)">
+              <td style="padding:12px 16px">
+                <div style="font-weight:600;color:var(--gray-800)">#20260310-0041</div>
+                <div style="color:var(--gray-400);margin-top:2px">2026.03.10 ~ 03.11</div>
+              </td>
+              <td style="padding:12px 16px"><span class="badge" style="background:#E0E7FF;color:#4338CA">정상 예약</span></td>
+              <td style="padding:12px 16px;text-align:right;font-weight:600">₩500,000</td>
+              <td style="padding:12px 16px;text-align:right;color:var(--danger)">-₩50,000</td>
+              <td style="padding:12px 16px;text-align:right;font-weight:700;color:var(--primary)">₩450,000</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--gray-100)">
+              <td style="padding:12px 16px">
+                <div style="font-weight:600;color:var(--gray-800)">#20260318-0007</div>
+                <div style="color:var(--gray-400);margin-top:2px">2026.03.20 ~ 03.22</div>
+              </td>
+              <td style="padding:12px 16px"><span class="badge" style="background:#FEE2E2;color:#DC2626">예약 취소 (환불)</span></td>
+              <td style="padding:12px 16px;text-align:right;font-weight:600;color:var(--gray-500)">₩350,000</td>
+              <td style="padding:12px 16px;text-align:right;color:var(--gray-500)">₩0</td>
+              <td style="padding:12px 16px;text-align:right;font-weight:700;color:var(--gray-500)">-₩350,000<div style="font-size:10px;font-weight:400;margin-top:2px">(결제 취소 차감)</div></td>
+            </tr>
+            <tr>
+              <td colspan="5" style="padding:16px;text-align:center;color:var(--gray-500)">... 그 외 10건 생략</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+    <div class="modal-footer" style="padding:16px 24px">
+      <!-- 상태 플래그 변경 (어드민용 기능) -->
+      <div style="flex:1;display:flex;align-items:center;gap:12px">
+        <span style="font-size:13px;font-weight:600;color:var(--gray-600)">상태 변경:</span>
+        <select class="form-control" style="width:130px;height:34px" id="changeStatusSelect">
+          <option value="pending">정산 예정</option>
+          <option value="completed">지급 완료 처리</option>
+          <option value="hold">지급 보류 지정</option>
+        </select>
+        <button class="btn btn-outline" style="height:34px;padding:0 12px" onclick="updateStatus()">적용</button>
+      </div>
+      <button class="btn btn-primary" data-modal-close>닫기</button>
+    </div>
+  </div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+initPage('admin', 'settlements', '파트너 정산 내역');
+
+function openSettlementDetail(partnerName, month, amount, statusStr) {
+  document.getElementById('detailPartnerName').textContent = partnerName;
+  document.getElementById('detailMonth').textContent = `(${month})`;
+  document.getElementById('detailTotalAmount').textContent = '₩' + amount;
+  
+  let badgeHtml = '';
+  let selVal = 'pending';
+  if (statusStr === 'completed') {
+    badgeHtml = '<span class="badge badge-completed">지급 완료</span>';
+    selVal = 'completed';
+  } else if (statusStr === 'hold') {
+    badgeHtml = '<span class="badge" style="background:#FEF3C7;color:#92400E">지급 보류</span>';
+    selVal = 'hold';
+  } else {
+    badgeHtml = '<span class="badge badge-pending">정산 예정</span>';
+    selVal = 'pending';
+  }
+  
+  document.getElementById('detailStatusBadge').innerHTML = badgeHtml;
+  document.getElementById('changeStatusSelect').value = selVal;
+  
+  document.getElementById('modalSettlementDetail').classList.remove('hidden');
+}
+
+function updateStatus() {
+  const selectNode = document.getElementById('changeStatusSelect');
+  const selText = selectNode.options[selectNode.selectedIndex].text;
+  
+  showConfirm(`상태를 '${selText}'(으)로 변경하시겠습니까?\n\n(참고: 퍼블리싱 시연 목적이며, 실제 적용 시엔 실 데이터에 반영됩니다.)`, () => {
+    showAlert(`정산 내역 상태가 [${selText}](으)로 업데이트되었습니다.`, { icon: '✅' });
+    document.getElementById('modalSettlementDetail').classList.add('hidden');
+  });
+}
+</script>
+</body>
+</html>

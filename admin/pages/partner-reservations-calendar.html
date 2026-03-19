@@ -2267,15 +2267,20 @@
       newCard.setAttribute('data-type', type);
       newCard.onclick = handleEventClick;
       const baseName = name.split(' · ')[0];
+      
+      // 예약자 이름 기반 임의 방문 횟수 산출 (시연용 더미 로직)
+      const visitCount = (baseName.charCodeAt(0) % 4) + 1;
+      const visitText = visitCount === 1 ? '<span style="color:#10B981">✨ 신규 방문</span>' : `<span style="color:#0EA5E9">🎉 ${visitCount}회차 재방문</span>`;
+
       newCard.innerHTML = `
     <div class="uc-header">
       <span class="uc-name">${reservationMemos[baseName] ? '📝 ' + name : name}</span>
       <span class="uc-badge" style="background:${bgMap[type] || '#eee'};color:${coMap[type] || '#333'}">${type}</span>
     </div>
-    <div class="uc-info">📅 ${fmtShort(inDate)} ~ ${fmtShort(outDate)} (${nights}박)</div>
-    <div class="uc-info">📞 010-0000-0000</div>
+    <div class="uc-info" style="margin-bottom:4px;">📅 ${fmtShort(inDate)} ~ ${fmtShort(outDate)} (${nights}박)</div>
+    <div class="uc-info" style="font-weight:600; font-size:11px;">👤 ${visitText}</div>
     <div class="uc-info" style="margin-top:8px;display:flex;justify-content:space-between;align-items:center">
-      <span style="color:#3b82f6;font-weight:500">배정 가능: 1실</span>
+      <span style="color:#3b82f6;font-weight:500" class="avail-status">배정 가능: 1실</span>
       <button class="btn-assign-room" onmouseover="this.style.background='#4338CA'" onmouseout="this.style.background='var(--primary)'" style="padding:5px 12px;background:var(--primary);color:white;border:none;border-radius:4px;font-size:11px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:3px;transition:0.2s" onclick="event.stopPropagation();">
         방 배정
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"></path></svg>

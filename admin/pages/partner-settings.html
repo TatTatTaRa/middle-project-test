@@ -131,32 +131,110 @@
 
               <div class="alert alert-info mb-4">ℹ️ 12개월 연간 단위로 성수기, 비수기 등 요금이 다르게 적용되는 시즌 기간을 등록하세요. 별도로 시즌이 설정되지 않은 기간은 모두 자동으로 '기본 요금'이 적용됩니다.</div>
 
-              <!-- Top Summary Banner -->
-              <div style="display:flex; gap:16px; margin-bottom:20px;">
-                <div style="flex:1; border:1px solid var(--primary-light); background:#EEF2FF; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:center;">
-                  <div style="font-size:12px; color:#4338CA; font-weight:700; margin-bottom:4px;">🟢 현재 진행 중인 시즌</div>
-                  <div style="font-size:18px; font-weight:800; color:var(--gray-900); display:flex; align-items:center; gap:8px;">
-                    봄맞이 특가 <span style="font-size:13px; font-weight:600; color:#4338CA; background:#E0E7FF; padding:2px 6px; border-radius:4px;">비수기</span>
-                  </div>
-                  <div style="font-size:13px; font-weight:500; color:var(--gray-500); margin-top:4px;">
-                    (2026.03.01 ~ 2026.03.31)
-                  </div>
-                  <div style="margin-top:12px; display:flex; gap:12px; font-size:13px; font-weight:600;">
-                    <div style="background:#fff; padding:6px 12px; border-radius:6px; color:#4338CA; border:1px solid #C7D2FE;">평일 요금 <span style="color:#2563EB;">-10%</span></div>
-                    <div style="background:#fff; padding:6px 12px; border-radius:6px; color:#4338CA; border:1px solid #C7D2FE;">주말 요금 <span style="color:var(--gray-600);">동일(0%)</span></div>
+              <!-- 12개월 연간 시즌 타임라인 -->
+              <div class="card" style="margin-bottom:20px; padding:20px; overflow:hidden;">
+                <!-- 타이틀 및 범례 -->
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                  <div style="font-size:18px; font-weight:800; color:var(--gray-900);">2026년 <span style="color:var(--primary);">연간 시즌 한눈에 보기</span></div>
+                  <div style="display:flex; gap:16px; align-items:center; font-size:12px; font-weight:600; color:var(--gray-600);">
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <div style="width:14px; height:14px; border-radius:4px; background:#FEE2E2; border:1px solid #FCA5A5;"></div> 
+                      성수기 (할증)
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <div style="width:14px; height:14px; border-radius:4px; background:#E0E7FF; border:1px solid #A5B4FC;"></div> 
+                      비수기 (할인/특가)
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px;">
+                      <div style="width:14px; height:14px; border-radius:4px; background:#F3F4F6; border:1px solid #D1D5DB;"></div> 
+                      기본 요금
+                    </div>
                   </div>
                 </div>
-                <div style="flex:1; border:1px solid var(--gray-200); background:#FAFAFA; border-radius:8px; padding:16px; display:flex; flex-direction:column; justify-content:center;">
-                  <div style="font-size:12px; color:var(--gray-500); font-weight:700; margin-bottom:4px;">⏳ 다음 진행될 시즌</div>
-                  <div style="font-size:18px; font-weight:800; color:var(--gray-900); display:flex; align-items:center; gap:8px;">
-                    여름 바캉스 <span style="font-size:13px; font-weight:600; color:#DC2626; background:#FEE2E2; padding:2px 6px; border-radius:4px;">성수기</span>
-                  </div>
-                  <div style="font-size:13px; font-weight:500; color:var(--gray-500); margin-top:4px;">
-                    (2026.07.01 ~ 2026.08.31)
-                  </div>
-                  <div style="margin-top:12px; display:flex; gap:12px; font-size:13px; font-weight:600;">
-                    <div style="background:#fff; padding:6px 12px; border-radius:6px; color:var(--gray-700); border:1px solid var(--gray-200);">평일 요금 <span style="color:#DC2626;">+20%</span></div>
-                    <div style="background:#fff; padding:6px 12px; border-radius:6px; color:var(--gray-700); border:1px solid var(--gray-200);">주말 요금 <span style="color:#DC2626;">+40%</span></div>
+
+                <!-- 타임라인 공간 -->
+                <div style="border:1px solid var(--gray-200); border-radius:var(--radius-lg); background:#fff; overflow:hidden;">
+                  <div style="overflow-x:auto;">
+                    <div style="min-width:1100px;">
+                      
+                      <!-- N월 헤더 -->
+                      <div style="display:flex; border-bottom:1px solid var(--gray-200); background:var(--gray-50);">
+                        <div style="flex:1; text-align:center; padding:12px 0; border-right:1px solid var(--gray-200); font-size:13px; font-weight:700; color:var(--gray-600);">1월</div>
+                        <div style="flex:1; text-align:center; padding:12px 0; border-right:1px solid var(--gray-200); font-size:13px; font-weight:700; color:var(--gray-600);">2월</div>
+                        <div style="flex:1; text-align:center; padding:12px 0; border-right:1px solid var(--gray-200); font-size:13px; font-weight:700; color:var(--gray-600);">3월</div>
+                        <div style="flex:1; text-align:center; padding:12px 0; border-right:1px solid var(--gray-200); font-size:13px; font-weight:700; color:var(--gray-600);">4월</div>
+                        <div style="flex:1; text-align:center; padding:12px 0; border-right:1px solid var(--gray-200); font-size:13px; font-weight:700; color:var(--gray-600);">5월</div>
+                        <div style="flex:1; text-align:center; padding:12px 0; border-right:1px solid var(--gray-200); font-size:13px; font-weight:700; color:var(--gray-600);">6월</div>
+                        <div style="flex:1; text-align:center; padding:12px 0; border-right:1px solid var(--gray-200); font-size:13px; font-weight:700; color:var(--gray-600);">7월</div>
+                        <div style="flex:1; text-align:center; padding:12px 0; border-right:1px solid var(--gray-200); font-size:13px; font-weight:700; color:var(--gray-600);">8월</div>
+                        <div style="flex:1; text-align:center; padding:12px 0; border-right:1px solid var(--gray-200); font-size:13px; font-weight:700; color:var(--gray-600);">9월</div>
+                        <div style="flex:1; text-align:center; padding:12px 0; border-right:1px solid var(--gray-200); font-size:13px; font-weight:700; color:var(--gray-600);">10월</div>
+                        <div style="flex:1; text-align:center; padding:12px 0; border-right:1px solid var(--gray-200); font-size:13px; font-weight:700; color:var(--gray-600);">11월</div>
+                        <div style="flex:1; text-align:center; padding:12px 0; font-size:13px; font-weight:700; color:var(--gray-600);">12월</div>
+                      </div>
+
+                      <!-- 기간 그래프 표시 영역 -->
+                      <div style="position:relative; height:180px; width:100%; display:flex;">
+                        <!-- 배경 점선 (각 달 구분) -->
+                        <div style="flex:1; border-right:1px dashed var(--gray-200); height:100%;"></div>
+                        <div style="flex:1; border-right:1px dashed var(--gray-200); height:100%;"></div>
+                        <div style="flex:1; border-right:1px dashed var(--gray-200); height:100%;"></div>
+                        <div style="flex:1; border-right:1px dashed var(--gray-200); height:100%;"></div>
+                        <div style="flex:1; border-right:1px dashed var(--gray-200); height:100%;"></div>
+                        <div style="flex:1; border-right:1px dashed var(--gray-200); height:100%;"></div>
+                        <div style="flex:1; border-right:1px dashed var(--gray-200); height:100%;"></div>
+                        <div style="flex:1; border-right:1px dashed var(--gray-200); height:100%;"></div>
+                        <div style="flex:1; border-right:1px dashed var(--gray-200); height:100%;"></div>
+                        <div style="flex:1; border-right:1px dashed var(--gray-200); height:100%;"></div>
+                        <div style="flex:1; border-right:1px dashed var(--gray-200); height:100%;"></div>
+                        <div style="flex:1; height:100%;"></div>
+
+                        <!-- 1. 봄맞이 특가 (현재 진행 중 / 강조) -->
+                        <!-- left: 2/12, width: 1/12 -->
+                        <div style="position:absolute; top:20px; left:calc(100% * 2 / 12 + 6px); width:calc(100% * 1 / 12 - 12px); background:#EEF2FF; border:2px solid #4F46E5; border-radius:8px; padding:10px 8px; cursor:pointer; box-shadow:0 4px 12px rgba(67,56,202,0.15); transition:transform 0.15s; z-index:20;"
+                             onclick="document.getElementById('modal-season-detail').classList.remove('hidden')"
+                             onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='none';">
+                          <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                            <div style="font-size:11px; font-weight:800; color:#4338CA; background:#fff; padding:2px 4px; border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,0.05);">🟢 현재 진행중</div>
+                            <div style="font-size:10px; font-weight:700; color:var(--gray-500);">비수기</div>
+                          </div>
+                          <div style="font-size:14px; font-weight:800; color:#312E81; margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">봄맞이 특가</div>
+                          <div style="font-size:11px; font-weight:600; color:#4338CA; opacity:0.9; margin-bottom:8px; line-height:1.2;">03.01 ~ 03.31</div>
+                          <div style="font-size:11px; font-weight:700; color:#4338CA;">평일 <span style="color:#2563EB;">-10%</span></div>
+                          <div style="font-size:11px; font-weight:700; color:#4338CA;">주말 <span style="color:var(--gray-500);">0%</span></div>
+                        </div>
+
+                        <!-- 2. 여름 바캉스 성수기 (다음 예정 / 적당히 강조) -->
+                        <!-- left: 6/12, width: 2/12 -->
+                        <div style="position:absolute; top:20px; left:calc(100% * 6 / 12 + 6px); width:calc(100% * 2 / 12 - 12px); background:#FFF1F2; border:2px solid #E11D48; border-radius:8px; padding:12px 14px; cursor:pointer; box-shadow:0 4px 12px rgba(225,29,72,0.1); transition:transform 0.15s; z-index:15;"
+                             onclick="document.getElementById('modal-season-detail').classList.remove('hidden')"
+                             onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='none';">
+                          <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                            <div style="font-size:11px; font-weight:800; color:#E11D48; background:#fff; padding:2px 6px; border-radius:4px; box-shadow:0 1px 2px rgba(0,0,0,0.05);">⏳ 다음 예정</div>
+                            <div style="font-size:10px; font-weight:700; color:var(--gray-500);">성수기</div>
+                          </div>
+                          <div style="font-size:15px; font-weight:800; color:#881337; margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">여름 바캉스 성수기</div>
+                          <div style="font-size:12px; font-weight:600; color:#E11D48; opacity:0.9; margin-bottom:8px;">07.01 ~ 08.31 (2개월)</div>
+                          <div style="display:flex; gap:12px;">
+                            <div style="font-size:12px; font-weight:700; color:#E11D48;">평일 <span style="color:#BE123C;">+20%</span></div>
+                            <div style="font-size:12px; font-weight:700; color:#E11D48;">주말 <span style="color:#BE123C;">+40%</span></div>
+                          </div>
+                        </div>
+
+                        <!-- 3. 연말 스키 특수 (그 외 / 무채색 톤다운) -->
+                        <!-- left: 11/12, width: 1/12 -->
+                        <div style="position:absolute; top:85px; left:calc(100% * 11 / 12 + 6px); width:calc(100% * 1 / 12 - 12px); background:#F3F4F6; border:1px solid #D1D5DB; border-radius:8px; padding:10px 8px; cursor:pointer; opacity:0.6; transition:transform 0.15s, opacity 0.15s; z-index:5;"
+                             onclick="document.getElementById('modal-season-detail').classList.remove('hidden')"
+                             onmouseover="this.style.transform='translateY(-2px)'; this.style.opacity='1';" onmouseout="this.style.transform='none'; this.style.opacity='0.6';">
+                          <div style="font-size:11px; font-weight:700; color:var(--gray-500); margin-bottom:4px; background:#fff; display:inline-block; padding:2px 4px; border-radius:4px;">성수기</div>
+                          <div style="font-size:13px; font-weight:700; color:var(--gray-700); margin-bottom:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">연말 겨울 특수</div>
+                          <div style="font-size:11px; font-weight:500; color:var(--gray-500); margin-bottom:8px; line-height:1.2;">12.01 ~ 상시</div>
+                          <div style="font-size:11px; font-weight:600; color:var(--gray-600);">평일 <span style="color:var(--gray-800);">+30%</span></div>
+                          <div style="font-size:11px; font-weight:600; color:var(--gray-600);">주말 <span style="color:var(--gray-800);">+50%</span></div>
+                        </div>
+
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -249,20 +327,11 @@
               <!-- 수수료율 현황 -->
               <div style="margin-top:20px;padding-top:20px;border-top:1px dashed var(--gray-200)">
                 <div style="font-size:13px;font-weight:700;color:var(--gray-700);margin-bottom:10px">💰 플랫폼 수수료율</div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px">
+                <div style="display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:10px">
                   <div style="border:1.5px solid var(--gray-200);border-radius:10px;padding:12px;text-align:center">
                     <div style="font-size:11px;color:var(--gray-500);margin-bottom:4px">기본 수수료율</div>
                     <div style="font-size:22px;font-weight:900;color:var(--gray-700)">10%</div>
                   </div>
-                  <div style="border:1.5px solid #F59E0B;border-radius:10px;padding:12px;text-align:center;background:#FFFBEB">
-                    <div style="font-size:11px;color:#B45309;font-weight:700;margin-bottom:4px">⚠️ 현재 적용 수수료율</div>
-                    <div style="font-size:22px;font-weight:900;color:#92400E">15%</div>
-                    <div style="font-size:10px;font-weight:700;color:#F59E0B;margin-top:2px">패널티 +5% 적용 중</div>
-                  </div>
-                </div>
-                <div style="background:#FEF3C7;border:1px solid #FDE68A;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between">
-                  <div style="font-size:12px;color:#92400E">귀책 취소 패널티 · 잔여 <strong>30일</strong> (~ 2026-04-17)</div>
-                  <a href="partner-settlements.html" style="font-size:11px;font-weight:700;color:#B45309">정산 내역 보기 ›</a>
                 </div>
               </div>
 

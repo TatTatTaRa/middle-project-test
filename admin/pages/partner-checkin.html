@@ -775,9 +775,19 @@
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
               </button>
             </div>
+            <!-- 미확인 채팅 문의 pill (없으면 숨김) -->
+            <div id="oaChatPill" style="display:none;margin-top:5px;">
+              <button onclick="openChatPanel(document.getElementById('oaName').textContent, document.getElementById('oaRoom').textContent)"
+                style="display:inline-flex;align-items:center;gap:4px;background:rgba(225,29,72,0.2);border:1px solid rgba(225,29,72,0.4);border-radius:20px;padding:2px 8px;cursor:pointer;transition:all 0.15s;"
+                onmouseover="this.style.background='rgba(225,29,72,0.35)'"
+                onmouseout="this.style.background='rgba(225,29,72,0.2)'">
+                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#FDA4AF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                <span id="oaChatPillText" style="font-size:10px;font-weight:700;color:#FDA4AF;"></span>
+              </button>
+            </div>
           </div>
         </div>
-        <!-- 협의 메모 버튼 -->
+        <!-- 협의 메모 버튼 (단독) -->
         <button id="oaMemoBtn"
           onclick="openMemoViewer()"
           title="협의 메모 보기"
@@ -1096,6 +1106,11 @@
   // 예약별 협의 메모 저장소
   const _memoStore = {};
 
+  // 예약별 미확인 채팅 건수 (데모: 실제 환경에서는 서버에서 조회)
+  const _chatUnread = {
+    '김철수_305호': 2,   // 데모: 김철수 2건 미확인
+  };
+
   let _overdueGuest = null;
   function openOverdueAction(name, room, type, pax, reservationNo) {
     _overdueGuest = { name, room, type, pax, reservationNo };
@@ -1104,15 +1119,27 @@
     document.getElementById('oaTypeAndPax').textContent = `${type} · ${pax}`;
     document.getElementById('oaResNo').textContent = reservationNo || '#—';
 
-    // 협의 메모 배지: 해당 예약에 메모가 있으면 표시
     const key = `${name}_${room}`;
+
+    // 협의 메모 배지
     const memos = _memoStore[key] || [];
-    const badge = document.getElementById('oaMemoBadge');
+    const memoBadge = document.getElementById('oaMemoBadge');
     if (memos.length > 0) {
-      badge.textContent = memos.length;
-      badge.style.display = 'block';
+      memoBadge.textContent = memos.length;
+      memoBadge.style.display = 'block';
     } else {
-      badge.style.display = 'none';
+      memoBadge.style.display = 'none';
+    }
+
+    // 채팅 문의 pill: 미확인 채팅이 있으면 예약번호 아래에 표시
+    const chatPill = document.getElementById('oaChatPill');
+    const chatPillText = document.getElementById('oaChatPillText');
+    const chatCount = _chatUnread[key] || 0;
+    if (chatCount > 0) {
+      chatPillText.textContent = `미확인 채팅 ${chatCount}건`;
+      chatPill.style.display = 'block';
+    } else {
+      chatPill.style.display = 'none';
     }
 
     document.getElementById('modalOverdueAction').classList.remove('hidden');

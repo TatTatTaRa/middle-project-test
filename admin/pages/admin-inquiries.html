@@ -201,7 +201,7 @@ initPage('admin', 'inquiries', '파트너 문의');
 
 const INQ_DATA = [
   {
-    id: 1, corp: '롯데호텔 (주)', status: 'new', badge: 'inq-badge-new', badgeLabel: '미답변',
+    id: 1, corp: '롯데호텔 (주)', bizNum: '135-81-05368', phone: '010-5555-6666', status: 'new', badge: 'inq-badge-new', badgeLabel: '미답변',
     subject: '정산 지연 관련 문의',
     preview: '이번 달 정산이 아직 처리가 안 된 것 같아서...',
     time: '방금 전',
@@ -210,17 +210,9 @@ const INQ_DATA = [
       { from: 'partner', text: '3월 1일부터 15일까지 예약 건이 총 23건인데 정산 내역에 반영이 안 되어 있습니다.', time: '10:13' },
     ]
   },
+
   {
-    id: 2, corp: '그랜드하얏트 (주)', status: 'new', badge: 'inq-badge-new', badgeLabel: '미답변',
-    subject: '객실 사진 업로드 오류',
-    preview: '파트너 센터에서 객실 이미지 등록 시 오류가...',
-    time: '1시간 전',
-    messages: [
-      { from: 'partner', text: '파트너센터에서 객실 이미지를 업로드하려고 하는데 계속 오류가 발생합니다.\n해결 방법을 알 수 있을까요?', time: '09:20' },
-    ]
-  },
-  {
-    id: 3, corp: '제주신화월드 (주)', status: 'new', badge: 'inq-badge-reapp', badgeLabel: '재신청',
+    id: 3, corp: '제주신화월드 (주)', bizNum: '456-78-90123', phone: '010-9999-0000', status: 'new', badge: 'inq-badge-reapp', badgeLabel: '재신청',
     subject: '서류 재심사 관련 문의',
     preview: '반려 사유가 사업자 주소 불일치라고 하셨는데...',
     time: '2시간 전',
@@ -231,7 +223,7 @@ const INQ_DATA = [
     ]
   },
   {
-    id: 4, corp: '소노벨 리조트 (주)', status: 'done', badge: 'inq-badge-done', badgeLabel: '답변완료',
+    id: 4, corp: '소노벨 리조트 (주)', bizNum: '211-86-68194', phone: '010-2222-3333', status: 'done', badge: 'inq-badge-done', badgeLabel: '답변완료',
     subject: '정산 계좌 변경 방법',
     preview: '답변해주셔서 감사합니다.',
     time: '어제',
@@ -239,6 +231,16 @@ const INQ_DATA = [
       { from: 'partner', text: '정산 계좌를 변경하고 싶은데 어떻게 하면 되나요?', time: '어제 14:20' },
       { from: 'admin', text: '정산 계좌 변경은 파트너센터 > 숙소 설정 > 정산 계좌 메뉴에서 가능합니다.\n변경 요청 시 운영팀 검토 후 1~2 영업일 내에 적용됩니다.', time: '어제 14:45' },
       { from: 'partner', text: '답변해주셔서 감사합니다. 바로 변경해보겠습니다.', time: '어제 15:00' },
+    ]
+  },
+  {
+    id: 5, corp: '해운대스테이 (주)', bizNum: '890-12-34567', phone: '010-9999-8888', status: 'new', badge: 'inq-badge-new', badgeLabel: '미답변',
+    appStatus: '서류 검토 중', appStatusBadge: 'badge-warning',
+    subject: '파트너 가입 심사는 며칠이나 걸리나요?',
+    preview: '어제 가입 서류를 냈는데, 심사가 언제쯤 끝날까요?',
+    time: '3시간 전',
+    messages: [
+      { from: 'partner', text: '안녕하세요. 어제 가입 신청과 함께 필수 서류를 모두 제출했습니다.\n보통 서류 검토 및 승인까지 기간이 얼마나 소요되는지 궁금합니다.', time: '08:30' },
     ]
   },
 ];
@@ -259,15 +261,21 @@ function renderList() {
     : INQ_DATA.filter(d => d.status === 'done');
 
   document.getElementById('inqList').innerHTML = data.map(d => `
-    <div class="inq-item${selectedId === d.id ? ' active' : ''}" onclick="openChat(${d.id})">
-      <div class="inq-item-header">
-        ${d.status === 'new' ? '<div class="dot-unread"></div>' : ''}
-        <div class="inq-corp">${d.corp}</div>
-        <span class="inq-badge ${d.badge}">${d.badgeLabel}</span>
-        <div class="inq-time">${d.time}</div>
+    <div class="inq-item${selectedId === d.id ? ' active' : ''}" onclick="openChat(${d.id})" style="display:flex; gap:12px; align-items:flex-start;">
+      <div style="font-size:22px; margin-top:2px;">🏨</div>
+      <div style="flex:1; min-width:0;">
+        <div class="inq-item-header">
+          ${d.status === 'new' ? '<div class="dot-unread"></div>' : ''}
+          <div class="inq-corp">${d.corp}</div>
+          ${d.appStatus ? `<span class="badge ${d.appStatusBadge}" style="font-size:10px;padding:2px 6px;">${d.appStatus}</span>` : ''}
+          <div class="inq-time" style="margin-left:auto">${d.time}</div>
+        </div>
+        <div style="margin-bottom:4px;display:flex;align-items:center;gap:6px">
+          <span class="inq-badge ${d.badge}">${d.badgeLabel}</span>
+          <div class="inq-subject">${d.subject}</div>
+        </div>
+        <div class="inq-preview">${d.preview}</div>
       </div>
-      <div class="inq-subject">${d.subject}</div>
-      <div class="inq-preview">${d.preview}</div>
     </div>
   `).join('') || '<div style="padding:30px;text-align:center;color:var(--gray-400);font-size:13px">문의가 없습니다.</div>';
 }
@@ -282,12 +290,18 @@ function openChat(id) {
   chatView.style.display = 'flex';
 
   document.getElementById('chatHeader').innerHTML = `
-    <div style="font-size:20px">🏨</div>
-    <div>
-      <div class="inq-chat-corp">${inq.corp}</div>
-      <div class="inq-chat-sub">${inq.subject} · <span class="inq-badge ${inq.badge}">${inq.badgeLabel}</span></div>
+    <div style="display:flex;flex-direction:column;justify-content:center;flex:1">
+      <div class="inq-chat-corp" style="margin-bottom:6px;display:flex;align-items:center;gap:6px">
+        <span>${inq.corp}</span>
+        ${inq.appStatus ? `<span class="badge ${inq.appStatusBadge}" style="font-size:10px;padding:2px 6px;">${inq.appStatus}</span>` : ''}
+        <span class="inq-badge ${inq.badge}">${inq.badgeLabel}</span>
+      </div>
+      <div style="font-size:11px;color:var(--gray-500);display:flex;align-items:center;gap:4px">
+        <span>사업자: ${inq.bizNum}</span>
+        <button style="background:var(--gray-100);border:1px solid var(--gray-200);border-radius:4px;padding:2px 4px;font-size:10px;color:var(--gray-500);cursor:pointer;" onclick="navigator.clipboard.writeText('${inq.bizNum}'); showAlert('사업자등록번호가 클립보드에 복사되었습니다.', {icon:'📋'})">복사</button>
+      </div>
     </div>
-    <button class="btn btn-ghost btn-sm ml-auto" onclick="markDone(${id})">답변 완료 처리</button>
+    <button class="btn btn-ghost btn-sm ml-auto" onclick="markDone(${id})" style="align-self:flex-start;">답변 완료 처리</button>
   `;
 
   document.getElementById('chatBody').innerHTML = inq.messages.map(m => `
