@@ -37,9 +37,7 @@
 }
 
 /* 프로그레스 바 */
-.progress-wrap {
-  margin-bottom: 28px;
-}
+.progress-wrap { margin-bottom: 28px; }
 .progress-meta {
   display: flex; justify-content: space-between; align-items: center;
   margin-bottom: 8px; font-size: 12px;
@@ -80,6 +78,12 @@
 .optional-badge { font-size: 11px; font-weight: 400; color: var(--gray-400); background: var(--gray-100); padding: 2px 7px; border-radius: 99px; }
 .upload-error { font-size: 12px; color: var(--danger); margin-top: 5px; display: none; }
 
+/* 인증 코드 입력 영역 */
+.code-input-wrap { display: none; margin-top: 12px; }
+.code-input-wrap.show { display: block; }
+.code-hint { font-size: 12px; color: var(--gray-500); margin-bottom: 8px; }
+.code-resend { font-size: 12px; color: var(--primary); cursor: pointer; margin-top: 6px; display: inline-block; }
+.code-resend:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -96,7 +100,7 @@
     <!-- 프로그레스 바 -->
     <div class="progress-wrap">
       <div class="progress-meta">
-        <span class="progress-label" id="progressLabel">사업자 정보</span>
+        <span class="progress-label" id="progressLabel">약관 동의</span>
         <span class="progress-count" id="progressCount">1 / 7단계</span>
       </div>
       <div class="progress-bar-bg">
@@ -106,10 +110,77 @@
 
     <div class="step-panels">
 
-      <!-- ① 사업자 정보 -->
+      <!-- ① 약관 동의 -->
       <div class="active" id="panel1">
+        <div class="auth-title">약관 동의</div>
+        <div class="auth-subtitle">서비스 이용을 위한 약관에 동의해주세요.</div>
+        <div class="agree-list">
+          <div class="agree-row" style="background:var(--gray-50)">
+            <input type="checkbox" id="all" onchange="toggleAll(this)">
+            <label for="all" style="font-weight:700;cursor:pointer">전체 동의</label>
+          </div>
+          <div class="agree-row">
+            <input type="checkbox" class="agree-check"> <span>서비스 이용약관 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
+          </div>
+          <div class="agree-row">
+            <input type="checkbox" class="agree-check"> <span>개인정보 처리방침 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
+          </div>
+          <div class="agree-row">
+            <input type="checkbox" class="agree-check"> <span>파트너 운영 정책 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
+          </div>
+          <div class="agree-row">
+            <input type="checkbox" class="agree-check"> <span>마케팅 정보 수신 동의 (선택)</span>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-full mt-4" onclick="goStep(2)">다음 단계</button>
+      </div>
+
+      <!-- ② 계정 정보 (이메일 인증 포함) -->
+      <div id="panel2">
+        <div class="auth-title">계정 정보 입력</div>
+        <div class="auth-subtitle">로그인에 사용할 계정 정보를 입력하고 이메일을 인증해주세요.</div>
+
+        <div class="form-group">
+          <label class="form-label">이메일 (로그인 ID) <span style="color:var(--danger)">*</span></label>
+          <div class="verify-box">
+            <input type="email" id="emailInput" class="form-control" placeholder="email@hotel.com">
+            <button class="btn btn-outline btn-sm" id="btnSendCode" style="white-space:nowrap" onclick="sendVerifyCode()">인증 요청</button>
+          </div>
+          <!-- 인증 코드 입력 -->
+          <div class="code-input-wrap" id="codeWrap">
+            <div class="code-hint">📨 입력하신 이메일로 인증번호를 발송했습니다. (시제품: 아무 숫자나 입력 후 확인)</div>
+            <div class="verify-box">
+              <input type="text" id="codeInput" class="form-control" placeholder="인증번호 6자리 입력" maxlength="6">
+              <button class="btn btn-outline btn-sm" style="white-space:nowrap" onclick="confirmCode()">확인</button>
+            </div>
+            <span class="code-resend" onclick="sendVerifyCode()">인증번호 재발송</span>
+          </div>
+          <div class="verified-msg" id="emailVerifiedMsg">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            이메일 인증이 완료되었습니다.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">비밀번호 <span style="color:var(--danger)">*</span></label>
+          <input type="password" class="form-control" placeholder="8자 이상 입력">
+          <div class="form-hint">8자 이상</div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">비밀번호 확인</label>
+          <input type="password" class="form-control" placeholder="비밀번호 재입력">
+        </div>
+
+        <div class="flex gap-2 mt-4">
+          <button class="btn btn-ghost btn-full" onclick="goStep(1)">이전</button>
+          <button class="btn btn-primary btn-full" id="btnNext2" onclick="goStep(3)" disabled style="opacity:0.45;cursor:not-allowed;">다음 단계</button>
+        </div>
+      </div>
+
+      <!-- ③ 사업자 정보 -->
+      <div id="panel3">
         <div class="auth-title">사업자 정보 입력</div>
-        <div class="auth-subtitle">법인 사업자 정보를 정확하게 입력해주세요.</div>
+        <div class="auth-subtitle">법인 사업자 정보를 입력해주세요.</div>
         <div class="form-group">
           <label class="form-label">사업자등록번호 <span style="color:var(--danger)">*</span></label>
           <div class="verify-box">
@@ -133,11 +204,90 @@
             <button class="btn btn-outline btn-sm" style="white-space:nowrap">인증</button>
           </div>
         </div>
-        <button class="btn btn-primary btn-full mt-4" onclick="goStep(2)">다음 단계</button>
+        <div class="flex gap-2 mt-4">
+          <button class="btn btn-ghost btn-full" onclick="goStep(2)">이전</button>
+          <button class="btn btn-primary btn-full" onclick="goStep(4)">다음 단계</button>
+        </div>
       </div>
 
-      <!-- ② 정산 계좌 인증 -->
-      <div id="panel2">
+      <!-- ④ 숙소 기본 정보 -->
+      <div id="panel4">
+        <div class="auth-title">숙소 기본 정보</div>
+        <div class="auth-subtitle">운영하실 숙소 정보를 입력해주세요.</div>
+        <div class="section-desc">
+          ℹ️ 입력하신 정보는 심사 과정에서 검토되며, 승인 후 서비스에 반영됩니다.
+        </div>
+        <div class="form-group">
+          <label class="form-label">숙소명 <span style="color:var(--danger)">*</span></label>
+          <input type="text" class="form-control" placeholder="예) 시그니엘 서울" id="propName">
+        </div>
+        <div class="form-group">
+          <label class="form-label">숙소 유형 <span style="color:var(--danger)">*</span></label>
+          <select class="sel" id="propType">
+            <option value="">유형을 선택하세요</option>
+            <option value="hotel">호텔</option>
+            <option value="pension">펜션</option>
+            <option value="motel">모텔</option>
+            <option value="guesthouse">게스트하우스</option>
+            <option value="resort">리조트</option>
+            <option value="poolvilla">풀빌라</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">주소 <span style="color:var(--danger)">*</span></label>
+          <div class="verify-box" style="margin-bottom:8px;">
+            <input type="text" class="form-control" id="propAddr" placeholder="주소 검색" readonly>
+            <button class="btn btn-outline btn-sm" style="white-space:nowrap" onclick="searchAddr()">주소 찾기</button>
+          </div>
+          <input type="text" class="form-control" placeholder="상세 주소 (동·호수 등)">
+        </div>
+        <div class="flex gap-2 mt-4">
+          <button class="btn btn-ghost btn-full" onclick="goStep(3)">이전</button>
+          <button class="btn btn-primary btn-full" onclick="goStep(5)">다음 단계</button>
+        </div>
+      </div>
+
+      <!-- ⑤ 서류 제출 -->
+      <div id="panel5">
+        <div class="auth-title">서류 제출</div>
+        <div class="auth-subtitle">심사에 필요한 서류를 첨부해 주세요.</div>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;font-size:12px;color:var(--gray-600);margin-bottom:20px;line-height:1.8">
+          📋 신청 법인: <strong>(주)시그니엘호텔</strong> &nbsp;·&nbsp; 사업자등록번호: <strong>123-45-67890</strong>
+        </div>
+
+        <!-- 필수 서류 -->
+        <div class="doc-section">
+          <div class="doc-section-title">📎 사업자등록증 <span class="required-star">*</span></div>
+          <div class="file-upload-box" id="box1" onclick="document.getElementById('file1').click()">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text">클릭하여 파일을 선택하거나 여기로 드래그하세요</div>
+            <div class="upload-hint">PDF · JPG · PNG / 최대 10MB</div>
+          </div>
+          <input type="file" id="file1" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFile(this, 'preview1', 'box1')">
+          <div id="preview1"></div>
+          <div class="upload-error" id="err1">사업자등록증은 필수 서류입니다.</div>
+        </div>
+
+        <!-- 선택 서류 -->
+        <div class="doc-section">
+          <div class="doc-section-title">🏦 통장 사본 <span class="optional-badge">선택</span></div>
+          <div class="file-upload-box" id="box2" onclick="document.getElementById('file2').click()">
+            <div class="upload-icon">💳</div>
+            <div class="upload-text">정산 계좌 확인용 통장 사본</div>
+            <div class="upload-hint">PDF · JPG · PNG / 최대 10MB</div>
+          </div>
+          <input type="file" id="file2" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFile(this, 'preview2', 'box2')">
+          <div id="preview2"></div>
+        </div>
+
+        <div class="flex gap-2 mt-4">
+          <button class="btn btn-ghost btn-full" onclick="goStep(4)">이전</button>
+          <button class="btn btn-primary btn-full" onclick="goStep(6)">다음 단계</button>
+        </div>
+      </div>
+
+      <!-- ⑥ 정산 계좌 인증 -->
+      <div id="panel6">
         <div class="auth-title">정산 계좌 인증</div>
         <div class="auth-subtitle">정산 대금을 받을 법인 계좌를 등록해주세요.</div>
         <div class="section-desc">
@@ -176,136 +326,8 @@
           계좌 인증이 완료되었습니다.
         </div>
         <div class="flex gap-2 mt-4">
-          <button class="btn btn-ghost btn-full" onclick="goStep(1)">이전</button>
-          <button class="btn btn-primary btn-full" id="btnNext2" onclick="goStep(3)" disabled style="opacity:0.45;cursor:not-allowed;">다음 단계</button>
-        </div>
-      </div>
-
-      <!-- ③ 숙소 기본 정보 -->
-      <div id="panel3">
-        <div class="auth-title">숙소 기본 정보</div>
-        <div class="auth-subtitle">운영하실 숙소 정보를 입력해주세요.</div>
-        <div class="section-desc">
-          ℹ️ 입력하신 정보는 심사 과정에서 검토되며, 승인 후 서비스에 반영됩니다. 변경 시 재심사가 필요합니다.
-        </div>
-        <div class="form-group">
-          <label class="form-label">숙소명 <span style="color:var(--danger)">*</span></label>
-          <input type="text" class="form-control" placeholder="예) 시그니엘 서울" id="propName">
-        </div>
-        <div class="form-group">
-          <label class="form-label">숙소 유형 <span style="color:var(--danger)">*</span></label>
-          <select class="sel" id="propType">
-            <option value="">유형을 선택하세요</option>
-            <option value="hotel">호텔</option>
-            <option value="pension">펜션</option>
-            <option value="motel">모텔</option>
-            <option value="guesthouse">게스트하우스</option>
-            <option value="resort">리조트</option>
-            <option value="poolvilla">풀빌라</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">주소 <span style="color:var(--danger)">*</span></label>
-          <div class="verify-box" style="margin-bottom:8px;">
-            <input type="text" class="form-control" id="propAddr" placeholder="주소 검색" readonly>
-            <button class="btn btn-outline btn-sm" style="white-space:nowrap" onclick="searchAddr()">주소 찾기</button>
-          </div>
-          <input type="text" class="form-control" placeholder="상세 주소 (동·호수 등)">
-        </div>
-
-        <div class="flex gap-2 mt-4">
-          <button class="btn btn-ghost btn-full" onclick="goStep(2)">이전</button>
-          <button class="btn btn-primary btn-full" onclick="goStep(4)">다음 단계</button>
-        </div>
-      </div>
-
-      <!-- ④ 계정(회원) 정보 -->
-      <div id="panel4">
-        <div class="auth-title">계정 정보 입력</div>
-        <div class="auth-subtitle">로그인에 사용할 계정 정보를 입력해주세요.</div>
-        <div class="form-group">
-          <label class="form-label">이메일 (로그인 ID) <span style="color:var(--danger)">*</span></label>
-          <input type="email" class="form-control" placeholder="email@hotel.com">
-        </div>
-        <div class="form-group">
-          <label class="form-label">비밀번호 <span style="color:var(--danger)">*</span></label>
-          <input type="password" class="form-control" placeholder="8자 이상, 영문+숫자+특수문자">
-          <div class="form-hint">영문, 숫자, 특수문자 포함 8자 이상</div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">비밀번호 확인</label>
-          <input type="password" class="form-control" placeholder="비밀번호 재입력">
-        </div>
-        <div class="flex gap-2 mt-4">
-          <button class="btn btn-ghost btn-full" onclick="goStep(3)">이전</button>
-          <button class="btn btn-primary btn-full" onclick="goStep(5)">다음 단계</button>
-        </div>
-      </div>
-
-      <!-- ⑤ 약관 동의 -->
-      <div id="panel5">
-        <div class="auth-title">약관 동의</div>
-        <div class="auth-subtitle">서비스 이용을 위한 약관에 동의해주세요.</div>
-        <div class="agree-list">
-          <div class="agree-row" style="background:var(--gray-50)">
-            <input type="checkbox" id="all" onchange="toggleAll(this)">
-            <label for="all" style="font-weight:700;cursor:pointer">전체 동의</label>
-          </div>
-          <div class="agree-row">
-            <input type="checkbox" class="agree-check"> <span>서비스 이용약관 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
-          </div>
-          <div class="agree-row">
-            <input type="checkbox" class="agree-check"> <span>개인정보 처리방침 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
-          </div>
-          <div class="agree-row">
-            <input type="checkbox" class="agree-check"> <span>파트너 운영 정책 동의 (필수)</span> <a href="#" class="agree-link">보기</a>
-          </div>
-          <div class="agree-row">
-            <input type="checkbox" class="agree-check"> <span>마케팅 정보 수신 동의 (선택)</span>
-          </div>
-        </div>
-        <div class="flex gap-2 mt-4">
-          <button class="btn btn-ghost btn-full" onclick="goStep(4)">이전</button>
-          <button class="btn btn-primary btn-full" onclick="goStep(6)">다음 단계</button>
-        </div>
-      </div>
-
-      <!-- ⑥ 서류 제출 -->
-      <div id="panel6">
-        <div class="auth-title">서류 제출</div>
-        <div class="auth-subtitle">심사에 필요한 서류를 첨부해 주세요.</div>
-        <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px 14px;font-size:12px;color:var(--gray-600);margin-bottom:20px;line-height:1.8">
-          📋 신청 법인: <strong>(주)시그니엘호텔</strong> &nbsp;·&nbsp; 사업자등록번호: <strong>123-45-67890</strong>
-        </div>
-
-        <!-- 필수 서류 -->
-        <div class="doc-section">
-          <div class="doc-section-title">📎 사업자등록증 <span class="required-star">*</span></div>
-          <div class="file-upload-box" id="box1" onclick="document.getElementById('file1').click()">
-            <div class="upload-icon">📄</div>
-            <div class="upload-text">클릭하여 파일을 선택하거나 여기로 드래그하세요</div>
-            <div class="upload-hint">PDF · JPG · PNG / 최대 10MB</div>
-          </div>
-          <input type="file" id="file1" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFile(this, 'preview1', 'box1')">
-          <div id="preview1"></div>
-          <div class="upload-error" id="err1">사업자등록증은 필수 서류입니다.</div>
-        </div>
-
-        <!-- 선택 서류 -->
-        <div class="doc-section">
-          <div class="doc-section-title">🏦 통장 사본 <span class="optional-badge">선택</span></div>
-          <div class="file-upload-box" id="box2" onclick="document.getElementById('file2').click()">
-            <div class="upload-icon">💳</div>
-            <div class="upload-text">정산 계좌 확인용 통장 사본</div>
-            <div class="upload-hint">PDF · JPG · PNG / 최대 10MB</div>
-          </div>
-          <input type="file" id="file2" accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFile(this, 'preview2', 'box2')">
-          <div id="preview2"></div>
-        </div>
-
-        <div class="flex gap-2 mt-4">
           <button class="btn btn-ghost btn-full" onclick="goStep(5)">이전</button>
-          <button class="btn btn-primary btn-full" onclick="submitAndGoNext()">가입 신청</button>
+          <button class="btn btn-primary btn-full" id="btnNext6" onclick="submitAndGoNext()" disabled style="opacity:0.45;cursor:not-allowed;">가입 신청</button>
         </div>
       </div>
 
@@ -339,7 +361,7 @@
 </div>
 <script>
 const TOTAL = 7;
-const STEP_LABELS = ['사업자 정보', '정산 계좌', '숙소 기본 정보', '계정 정보', '약관 동의', '서류 제출', '가입 완료'];
+const STEP_LABELS = ['약관 동의', '계정 정보', '사업자 정보', '숙소 기본 정보', '서류 제출', '정산 계좌', '가입 완료'];
 
 function goStep(n) {
   document.querySelectorAll('.step-panels > div').forEach((p, i) => {
@@ -348,13 +370,62 @@ function goStep(n) {
   document.getElementById('progressLabel').textContent = STEP_LABELS[n - 1];
   document.getElementById('progressCount').textContent = n + ' / ' + TOTAL + '단계';
   document.getElementById('progressFill').style.width = (n / TOTAL * 100) + '%';
+  window.scrollTo(0, 0);
 }
 
+/* ── 약관 전체 동의 ── */
+function toggleAll(el) {
+  document.querySelectorAll('.agree-check').forEach(c => c.checked = el.checked);
+}
+
+/* ── 이메일 인증 (시제품: 아무 코드나 입력해도 통과) ── */
+let emailVerified = false;
+
+function sendVerifyCode() {
+  const email = document.getElementById('emailInput').value.trim();
+  if (!email) { alert('이메일을 입력해주세요.'); return; }
+
+  const btn = document.getElementById('btnSendCode');
+  btn.textContent = '재발송';
+  btn.style.color = 'var(--success)';
+  btn.style.borderColor = 'var(--success)';
+
+  document.getElementById('codeWrap').classList.add('show');
+  document.getElementById('codeInput').value = '';
+  document.getElementById('codeInput').focus();
+}
+
+function confirmCode() {
+  const code = document.getElementById('codeInput').value.trim();
+  if (!code) { alert('인증번호를 입력해주세요.'); return; }
+
+  // 시제품: 6자리면 무조건 통과
+  if (code.length < 4) { alert('올바른 인증번호를 입력해주세요.'); return; }
+
+  emailVerified = true;
+  document.getElementById('codeWrap').classList.remove('show');
+  document.getElementById('emailVerifiedMsg').classList.add('show');
+  document.getElementById('emailInput').readOnly = true;
+  document.getElementById('emailInput').style.background = 'var(--gray-50)';
+  document.getElementById('btnSendCode').style.display = 'none';
+
+  const btn = document.getElementById('btnNext2');
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  btn.style.cursor = 'pointer';
+}
+
+/* ── 사업자 정보 주소 검색 ── */
+function searchAddr() {
+  document.getElementById('propAddr').value = '서울특별시 중구 을지로 30';
+}
+
+/* ── 정산 계좌 인증 ── */
 function verifyAccount() {
   const bank = document.getElementById('bankSelect').value;
   const account = document.getElementById('accountInput').value.trim();
   if (!bank) { alert('은행을 선택해주세요.'); return; }
-  if (account.length < 10) { alert('올바른 계좌번호를 입력해주세요.'); return; }
+  if (account.length < 6) { alert('올바른 계좌번호를 입력해주세요.'); return; }
 
   const btn = document.getElementById('btnVerifyAcct');
   btn.innerText = '확인 중...';
@@ -365,7 +436,7 @@ function verifyAccount() {
     document.getElementById('accountOwner').value = '(주)시그니엘호텔';
     document.getElementById('acctVerifiedMsg').classList.add('show');
 
-    const next = document.getElementById('btnNext2');
+    const next = document.getElementById('btnNext6');
     next.disabled = false;
     next.style.opacity = '1';
     next.style.cursor = 'pointer';
@@ -376,22 +447,14 @@ function verifyAccount() {
   }, 1200);
 }
 
-function searchAddr() {
-  document.getElementById('propAddr').value = '서울특별시 중구 을지로 30';
-}
-
-function toggleAll(el) {
-  document.querySelectorAll('.agree-check').forEach(c => c.checked = el.checked);
-}
-
-// --- 서류 제출 로직 ---
+/* ── 서류 업로드 ── */
 const fileData = { file1: null, file2: null };
 
 function handleFile(input, previewId, boxId) {
   const file = input.files[0];
   if (!file) return;
 
-  const maxSize = 10 * 1024 * 1024; // 10MB
+  const maxSize = 10 * 1024 * 1024;
   const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png'];
   const previewEl = document.getElementById(previewId);
   const boxEl = document.getElementById(boxId);
@@ -438,16 +501,6 @@ function removeFile(key, previewId, boxId) {
 }
 
 function submitAndGoNext() {
-  // 필수 서류 확인
-  if (!fileData['file1']) {
-    const errEl = document.getElementById('err1');
-    const boxEl = document.getElementById('box1');
-    if(errEl) errEl.style.display = 'block';
-    if(boxEl) boxEl.style.borderColor = 'var(--danger)';
-    return;
-  }
-  
-  // 성공 시 다음 단계로
   goStep(7);
 }
 </script>
