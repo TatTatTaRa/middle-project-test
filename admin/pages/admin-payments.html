@@ -1,274 +1,415 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>통합 결제 내역 — Super Admin</title>
-<link rel="stylesheet" href="shared.css">
-<style>
-  .filter-section {
-    background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm);
-    padding: 20px 24px; margin-bottom: 16px;
-  }
-  .filter-row {
-    display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;
-  }
-  .filter-row:last-child { margin-bottom: 0; }
-  .filter-row label {
-    font-size: 12px; font-weight: 600; color: var(--gray-500); min-width: 70px; flex-shrink: 0;
-  }
-  .filter-input {
-    border: 1px solid var(--gray-200); border-radius: 6px; padding: 7px 12px;
-    font-size: 13px; font-family: inherit; outline: none; transition: border-color 0.15s;
-  }
-  .filter-input:focus { border-color: #6366F1; }
-  .filter-input.w-date { width: 150px; }
-  .filter-input.w-search { width: 220px; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>통합 결제 내역 — Super Admin</title>
+  <link rel="stylesheet" href="shared.css">
+  <style>
+    .filter-section {
+      background: #fff;
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-sm);
+      padding: 20px 24px;
+      margin-bottom: 16px;
+    }
 
-  .status-tabs {
-    display: flex; gap: 0; border-bottom: 2px solid var(--gray-200); margin-bottom: 0;
-  }
-  .status-tab {
-    padding: 10px 16px; font-size: 13px; font-weight: 600;
-    color: var(--gray-500); cursor: pointer; border-bottom: 2px solid transparent;
-    margin-bottom: -2px; transition: all 0.15s; display: flex; align-items: center; gap: 6px;
-  }
-  .status-tab:hover { color: var(--gray-800); }
-  .status-tab.active { color: #4338CA; border-bottom-color: #6366F1; }
-  .status-tab .tab-cnt {
-    font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 99px;
-    background: var(--gray-100); color: var(--gray-600);
-  }
-  .status-tab.active .tab-cnt { background: #EDE9FE; color: #4338CA; }
+    .filter-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
 
-  .payment-status {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 5px;
-  }
-  .ps-paid { background: #D1FAE5; color: #065F46; }
-  .ps-cancelled { background: #FEE2E2; color: #991B1B; }
-  .ps-partial { background: #FEF3C7; color: #92400E; }
-  .ps-pending { background: #E0E7FF; color: #3730A3; }
-  .ps-refunded { background: var(--gray-100); color: var(--gray-600); }
+    .filter-row:last-child {
+      margin-bottom: 0;
+    }
 
-  .amt-cell { font-weight: 700; font-variant-numeric: tabular-nums; }
-  .amt-negative { color: var(--danger); }
+    .filter-row label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--gray-500);
+      min-width: 70px;
+      flex-shrink: 0;
+    }
 
-  .pg-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    background: var(--gray-50); border: 1px solid var(--gray-200);
-    padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; color: var(--gray-600);
-  }
+    .filter-input {
+      border: 1px solid var(--gray-200);
+      border-radius: 6px;
+      padding: 7px 12px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
 
-  .detail-grid {
-    display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;
-  }
-  .detail-box {
-    background: var(--gray-50); border-radius: var(--radius); padding: 12px;
-  }
-  .detail-box .dl { font-size: 11px; color: var(--gray-400); margin-bottom: 3px; }
-  .detail-box .dv { font-weight: 600; font-size: 14px; }
+    .filter-input:focus {
+      border-color: #6366F1;
+    }
 
-  .btn-action-group { display: flex; gap: 6px; }
-  .btn-action-group .btn { font-size: 12px; padding: 5px 10px; }
+    .filter-input.w-date {
+      width: 150px;
+    }
 
-  table th { font-size: 12px; }
-  table td { font-size: 12px; vertical-align: middle; }
-</style>
+    .filter-input.w-search {
+      width: 220px;
+    }
+
+    .status-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 2px solid var(--gray-200);
+      margin-bottom: 0;
+    }
+
+    .status-tab {
+      padding: 10px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-500);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -2px;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-tab:hover {
+      color: var(--gray-800);
+    }
+
+    .status-tab.active {
+      color: #4338CA;
+      border-bottom-color: #6366F1;
+    }
+
+    .status-tab .tab-cnt {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 99px;
+      background: var(--gray-100);
+      color: var(--gray-600);
+    }
+
+    .status-tab.active .tab-cnt {
+      background: #EDE9FE;
+      color: #4338CA;
+    }
+
+    .payment-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 5px;
+    }
+
+    .ps-paid {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .ps-cancelled {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+
+    .ps-partial {
+      background: #FEF3C7;
+      color: #92400E;
+    }
+
+    .ps-pending {
+      background: #E0E7FF;
+      color: #3730A3;
+    }
+
+    .ps-refunded {
+      background: var(--gray-100);
+      color: var(--gray-600);
+    }
+
+    .amt-cell {
+      font-weight: 700;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .amt-negative {
+      color: var(--danger);
+    }
+
+    .pg-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--gray-50);
+      border: 1px solid var(--gray-200);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--gray-600);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .detail-box {
+      background: var(--gray-50);
+      border-radius: var(--radius);
+      padding: 12px;
+    }
+
+    .detail-box .dl {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-bottom: 3px;
+    }
+
+    .detail-box .dv {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .btn-action-group {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-action-group .btn {
+      font-size: 12px;
+      padding: 5px 10px;
+    }
+
+    table th {
+      font-size: 12px;
+    }
+
+    table td {
+      font-size: 12px;
+      vertical-align: middle;
+    }
+  </style>
 </head>
+
 <body>
-<div class="layout">
-  <div class="main">
-    <header class="header">
-      <div class="header-left"><div class="header-title">통합 결제 내역</div></div>
-      <div class="header-right">
-        <div class="header-date"></div>
-        <button class="btn-icon" style="background:#1E293B;color:#818CF8">🔔</button>
-        <div class="avatar" style="background:#6366F1">A</div>
-      </div>
-    </header>
+  <div class="layout">
+    <div class="main">
+      <header class="header">
+        <div class="header-left">
+          <div class="header-title">통합 결제 내역</div>
+        </div>
+        <div class="header-right">
 
-    <div class="page" style="max-width:1200px;margin:0 auto;width:100%">
-      <div class="page-header">
-        <div class="page-header-left">
-          <div class="page-title">통합 결제 내역</div>
-          <div class="page-subtitle">PG사를 통한 전체 결제 트랜잭션을 조회하고 관리합니다.</div>
         </div>
-        <div class="page-header-right">
-          <button class="btn btn-outline" style="background:#fff" onclick="showAlert('엑셀 파일로 다운로드합니다.', {icon:'📥'})">
-            📥 엑셀 다운로드
-          </button>
-        </div>
-      </div>
+      </header>
 
-      <!-- 필터 영역 -->
-      <div class="filter-section">
-        <div class="filter-row">
-          <label>상태/승인 시각</label>
-          <select class="filter-input" id="filterDateType">
-            <option>상태 승인 시각</option>
-            <option>주문 생성 시각</option>
-          </select>
-          <input type="datetime-local" class="filter-input w-date" value="2026-03-12T00:00">
-          <span style="color:var(--gray-400);font-size:13px">~</span>
-          <input type="datetime-local" class="filter-input w-date" value="2026-03-19T23:59">
-          <select class="filter-input" style="width:80px">
-            <option>1주</option>
-            <option>1일</option>
-            <option>1개월</option>
-            <option>3개월</option>
-          </select>
-        </div>
-        <div class="filter-row">
-          <label>주문 정보</label>
-          <select class="filter-input" style="width:110px">
-            <option>주문자 이름</option>
-            <option>주문번호</option>
-            <option>상품명</option>
-          </select>
-          <input type="text" class="filter-input w-search" placeholder="주문자 이름 검색">
-          <span style="width:24px"></span>
-          <label>거래 번호</label>
-          <input type="text" class="filter-input w-search" placeholder="고객사/포트원 거래 번호">
-        </div>
-        <div class="filter-row">
-          <label>승인 번호</label>
-          <input type="text" class="filter-input w-search" placeholder="카드사/결제대행사/PG결제사 승인 번호">
-          <span class="ml-auto"></span>
-          <button class="btn btn-sm" style="background:#6366F1;color:#fff;border:none">조회</button>
-        </div>
-      </div>
-
-      <!-- 결제 상태 탭 -->
-      <div class="card" style="padding:0">
-        <div style="padding:0 20px">
-          <div class="status-tabs" id="paymentTabs">
-            <div class="status-tab active" data-filter="all">전체 <span class="tab-cnt" id="cntAll">6</span></div>
-            <div class="status-tab" data-filter="paid">결제 <span class="tab-cnt" id="cntPaid">5</span></div>
-            <div class="status-tab" data-filter="refunded">환불 <span class="tab-cnt" id="cntRefunded">1</span></div>
+      <div class="page" style="max-width:1200px;margin:0 auto;width:100%">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-title">통합 결제 내역</div>
+            <div class="page-subtitle">PG사를 통한 전체 결제 트랜잭션을 조회하고 관리합니다.</div>
+          </div>
+          <div class="page-header-right">
+            <button class="btn btn-outline" style="background:#fff" onclick="showAlert('엑셀 파일로 다운로드합니다.', {icon:'📥'})">
+              📥 엑셀 다운로드
+            </button>
           </div>
         </div>
 
-        <!-- 추가 필터·액션 바 -->
-        <div style="padding:12px 20px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between">
-          <div style="display:flex;gap:8px;align-items:center">
-            <span style="font-size:12px;color:#6366F1;cursor:pointer" onclick="showAlert('필터를 초기화합니다.', {icon:'🔄'})">🎛 필터 1</span>
-            <span style="font-size:12px;color:var(--gray-400)">|</span>
-            <span style="font-size:12px;color:var(--gray-500)">📋 목록 페이지 보기 0</span>
-          </div>
-          <div style="font-size:12px;color:var(--gray-400)">전체 <strong id="totalCount">7</strong>건</div>
-        </div>
-
-        <!-- 테이블 -->
-        <div class="table-wrap">
-          <table style="min-width:1100px">
-            <thead>
-              <tr>
-                <th style="width:40px">상세</th>
-                <th>결제상태</th>
-                <th>상태 승인 시각 ▾</th>
-                <th>주문명</th>
-                <th>고객 회원번호</th>
-                <th>결제수단</th>
-                <th style="text-align:right">결제 금액</th>
-                <th style="text-align:right">환불 금액</th>
-              </tr>
-            </thead>
-            <tbody id="paymentTbody"></tbody>
-          </table>
-        </div>
-
-        <!-- 페이징 -->
-        <div style="padding:12px 20px;border-top:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center">
-          <div style="display:flex;align-items:center;gap:8px">
-            <span style="font-size:12px;color:var(--gray-500)">건 표 결정</span>
-            <select class="filter-input" style="width:70px;padding:4px 8px">
-              <option>10</option>
-              <option>20</option>
-              <option>50</option>
+        <!-- 필터 영역 -->
+        <div class="filter-section">
+          <div class="filter-row">
+            <label>상태/승인 시각</label>
+            <select class="filter-input" id="filterDateType">
+              <option>상태 승인 시각</option>
+              <option>주문 생성 시각</option>
             </select>
-            <span style="font-size:12px;color:var(--gray-500)">페이지 당 행</span>
+            <input type="datetime-local" class="filter-input w-date" value="2026-03-12T00:00">
+            <span style="color:var(--gray-400);font-size:13px">~</span>
+            <input type="datetime-local" class="filter-input w-date" value="2026-03-19T23:59">
+            <select class="filter-input" style="width:80px">
+              <option>1주</option>
+              <option>1일</option>
+              <option>1개월</option>
+              <option>3개월</option>
+            </select>
           </div>
-          <div class="pagination">
-            <div class="pg-btn">‹</div>
-            <div class="pg-btn active">1</div>
-            <div class="pg-btn">/ 1</div>
-            <div class="pg-btn">›</div>
+          <div class="filter-row">
+            <label>주문 정보</label>
+            <select class="filter-input" style="width:110px">
+              <option>주문자 이름</option>
+              <option>주문번호</option>
+              <option>상품명</option>
+            </select>
+            <input type="text" class="filter-input w-search" placeholder="주문자 이름 검색">
+            <span style="width:24px"></span>
+            <label>주문번호</label>
+            <input type="text" class="filter-input w-search" placeholder="고객사/포트원 주문번호">
+            <span class="ml-auto"></span>
+            <button class="btn btn-sm" style="background:#6366F1;color:#fff;border:none">조회</button>
+          </div>
+        </div>
+
+        <!-- 결제 상태 탭 -->
+        <div class="card" style="padding:0">
+          <div style="padding:0 20px">
+            <div class="status-tabs" id="paymentTabs">
+              <div class="status-tab active" data-filter="all">전체 <span class="tab-cnt" id="cntAll">6</span></div>
+              <div class="status-tab" data-filter="paid">결제 <span class="tab-cnt" id="cntPaid">5</span></div>
+              <div class="status-tab" data-filter="refunded">환불 <span class="tab-cnt" id="cntRefunded">1</span></div>
+            </div>
+          </div>
+
+          <!-- 추가 필터·액션 바 -->
+          <div
+            style="padding:12px 20px;border-bottom:1px solid var(--gray-200);display:flex;align-items:center;justify-content:space-between">
+            <div style="display:flex;gap:8px;align-items:center">
+              <span style="font-size:12px;color:#6366F1;cursor:pointer"
+                onclick="showAlert('필터를 초기화합니다.', {icon:'🔄'})">🎛 필터 1</span>
+              <span style="font-size:12px;color:var(--gray-400)">|</span>
+              <span style="font-size:12px;color:var(--gray-500)">📋 목록 페이지 보기 0</span>
+            </div>
+            <div style="font-size:12px;color:var(--gray-400)">전체 <strong id="totalCount">7</strong>건</div>
+          </div>
+
+          <!-- 테이블 -->
+          <div class="table-wrap">
+            <table style="min-width:1100px">
+              <thead>
+                <tr>
+                  <th style="width:40px">상세</th>
+                  <th>결제상태</th>
+                  <th>상태 승인 시각 ▾</th>
+                  <th>주문명</th>
+                  <th>고객 회원번호</th>
+                  <th>결제수단</th>
+                  <th style="text-align:right">결제 금액</th>
+                  <th style="text-align:right">환불 금액</th>
+                </tr>
+              </thead>
+              <tbody id="paymentTbody"></tbody>
+            </table>
+          </div>
+
+          <!-- 페이징 -->
+          <div
+            style="padding:12px 20px;border-top:1px solid var(--gray-200);display:flex;justify-content:space-between;align-items:center">
+            <div style="display:flex;align-items:center;gap:8px">
+              <span style="font-size:12px;color:var(--gray-500)">건 표 결정</span>
+              <select class="filter-input" style="width:70px;padding:4px 8px">
+                <option>10</option>
+                <option>20</option>
+                <option>50</option>
+              </select>
+              <span style="font-size:12px;color:var(--gray-500)">페이지 당 행</span>
+            </div>
+            <div class="pagination">
+              <div class="pg-btn">‹</div>
+              <div class="pg-btn active">1</div>
+              <div class="pg-btn">/ 1</div>
+              <div class="pg-btn">›</div>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- 결제 상세 모달 -->
-<div class="modal-overlay hidden" id="modalPaymentDetail">
-  <div class="modal" style="width:680px;max-width:90%">
-    <div class="modal-header">
-      <div class="modal-title">💳 결제 상세 정보</div>
-      <button class="modal-close" data-modal-close>×</button>
-    </div>
-    <div class="modal-body">
-      <div class="detail-grid">
-        <div class="detail-box"><div class="dl">주문번호</div><div class="dv" id="dtOrderNo">-</div></div>
-        <div class="detail-box"><div class="dl">주문명</div><div class="dv" id="dtOrderName">-</div></div>
-        <div class="detail-box"><div class="dl">결제수단</div><div class="dv" id="dtMethod">-</div></div>
-        <div class="detail-box"><div class="dl">승인 시각</div><div class="dv" id="dtApprovedAt">-</div></div>
-        <div class="detail-box"><div class="dl">결제 상태</div><div class="dv" id="dtStatus">-</div></div>
+  <!-- 결제 상세 모달 -->
+  <div class="modal-overlay hidden" id="modalPaymentDetail">
+    <div class="modal" style="width:680px;max-width:90%">
+      <div class="modal-header">
+        <div class="modal-title">💳 결제 상세 정보</div>
+        <button class="modal-close" data-modal-close>×</button>
       </div>
-      <div style="background:var(--gray-50);border-radius:var(--radius);padding:16px;margin-bottom:16px">
-        <div style="display:flex;justify-content:space-between;margin-bottom:8px">
-          <span style="font-weight:600;color:var(--gray-700)">결제 금액</span>
-          <span style="font-weight:800;font-size:18px" id="dtAmount">-</span>
+      <div class="modal-body">
+        <div class="detail-grid">
+          <div class="detail-box">
+            <div class="dl">주문번호</div>
+            <div class="dv" id="dtOrderNo">-</div>
+          </div>
+          <div class="detail-box">
+            <div class="dl">주문명</div>
+            <div class="dv" id="dtOrderName">-</div>
+          </div>
+          <div class="detail-box">
+            <div class="dl">결제수단</div>
+            <div class="dv" id="dtMethod">-</div>
+          </div>
+          <div class="detail-box">
+            <div class="dl">승인 시각</div>
+            <div class="dv" id="dtApprovedAt">-</div>
+          </div>
+          <div class="detail-box">
+            <div class="dl">결제 상태</div>
+            <div class="dv" id="dtStatus">-</div>
+          </div>
         </div>
-        <div style="display:flex;justify-content:space-between">
-          <span style="font-size:12px;color:var(--gray-500)">취소 금액</span>
-          <span style="font-size:13px;font-weight:600;color:var(--danger)" id="dtCancelAmt">-</span>
+        <div style="background:var(--gray-50);border-radius:var(--radius);padding:16px;margin-bottom:16px">
+          <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+            <span style="font-weight:600;color:var(--gray-700)">결제 금액</span>
+            <span style="font-weight:800;font-size:18px" id="dtAmount">-</span>
+          </div>
+          <div style="display:flex;justify-content:space-between">
+            <span style="font-size:12px;color:var(--gray-500)">취소 금액</span>
+            <span style="font-size:13px;font-weight:600;color:var(--danger)" id="dtCancelAmt">-</span>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-ghost" data-modal-close>닫기</button>
-      <button class="btn btn-danger btn-sm" id="btnCancelPayment" onclick="handleCancel()">결제 취소</button>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" data-modal-close>닫기</button>
+        <button class="btn btn-danger btn-sm" id="btnCancelPayment" onclick="handleCancel()">결제 취소</button>
+      </div>
     </div>
   </div>
-</div>
 
-<script src="shared.js"></script>
-<script>
-initPage('admin', 'payments', '통합 결제 내역');
+  <script src="shared.js"></script>
+  <script>
+    initPage('admin', 'payments', '통합 결제 내역');
 
-const payments = [
-  { id:1, status:'refunded', approvedAt:'2026-03-18 11:50:06', txNo:'ORD17238013469536.95', pg:'KG이니시스', orderName:'라비다비이리조트 대전 (1박)', custNo:'CUS-00482', method:'간편결제', amount:1000, cancelFull:-1000, cancelPartial:0 },
-  { id:2, status:'paid', approvedAt:'2026-03-18 11:24:48', txNo:'payment-14699113-69...', pg:'KG이니시스', orderName:'라비다비이리조트 대전 (1박)', custNo:'CUS-00482', method:'간편결제', amount:150000, cancelFull:0, cancelPartial:0 },
-  { id:3, status:'paid', approvedAt:'2026-03-17 09:12:33', txNo:'ORD17236087214120.41', pg:'KG이니시스', orderName:'시그니엘 서울 호텔 (2박)', custNo:'CUS-00015', method:'신용카드', amount:700000, cancelFull:0, cancelPartial:0 },
-  { id:4, status:'paid', approvedAt:'2026-03-16 14:55:10', txNo:'ORD17234892103855.78', pg:'KG이니시스', orderName:'그랜드하얏트 (1박)', custNo:'CUS-01204', method:'신용카드', amount:280000, cancelFull:0, cancelPartial:0 },
-  { id:5, status:'paid', approvedAt:'2026-03-15 16:42:55', txNo:'ORD17233457501230.67', pg:'KG이니시스', orderName:'오션뷰 리조트 (1박)', custNo:'CUS-02877', method:'신용카드', amount:180000, cancelFull:0, cancelPartial:0 },
-  { id:6, status:'paid', approvedAt:'2026-03-14 08:30:19', txNo:'ORD17232298109435.53', pg:'KG이니시스', orderName:'힐링 펜션 (2박)', custNo:'CUS-00058', method:'계좌이체', amount:320000, cancelFull:0, cancelPartial:0 },
-];
+    const payments = [
+      { id: 1, status: 'refunded', approvedAt: '2026-03-18 11:50:06', txNo: 'ORD17238013469536.95', pg: 'KG이니시스', orderName: '라비다비이리조트 대전 (1박)', custNo: 'CUS-00482', method: '간편결제', amount: 1000, cancelFull: -1000, cancelPartial: 0 },
+      { id: 2, status: 'paid', approvedAt: '2026-03-18 11:24:48', txNo: 'payment-14699113-69...', pg: 'KG이니시스', orderName: '라비다비이리조트 대전 (1박)', custNo: 'CUS-00482', method: '간편결제', amount: 150000, cancelFull: 0, cancelPartial: 0 },
+      { id: 3, status: 'paid', approvedAt: '2026-03-17 09:12:33', txNo: 'ORD17236087214120.41', pg: 'KG이니시스', orderName: '시그니엘 서울 호텔 (2박)', custNo: 'CUS-00015', method: '신용카드', amount: 700000, cancelFull: 0, cancelPartial: 0 },
+      { id: 4, status: 'paid', approvedAt: '2026-03-16 14:55:10', txNo: 'ORD17234892103855.78', pg: 'KG이니시스', orderName: '그랜드하얏트 (1박)', custNo: 'CUS-01204', method: '신용카드', amount: 280000, cancelFull: 0, cancelPartial: 0 },
+      { id: 5, status: 'paid', approvedAt: '2026-03-15 16:42:55', txNo: 'ORD17233457501230.67', pg: 'KG이니시스', orderName: '오션뷰 리조트 (1박)', custNo: 'CUS-02877', method: '신용카드', amount: 180000, cancelFull: 0, cancelPartial: 0 },
+      { id: 6, status: 'paid', approvedAt: '2026-03-14 08:30:19', txNo: 'ORD17232298109435.53', pg: 'KG이니시스', orderName: '힐링 펜션 (2박)', custNo: 'CUS-00058', method: '계좌이체', amount: 320000, cancelFull: 0, cancelPartial: 0 },
+    ];
 
-const statusMap = {
-  paid:     { label: '결제', cls: 'ps-paid' },
-  refunded: { label: '환불', cls: 'ps-cancelled' },
-};
+    const statusMap = {
+      paid: { label: '결제', cls: 'ps-paid' },
+      refunded: { label: '환불', cls: 'ps-cancelled' },
+    };
 
-function fmt(n) {
-  if (n === 0) return '0';
-  return n.toLocaleString();
-}
+    function fmt(n) {
+      if (n === 0) return '0';
+      return n.toLocaleString();
+    }
 
-let currentFilter = 'all';
+    let currentFilter = 'all';
 
-function renderPayments() {
-  const filtered = currentFilter === 'all' ? payments : payments.filter(p => p.status === currentFilter);
-  const tbody = document.getElementById('paymentTbody');
+    function renderPayments() {
+      const filtered = currentFilter === 'all' ? payments : payments.filter(p => p.status === currentFilter);
+      const tbody = document.getElementById('paymentTbody');
 
-  tbody.innerHTML = filtered.map(p => {
-    const st = statusMap[p.status] || statusMap.paid;
-    const cancelAmt = p.cancelFull + p.cancelPartial;
-    const cancelStr = cancelAmt !== 0 ? `<span class="amt-negative">${fmt(cancelAmt)}</span>` : `${fmt(0)}`;
+      tbody.innerHTML = filtered.map(p => {
+        const st = statusMap[p.status] || statusMap.paid;
+        const cancelAmt = p.cancelFull + p.cancelPartial;
+        const cancelStr = cancelAmt !== 0 ? `<span class="amt-negative">${fmt(cancelAmt)}</span>` : `${fmt(0)}`;
 
-    return `
+        return `
       <tr>
         <td><button class="btn btn-ghost btn-sm" style="font-size:16px;padding:4px" onclick="openDetail(${p.id})">→</button></td>
         <td><span class="payment-status ${st.cls}">${st.label}</span></td>
@@ -280,45 +421,46 @@ function renderPayments() {
         <td style="text-align:right" class="amt-cell">${cancelStr} <span style="font-size:10px;color:var(--gray-400)">KRW</span></td>
       </tr>
     `;
-  }).join('');
+      }).join('');
 
-  document.getElementById('totalCount').textContent = filtered.length;
-}
+      document.getElementById('totalCount').textContent = filtered.length;
+    }
 
-// 탭 전환
-document.querySelectorAll('.status-tab').forEach(tab => {
-  tab.addEventListener('click', () => {
-    document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
-    tab.classList.add('active');
-    currentFilter = tab.getAttribute('data-filter');
+    // 탭 전환
+    document.querySelectorAll('.status-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.status-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFilter = tab.getAttribute('data-filter');
+        renderPayments();
+      });
+    });
+
+    function openDetail(id) {
+      const p = payments.find(x => x.id === id);
+      if (!p) return;
+      const st = statusMap[p.status] || statusMap.paid;
+      document.getElementById('dtOrderNo').textContent = p.txNo;
+      document.getElementById('dtOrderName').textContent = p.orderName;
+      document.getElementById('dtMethod').textContent = p.method;
+      document.getElementById('dtApprovedAt').textContent = p.approvedAt;
+      document.getElementById('dtStatus').innerHTML = `<span class="payment-status ${st.cls}">${st.label}</span>`;
+      document.getElementById('dtAmount').textContent = '₩' + fmt(p.amount);
+      const cancelAmt = p.cancelFull + p.cancelPartial;
+      document.getElementById('dtCancelAmt').textContent = cancelAmt !== 0 ? fmt(cancelAmt) + ' KRW' : '0 KRW';
+      document.getElementById('btnCancelPayment').style.display = p.status === 'paid' ? '' : 'none';
+      document.getElementById('modalPaymentDetail').classList.remove('hidden');
+    }
+
+    function handleCancel() {
+      showConfirm('이 결제 건을 취소하시겠습니까?\n취소 처리 후에는 되돌릴 수 없습니다.', () => {
+        document.getElementById('modalPaymentDetail').classList.add('hidden');
+        showAlert('결제 취소가 정상적으로 처리되었습니다.', { icon: '✅' });
+      }, { confirmText: '결제 취소', confirmClass: 'btn-danger' });
+    }
+
     renderPayments();
-  });
-});
-
-function openDetail(id) {
-  const p = payments.find(x => x.id === id);
-  if (!p) return;
-  const st = statusMap[p.status] || statusMap.paid;
-  document.getElementById('dtOrderNo').textContent = p.txNo;
-  document.getElementById('dtOrderName').textContent = p.orderName;
-  document.getElementById('dtMethod').textContent = p.method;
-  document.getElementById('dtApprovedAt').textContent = p.approvedAt;
-  document.getElementById('dtStatus').innerHTML = `<span class="payment-status ${st.cls}">${st.label}</span>`;
-  document.getElementById('dtAmount').textContent = '₩' + fmt(p.amount);
-  const cancelAmt = p.cancelFull + p.cancelPartial;
-  document.getElementById('dtCancelAmt').textContent = cancelAmt !== 0 ? fmt(cancelAmt) + ' KRW' : '0 KRW';
-  document.getElementById('btnCancelPayment').style.display = p.status === 'paid' ? '' : 'none';
-  document.getElementById('modalPaymentDetail').classList.remove('hidden');
-}
-
-function handleCancel() {
-  showConfirm('이 결제 건을 취소하시겠습니까?\n취소 처리 후에는 되돌릴 수 없습니다.', () => {
-    document.getElementById('modalPaymentDetail').classList.add('hidden');
-    showAlert('결제 취소가 정상적으로 처리되었습니다.', { icon: '✅' });
-  }, { confirmText: '결제 취소', confirmClass: 'btn-danger' });
-}
-
-renderPayments();
-</script>
+  </script>
 </body>
+
 </html>

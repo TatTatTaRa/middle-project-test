@@ -45,8 +45,6 @@ const ADMIN_NAV = [
   { icon: '🖼️', label: '배너 설정', href: 'admin-banner.html', id: 'banner' },
   { icon: '📢', label: '공지사항', href: 'admin-notices.html', id: 'notices' },
   { icon: '📌', label: '상단 공지 설정', href: 'admin-top-notice.html', id: 'topnotice' },
-  { section: '시스템' },
-  { icon: '⚙️', label: '시스템 설정', href: 'admin-system-settings.html', id: 'syssettings' },
 ];
 
 function buildSidebar(nav, type, activeId) {

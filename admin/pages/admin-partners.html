@@ -16,9 +16,7 @@
           <div class="header-title">파트너 관리</div>
         </div>
         <div class="header-right">
-          <div class="header-date"></div>
-          <button class="btn-icon" style="background:#1E293B;color:#818CF8">🔔</button>
-          <div class="avatar" style="background:#6366F1">A</div>
+
         </div>
       </header>
       <div class="page" style="max-width: 1000px; margin: 0 auto; width: 100%;">
@@ -60,9 +58,8 @@
             <option>제주</option>
           </select>
           <select>
-            <option>가입일 순</option>
-            <option>최근 가입 순</option>
             <option>매출 높은 순</option>
+            <option>법인명 순</option>
           </select>
           <div class="search-box ml-auto"><input type="text" placeholder="법인명 또는 사업자번호 검색..."></div>
           <button class="btn btn-sm" style="background:#6366F1;color:#fff">검색</button>
@@ -84,7 +81,6 @@
                   <th>사업자등록번호</th>
                   <th>법인명</th>
                   <th>대표자명</th>
-                  <th>가입일</th>
                   <th>상태</th>
                   <th>상세</th>
                 </tr>
@@ -94,7 +90,6 @@
                   <td style="font-size:12px;font-weight:600">120-88-22321</td>
                   <td style="font-weight:700">시그니엘 서울 (주)</td>
                   <td style="font-size:13px">김대표</td>
-                  <td style="font-size:12px;color:var(--gray-400)">2023.01.15</td>
                   <td><span class="badge badge-approved">운영중</span></td>
                   <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('active')">상세</button></td>
                 </tr>
@@ -102,7 +97,6 @@
                   <td style="font-size:12px;font-weight:600">345-67-89012</td>
                   <td style="font-weight:700">그랜드하얋트 (주)</td>
                   <td style="font-size:13px">이대표</td>
-                  <td style="font-size:12px;color:var(--gray-400)">2022.11.03</td>
                   <td><span class="badge badge-approved">운영중</span></td>
                   <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('active')">상세</button></td>
                 </tr>
@@ -110,7 +104,6 @@
                   <td style="font-size:12px;font-weight:600">456-78-90123</td>
                   <td style="font-weight:700">제주오션뷰 리조트</td>
                   <td style="font-size:13px">박대표</td>
-                  <td style="font-size:12px;color:var(--gray-400)">2023.05.20</td>
                   <td><span class="badge badge-approved">운영중</span></td>
                   <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('active')">상세</button></td>
                 </tr>
@@ -118,7 +111,6 @@
                   <td style="font-size:12px;font-weight:600">567-89-01234</td>
                   <td style="font-weight:700">모텔 OO</td>
                   <td style="font-size:13px">최대표</td>
-                  <td style="font-size:12px;color:var(--gray-400)">2023.08.10</td>
                   <td><span class="badge badge-suspended">정지</span></td>
                   <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('suspended')">상세</button></td>
                 </tr>
@@ -138,7 +130,6 @@
                   <th>사업자등록번호</th>
                   <th>법인명</th>
                   <th>대표자명</th>
-                  <th>가입일</th>
                   <th>상세</th>
                 </tr>
               </thead>
@@ -147,21 +138,18 @@
                   <td style="font-size:12px;font-weight:600">120-88-22321</td>
                   <td style="font-weight:700">시그니엘 서울 (주)</td>
                   <td style="font-size:13px">김대표</td>
-                  <td style="font-size:12px;color:var(--gray-400)">2023.01.15</td>
                   <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('active')">상세</button></td>
                 </tr>
                 <tr>
                   <td style="font-size:12px;font-weight:600">345-67-89012</td>
                   <td style="font-weight:700">그랜드하얏트 (주)</td>
                   <td style="font-size:13px">이대표</td>
-                  <td style="font-size:12px;color:var(--gray-400)">2022.11.03</td>
                   <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('active')">상세</button></td>
                 </tr>
                 <tr>
                   <td style="font-size:12px;font-weight:600">456-78-90123</td>
                   <td style="font-weight:700">제주오션뷰 리조트</td>
                   <td style="font-size:13px">박대표</td>
-                  <td style="font-size:12px;color:var(--gray-400)">2023.05.20</td>
                   <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('active')">상세</button></td>
                 </tr>
               </tbody>
@@ -179,7 +167,6 @@
                   <th>사업자등록번호</th>
                   <th>법인명</th>
                   <th>대표자명</th>
-                  <th>가입일</th>
                   <th>상세</th>
                 </tr>
               </thead>
@@ -188,7 +175,6 @@
                   <td style="font-size:12px;font-weight:600">567-89-01234</td>
                   <td style="font-weight:700">모텔 OO</td>
                   <td style="font-size:13px">최대표</td>
-                  <td style="font-size:12px;color:var(--gray-400)">2023.08.10</td>
                   <td><button class="btn btn-ghost btn-sm" onclick="openPartnerDetail('suspended')">상세</button></td>
                 </tr>
               </tbody>
@@ -210,9 +196,6 @@
           <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
             <div style="font-size:22px;font-weight:800">시그니엘 서울 (주)</div>
             <span class="badge" id="modalStatusBadge">승인 완료</span>
-          </div>
-          <div style="font-size:12px;color:var(--gray-500);display:flex;align-items:center;gap:6px">
-            가입일: <span style="font-weight:600;color:var(--gray-700)">2023.01.15</span>
           </div>
         </div>
         <button class="modal-close" data-modal-close>×</button>

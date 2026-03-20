@@ -6,11 +6,18 @@
 <title>숙소 목록 관리 — Super Admin</title>
 <link rel="stylesheet" href="shared.css">
 <style>
+  .tabs-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--gray-200);
+    margin-bottom: 16px;
+    gap: 12px;
+  }
   .tabs {
     display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    border-bottom: 1px solid var(--gray-200);
+    gap: 0;
+    flex-shrink: 0;
   }
   .tab {
     padding: 10px 16px;
@@ -20,14 +27,33 @@
     cursor: pointer;
     border-bottom: 2px solid transparent;
     transition: all 0.2s;
+    white-space: nowrap;
   }
-  .tab:hover {
-    color: var(--gray-800);
+  .tab:hover { color: var(--gray-800); }
+  .tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+  .tab-right {
+    display: flex; align-items: center; gap: 8px;
+    padding-bottom: 8px; flex-shrink: 0;
   }
-  .tab.active {
-    color: var(--primary);
-    border-bottom-color: var(--primary);
+  .tab-search {
+    display: flex; align-items: center;
+    background: var(--gray-50); border: 1.5px solid var(--gray-200);
+    border-radius: 8px; padding: 6px 12px; gap: 6px;
+    transition: border-color 0.15s;
   }
+  .tab-search:focus-within { border-color: var(--primary); background: #fff; }
+  .tab-search input {
+    border: none; background: transparent; outline: none;
+    font-size: 13px; color: var(--gray-800); width: 180px;
+  }
+  .tab-search input::placeholder { color: var(--gray-400); }
+  .filter-panel {
+    background: var(--gray-50); border: 1px solid var(--gray-200);
+    border-radius: 10px; padding: 14px 16px;
+    display: none; gap: 12px; margin-bottom: 12px;
+    flex-wrap: wrap; align-items: center;
+  }
+  .filter-panel.open { display: flex; }
   .table-container {
     background-color: #fff;
     border: 1px solid var(--gray-100);
@@ -70,9 +96,7 @@
     <header class="header">
       <div class="header-left"><div class="header-title">숙소 목록 관리</div></div>
       <div class="header-right">
-        <div class="header-date"></div>
-        <button class="btn-icon" style="background:#1E293B;color:#818CF8">🔔</button>
-        <div class="avatar" style="background:#6366F1">A</div>
+
       </div>
     </header>
 
@@ -84,7 +108,21 @@
         </div>
       </div>
 
-      <div class="filter-bar" style="margin-bottom:16px">
+      <div class="tabs-row">
+        <div class="tabs" id="statusTabs"><!-- JS 렌더링 --></div>
+        <div class="tab-right">
+          <div class="tab-search">
+            <svg width="14" height="14" fill="none" stroke="var(--gray-400)" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="text" id="searchInput" placeholder="숙소명 또는 파트너 검색...">
+          </div>
+          <button id="filterToggleBtn" class="btn btn-outline btn-sm" onclick="toggleFilterPanel()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right:4px"><line x1="4" y1="6" x2="20" y2="6"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="11" y1="18" x2="13" y2="18"/></svg>
+            필터
+          </button>
+        </div>
+      </div>
+
+      <div class="filter-panel" id="filterPanel">
         <select id="regionFilter">
           <option value="">전체 지역</option>
           <option>서울</option><option>경기</option><option>부산</option><option>제주</option><option>강원</option>
@@ -93,12 +131,7 @@
           <option value="">전체 유형</option>
           <option>호텔</option><option>리조트</option><option>펜션</option><option>모텔</option>
         </select>
-        <div class="search-box ml-auto"><input type="text" id="searchInput" placeholder="숙소명 또는 파트너 법인명 검색..."></div>
-        <button id="searchBtn" class="btn btn-sm" style="background:#6366F1;color:#fff">검색</button>
-      </div>
-
-      <div class="tabs" id="statusTabs">
-        <!-- JS 렌더링 -->
+        <button class="btn btn-ghost btn-sm" onclick="resetFilters()">초기화</button>
       </div>
 
       <div class="table-container">
@@ -211,7 +244,7 @@ const statusBadge = (s) => {
   return '';
 };
 
-let currentStatusFilter = 'active';
+let currentStatusFilter = '';
 
 function renderList(filteredData) {
   const tableBody = document.querySelector('#accomTable tbody');
@@ -252,12 +285,14 @@ function applyAndRenderFilters() {
 function setupTabs() {
   const tabsContainer = document.getElementById('statusTabs');
   const counts = {
+    all: managedAccoms.length,
     active: managedAccoms.filter(a => a.status === 'active').length,
     suspended: managedAccoms.filter(a => a.status === 'suspended').length
   };
   tabsContainer.innerHTML = `
-    <div class="tab active" data-status="active">운영중 <span class="badge badge-approved">${counts.active}</span></div>
-    <div class="tab" data-status="suspended">운영중지 <span class="badge badge-suspended">${counts.suspended}</span></div>
+    <div class="tab${currentStatusFilter === '' ? ' active' : ''}" data-status="">전체 <span class="badge">${counts.all}</span></div>
+    <div class="tab${currentStatusFilter === 'active' ? ' active' : ''}" data-status="active">운영중 <span class="badge badge-approved">${counts.active}</span></div>
+    <div class="tab${currentStatusFilter === 'suspended' ? ' active' : ''}" data-status="suspended">운영중지 <span class="badge badge-suspended">${counts.suspended}</span></div>
   `;
   tabsContainer.addEventListener('click', (e) => {
     const tab = e.target.closest('.tab');
@@ -268,6 +303,21 @@ function setupTabs() {
       applyAndRenderFilters();
     }
   });
+}
+
+function toggleFilterPanel() {
+  const panel = document.getElementById('filterPanel');
+  const btn = document.getElementById('filterToggleBtn');
+  panel.classList.toggle('open');
+  btn.style.background = panel.classList.contains('open') ? '#EEF2FF' : '';
+  btn.style.color = panel.classList.contains('open') ? '#6366F1' : '';
+  btn.style.borderColor = panel.classList.contains('open') ? '#6366F1' : '';
+}
+
+function resetFilters() {
+  document.getElementById('regionFilter').value = '';
+  document.getElementById('typeFilter').value = '';
+  applyAndRenderFilters();
 }
 
 let _currentAccomId = null;
@@ -314,8 +364,7 @@ function saveAccom() {
 }
 
 // Event Listeners
-document.getElementById('searchInput').addEventListener('keyup', applyAndRenderFilters);
-document.getElementById('searchBtn').addEventListener('click', applyAndRenderFilters);
+document.getElementById('searchInput').addEventListener('input', applyAndRenderFilters);
 document.getElementById('regionFilter').addEventListener('change', applyAndRenderFilters);
 document.getElementById('typeFilter').addEventListener('change', applyAndRenderFilters);
 

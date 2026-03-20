@@ -12,9 +12,7 @@
     <header class="header">
       <div class="header-left"><div class="header-title">고객 관리</div></div>
       <div class="header-right">
-        <div class="header-date"></div>
-        <button class="btn-icon" style="background:#1E293B;color:#818CF8">🔔</button>
-        <div class="avatar" style="background:#6366F1">A</div>
+
       </div>
     </header>
 
@@ -35,8 +33,8 @@
       </div>
 
       <!-- Filter -->
-      <div class="card" style="padding:14px 20px;margin-bottom:16px">
-        <div class="filter-bar">
+      <div style="margin-bottom:16px">
+        <div class="filter-bar" style="background:transparent; border:none; padding:0">
           <select id="filterStatus">
             <option value="">전체 상태</option>
             <option value="active">활성</option>
@@ -61,13 +59,13 @@
           <table>
             <thead>
               <tr>
+                <th>회원번호</th>
                 <th>이름</th>
-                <th>이메일</th>
-                <th>연락처</th>
-                <th>가입일</th>
-                <th style="text-align:center">총 예약</th>
-                <th style="text-align:center">취소 횟수</th>
                 <th>상태</th>
+                <th>연락처</th>
+                <th>이메일</th>
+                <th style="text-align:center">총 예약</th>
+                <th style="text-align:center">노쇼 횟수</th>
                 <th>상세</th>
               </tr>
             </thead>
@@ -102,7 +100,10 @@
       <div style="display:flex;align-items:center;gap:16px;padding:16px;background:var(--gray-50);border-radius:var(--radius);margin-bottom:16px">
         <div id="custAvatar" style="width:52px;height:52px;border-radius:50%;background:#6366F1;color:#fff;font-size:20px;font-weight:700;display:flex;align-items:center;justify-content:center"></div>
         <div style="flex:1">
-          <div style="font-size:17px;font-weight:700" id="custName"></div>
+          <div style="display:flex;align-items:center;gap:6px;margin-bottom:2px">
+            <span class="badge" style="background:#E0E7FF;color:#4338CA" id="modalCustNo"></span>
+            <span style="font-size:17px;font-weight:700" id="custName"></span>
+          </div>
           <div style="font-size:12px;color:var(--gray-500)" id="custEmail"></div>
         </div>
         <span class="badge" id="custStatBadge"></span>
@@ -125,7 +126,7 @@
           <div style="font-size:22px;font-weight:800;color:var(--primary)" id="custResv"></div>
         </div>
         <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px;text-align:center">
-          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">취소 횟수</div>
+          <div style="font-size:11px;color:var(--gray-400);margin-bottom:3px">노쇼 횟수</div>
           <div style="font-size:22px;font-weight:800;color:var(--warning)" id="custCancel"></div>
         </div>
         <div style="background:var(--gray-50);border-radius:var(--radius);padding:12px;text-align:center">
@@ -163,27 +164,27 @@
 initPage('admin', 'customers', '고객 관리');
 
 const CUSTOMERS = [
-  { id:1, name:'김철수', email:'kim.cs@example.com', phone:'010-1234-5678', joinDate:'2024.01.15', resv:24, cancel:1, payment:'₩1,240,000', status:'active', recentResv:[
+  { id:1, custNo:'CUS-04821', name:'김철수', email:'kim.c***@example.com', phone:'010-1234-****', joinDate:'2024.01.15', resv:24, noshow:1, payment:'₩1,240,000', status:'active', recentResv:[
     { hotel:'시그니엘 서울', checkin:'2026.03.10', amount:'₩350,000', status:'완료' },
     { hotel:'그랜드하얏트', checkin:'2026.02.14', amount:'₩280,000', status:'완료' },
     { hotel:'제주신화월드', checkin:'2026.01.05', amount:'₩420,000', status:'취소' },
   ]},
-  { id:2, name:'이영희', email:'lee.yh@example.com', phone:'010-2345-6789', joinDate:'2024.03.20', resv:8, cancel:0, payment:'₩560,000', status:'active', recentResv:[
+  { id:2, custNo:'CUS-05112', name:'이영희', email:'lee.y***@example.com', phone:'010-2345-****', joinDate:'2024.03.20', resv:8, noshow:0, payment:'₩560,000', status:'active', recentResv:[
     { hotel:'소노벨 리조트', checkin:'2026.03.01', amount:'₩180,000', status:'완료' },
     { hotel:'오션뷰 제주', checkin:'2026.01.20', amount:'₩380,000', status:'완료' },
   ]},
-  { id:3, name:'박민준', email:'park.mj@example.com', phone:'010-3456-7890', joinDate:'2023.11.08', resv:41, cancel:5, payment:'₩3,820,000', status:'active', recentResv:[
+  { id:3, custNo:'CUS-02389', name:'박민준', email:'park.m***@example.com', phone:'010-3456-****', joinDate:'2023.11.08', resv:41, noshow:5, payment:'₩3,820,000', status:'active', recentResv:[
     { hotel:'롯데호텔 서울', checkin:'2026.03.15', amount:'₩620,000', status:'완료' },
     { hotel:'시그니엘 서울', checkin:'2026.02.28', amount:'₩350,000', status:'완료' },
   ]},
-  { id:4, name:'최지연', email:'choi.jy@example.com', phone:'010-4567-8901', joinDate:'2024.06.01', resv:3, cancel:3, payment:'₩0', status:'suspended', recentResv:[
-    { hotel:'강남 OO 모텔', checkin:'2026.02.10', amount:'₩80,000', status:'취소' },
-    { hotel:'강남 OO 모텔', checkin:'2026.01.15', amount:'₩80,000', status:'취소' },
+  { id:4, custNo:'CUS-05531', name:'최지연', email:'choi.j***@example.com', phone:'010-4567-****', joinDate:'2024.06.01', resv:3, noshow:3, payment:'₩0', status:'suspended', recentResv:[
+    { hotel:'강남 OO 모텔', checkin:'2026.02.10', amount:'₩80,000', status:'노쇼' },
+    { hotel:'강남 OO 모텔', checkin:'2026.01.15', amount:'₩80,000', status:'노쇼' },
   ]},
-  { id:5, name:'한동욱', email:'han.dw@example.com', phone:'010-5678-9012', joinDate:'2023.08.22', resv:17, cancel:2, payment:'₩1,080,000', status:'active', recentResv:[
+  { id:5, custNo:'CUS-01995', name:'한동욱', email:'han.d***@example.com', phone:'010-5678-****', joinDate:'2023.08.22', resv:17, noshow:2, payment:'₩1,080,000', status:'active', recentResv:[
     { hotel:'그랜드하얏트', checkin:'2026.03.05', amount:'₩280,000', status:'완료' },
   ]},
-  { id:6, name:'윤서아', email:'yoon.sa@example.com', phone:'010-6789-0123', joinDate:'2025.01.10', resv:2, cancel:0, payment:'₩160,000', status:'withdrawn', recentResv:[]},
+  { id:6, custNo:'CUS-06102', name:'윤서아', email:'yoon.s***@example.com', phone:'010-6789-****', joinDate:'2025.01.10', resv:2, noshow:0, payment:'₩160,000', status:'withdrawn', recentResv:[]},
 ];
 
 let selectedCustId = null;
@@ -205,13 +206,13 @@ function renderTable() {
 
   document.getElementById('custTbody').innerHTML = data.map(c => `
     <tr>
+      <td style="font-weight:600;color:var(--primary)">${c.custNo}</td>
       <td style="font-weight:700">${c.name}</td>
-      <td style="font-size:12px;color:var(--gray-600)">${c.email}</td>
-      <td style="font-size:12px">${c.phone}</td>
-      <td style="font-size:12px;color:var(--gray-400)">${c.joinDate}</td>
-      <td style="text-align:center;font-weight:600">${c.resv}</td>
-      <td style="text-align:center;color:${c.cancel >= 3 ? 'var(--danger)' : 'var(--gray-600)'};font-weight:${c.cancel >= 3 ? '700' : '400'}">${c.cancel}</td>
       <td>${statusBadge(c.status)}</td>
+      <td style="font-size:12px">${c.phone}</td>
+      <td style="font-size:12px;color:var(--gray-600)">${c.email}</td>
+      <td style="text-align:center;font-weight:600">${c.resv}</td>
+      <td style="text-align:center;color:${c.noshow >= 3 ? 'var(--danger)' : 'var(--gray-600)'};font-weight:${c.noshow >= 3 ? '700' : '400'}">${c.noshow}</td>
       <td><button class="btn btn-ghost btn-sm" onclick="openCust(${c.id})">상세</button></td>
     </tr>
   `).join('') || '<tr><td colspan="8" style="text-align:center;padding:30px;color:var(--gray-400)">검색 결과가 없습니다.</td></tr>';
@@ -221,13 +222,14 @@ function openCust(id) {
   selectedCustId = id;
   const c = CUSTOMERS.find(x => x.id === id);
 
+  document.getElementById('modalCustNo').textContent = c.custNo;
   document.getElementById('custAvatar').textContent = c.name[0];
   document.getElementById('custName').textContent = c.name;
   document.getElementById('custEmail').textContent = c.email;
   document.getElementById('custPhone').textContent = c.phone;
   document.getElementById('custJoinDate').textContent = c.joinDate;
   document.getElementById('custResv').textContent = c.resv + '건';
-  document.getElementById('custCancel').textContent = c.cancel + '회';
+  document.getElementById('custCancel').textContent = c.noshow + '회';
   document.getElementById('custPayment').textContent = c.payment;
 
   const badge = document.getElementById('custStatBadge');

@@ -31,7 +31,7 @@
         </div>
         <div class="header-right">
           <div class="header-date"></div>
-          <button class="btn-icon">🔔<span class="notification-dot"></span></button>
+
           <div class="avatar">P</div>
         </div>
       </header>
@@ -46,8 +46,8 @@
           </div>
           <div class="stat-card">
             <div class="stat-label"><span class="stat-dot" style="background:#F59E0B"></span>오늘 입실</div>
-            <div class="stat-value warning">2</div>
-            <div class="stat-sub">계곡뷰 A · 숲속 B</div>
+            <div class="stat-value warning">1</div>
+            <div class="stat-sub">숲속 B</div>
           </div>
           <div class="stat-card">
             <div class="stat-label"><span class="stat-dot" style="background:#6B7280"></span>오늘 퇴실</div>
@@ -79,20 +79,9 @@
           <div class="card">
             <div class="card-header">
               <div class="card-title">다가오는 입실</div>
-              <span class="badge badge-primary">5건</span>
+              <span class="badge badge-primary">3건</span>
             </div>
             <div class="checkin-list">
-              <div class="checkin-item">
-                <div class="ci-date">
-                  <div class="ci-month">3월</div>
-                  <div class="ci-day">14</div>
-                </div>
-                <div class="ci-info">
-                  <div class="ci-guest">박○○ 님 · 2인</div>
-                  <div class="ci-detail">계곡뷰 A · 2박 · ₩280,000</div>
-                </div>
-                <div class="ci-badge cib-today">오늘 입실</div>
-              </div>
               <div class="checkin-item">
                 <div class="ci-date">
                   <div class="ci-month">3월</div>
@@ -126,17 +115,6 @@
                 </div>
                 <div class="ci-badge cib-soon">모레</div>
               </div>
-              <div class="checkin-item">
-                <div class="ci-date">
-                  <div class="ci-month">3월</div>
-                  <div class="ci-day">18</div>
-                </div>
-                <div class="ci-info">
-                  <div class="ci-guest">정○○ 님 · 2인</div>
-                  <div class="ci-detail">계곡뷰 A · 2박 · ₩280,000</div>
-                </div>
-                <div class="ci-badge cib-soon">4일 후</div>
-              </div>
             </div>
           </div>
         </div>
@@ -152,7 +130,6 @@
 
     // Room bar chart
     drawHorizBars('roomBars', [
-      { label: '계곡뷰 A', pct: 58, color: '#F59E0B' },
       { label: '숲속 B', pct: 60, color: '#F59E0B' },
       { label: '파노라마C', pct: 33, color: '#10B981' },
       { label: '별빛 D', pct: 42, color: '#F59E0B' },
